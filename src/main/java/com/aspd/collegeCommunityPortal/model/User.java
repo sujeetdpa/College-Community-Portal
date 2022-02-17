@@ -1,0 +1,32 @@
+package com.aspd.collegeCommunityPortal.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String username;
+    private String password;
+    private Gender gender;
+    private boolean isActive;
+    @Column(unique = true)
+    private String mobileNo;
+    @Column(unique = true)
+    private String universityId;
+
+
+}
