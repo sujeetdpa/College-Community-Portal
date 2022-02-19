@@ -20,7 +20,6 @@ public class Image {
     @Column(unique = true)
     private UUID imageId;
     private String name;
-    private String description;
     @ManyToOne
     private Post post;
 }
