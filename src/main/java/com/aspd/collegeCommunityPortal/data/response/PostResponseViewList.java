@@ -8,9 +8,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class PostResponseViewList {
     private List<PostResponseView> postResponseViews;
     private int pageNo;
     private int totalNoOfPost;
+    private int totalPages;
 }

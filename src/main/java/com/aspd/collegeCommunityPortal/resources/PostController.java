@@ -1,6 +1,7 @@
 package com.aspd.collegeCommunityPortal.resources;
 
 import com.aspd.collegeCommunityPortal.data.request.NewPostRequest;
+import com.aspd.collegeCommunityPortal.data.request.PostRequest;
 import com.aspd.collegeCommunityPortal.data.response.DeleteResponseView;
 import com.aspd.collegeCommunityPortal.data.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.data.response.PostResponseViewList;
@@ -17,8 +18,9 @@ public class PostController {
     PostService postService;
 
     @GetMapping("/all")
-    public ResponseEntity<PostResponseViewList> getPosts(){
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<PostResponseViewList> getAllPost(@RequestBody PostRequest postRequest){
+        PostResponseViewList postResponseViewList=postService.getAllPost(postRequest);
+        return new ResponseEntity<>(postResponseViewList, HttpStatus.OK);
     }
     @PostMapping("/new")
     public ResponseEntity<PostResponseView> createPost(@RequestBody NewPostRequest newPostRequest){
