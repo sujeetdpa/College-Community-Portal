@@ -1,8 +1,11 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
+import com.aspd.collegeCommunityPortal.data.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.data.request.PostRequest;
+import com.aspd.collegeCommunityPortal.data.response.DeleteResponseView;
 import com.aspd.collegeCommunityPortal.data.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.data.response.PostResponseViewList;
+import com.aspd.collegeCommunityPortal.data.response.PostSearchResponseViewList;
 import com.aspd.collegeCommunityPortal.model.Post;
 import com.aspd.collegeCommunityPortal.repositories.CommentRepository;
 import com.aspd.collegeCommunityPortal.repositories.LikeRepository;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +30,8 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private LikeRepository likeRepository;
-
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
@@ -67,6 +69,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(postLikeCount.get(post.getId())).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(postCommentCount.get(post.getId())).ifPresent(postResponseView::setNoOfComments);
+                // Add images and attachments related to posts
                 postResponseViews.add(postResponseView);
             }
 
@@ -80,5 +83,40 @@ public class PostServiceImpl implements PostService {
             //Exception Handeling
         }
         return postResponseViewList;
+    }
+
+    @Override
+    public PostResponseView createPost(CreatePostRequest createPostRequest) {
+        Post post=new Post();
+        post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
+        post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
+        Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
+        //Extract user from JWT header and fill it in post
+
+
+        //Upload files and images  to amazon S3
+
+        // Generate the UUID of images and files and save them to database
+
+
+        Post savedPost = postRepository.save(post);
+        PostResponseView postResponseView=new PostResponseView();
+        postResponseView.setTitle(savedPost.getTitle());
+        postResponseView.setDescription(savedPost.getDescription());
+        postResponseView.setCreationDate(savedPost.getCreationDate());
+        postResponseView.setUser(savedPost.getUser().getFirstName().concat(" ".concat(savedPost.getUser().getLastName())));
+        postResponseView.setUserId(savedPost.getUser().getId());
+
+        return postResponseView;
+    }
+
+    @Override
+    public PostSearchResponseViewList searchPost(String title) {
+        return null;
+    }
+
+    @Override
+    public DeleteResponseView deletePost(int postId) {
+        return null;
     }
 }

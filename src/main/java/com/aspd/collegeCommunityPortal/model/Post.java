@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,5 +23,10 @@ public class Post {
     private LocalDateTime creationDate;
     @ManyToOne
     private User user;
+    @OneToMany
+    private List<Image> images;
+    @OneToMany
+    private List<File> files;
+
 
 }
