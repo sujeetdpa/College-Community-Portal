@@ -6,9 +6,7 @@ import com.aspd.collegeCommunityPortal.beans.response.DeleteResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.beans.response.PostSearchResponseViewList;
-import org.springframework.stereotype.Service;
 
-@Service
 public interface PostService {
     PostResponseViewList getAllPost(PostRequest postRequest);
 

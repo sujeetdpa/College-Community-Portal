@@ -62,6 +62,7 @@ public class PostServiceImpl implements PostService {
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
                 PostResponseView postResponseView=new PostResponseView();
+                postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(post.getCreationDate());
                 postResponseView.setDescription(post.getDescription());
@@ -101,6 +102,7 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepository.save(post);
         PostResponseView postResponseView=new PostResponseView();
+        postResponseView.setId(savedPost.getId());
         postResponseView.setTitle(savedPost.getTitle());
         postResponseView.setDescription(savedPost.getDescription());
         postResponseView.setCreationDate(savedPost.getCreationDate());

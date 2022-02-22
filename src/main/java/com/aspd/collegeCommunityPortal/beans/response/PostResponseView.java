@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PostResponseView {
+    private int id;
     private String description;
     private String title;
     private LocalDateTime creationDate;
