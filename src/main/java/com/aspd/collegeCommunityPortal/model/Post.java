@@ -27,6 +27,10 @@ public class Post {
     private List<Image> images;
     @OneToMany
     private List<File> files;
+    @OneToMany
+    private List<Comment> comments;
+    @OneToMany
+    private List<Review> reviews;
 
 
 }

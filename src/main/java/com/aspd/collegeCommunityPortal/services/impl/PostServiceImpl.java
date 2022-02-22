@@ -8,7 +8,7 @@ import com.aspd.collegeCommunityPortal.data.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.data.response.PostSearchResponseViewList;
 import com.aspd.collegeCommunityPortal.model.Post;
 import com.aspd.collegeCommunityPortal.repositories.CommentRepository;
-import com.aspd.collegeCommunityPortal.repositories.LikeRepository;
+import com.aspd.collegeCommunityPortal.repositories.ReviewRepository;
 import com.aspd.collegeCommunityPortal.repositories.PostRepository;
 import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.PostService;
@@ -31,7 +31,7 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private PostRepository postRepository;
     @Autowired
-    private LikeRepository likeRepository;
+    private ReviewRepository reviewRepository;
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostService {
             //Extracting post ids;
             List<Integer> postIds = postPage.get().map(Post::getId).collect(Collectors.toList());
             //Counting likes of post
-            Optional<Map<Integer, Integer>> postsLikeCount = likeRepository.getPostsLikeCount(postIds);
+            Optional<Map<Integer, Integer>> postsLikeCount = reviewRepository.getPostsLikeCount(postIds);
             if(postsLikeCount.isPresent()){
                 postLikeCount=postsLikeCount.get();
             }

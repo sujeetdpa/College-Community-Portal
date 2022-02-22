@@ -12,6 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
-    @Query(value = "select post,count(user) from comment where post in :postIds group by post")
+    @Query(value = "select post,count(user) from Comment where post in :postIds group by post")
     Optional<Map<Integer,Integer>> getPostsCommentCount(@Param("postIds") List<Integer> postIds);
 }

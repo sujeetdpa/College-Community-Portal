@@ -1,6 +1,5 @@
 package com.aspd.collegeCommunityPortal.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,11 +9,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Like {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    private LocalDateTime likeDate;
+    private LocalDateTime reviewDate;
+    @Enumerated(value = EnumType.STRING)
+    private ReviewType reviewType;
     @ManyToOne
     private Post post;
     @OneToOne
