@@ -1,4 +1,4 @@
-package com.aspd.collegeCommunityPortal.data.request;
+package com.aspd.collegeCommunityPortal.beans.request;
 
 import lombok.Getter;
 import lombok.Setter;

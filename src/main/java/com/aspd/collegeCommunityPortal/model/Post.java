@@ -23,13 +23,14 @@ public class Post {
     private LocalDateTime creationDate;
     @ManyToOne
     private User user;
-    @OneToMany
+
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Image> images;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<File> files;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Comment> comments;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Review> reviews;
 
 
