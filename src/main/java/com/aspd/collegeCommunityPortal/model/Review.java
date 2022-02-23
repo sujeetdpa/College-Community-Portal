@@ -16,8 +16,9 @@ public class Review {
     private LocalDateTime reviewDate;
     @Enumerated(value = EnumType.STRING)
     private ReviewType reviewType;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private User user;
 }

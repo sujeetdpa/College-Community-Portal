@@ -15,6 +15,7 @@ public class Document {
     private int id;
     private String documentName;
     private String path;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 }

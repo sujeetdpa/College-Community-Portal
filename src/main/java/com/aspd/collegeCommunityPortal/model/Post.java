@@ -24,17 +24,17 @@ public class Post {
     @ManyToOne
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Image> images;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Document> documents;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Comment> comments;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Review> reviews;
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private List<Image> images;
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private List<Document> documents;
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private List<Comment> comments;
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    private List<Review> reviews;
 
 
 }

@@ -18,8 +18,9 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @Column(unique = true)
-    private UUID imageId;
-    private String name;
-    @ManyToOne
+    private String imageName;
+    private String path;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 }
