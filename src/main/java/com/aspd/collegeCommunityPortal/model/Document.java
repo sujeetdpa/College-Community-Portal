@@ -9,11 +9,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-public class File {
+public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    private UUID fileId;
+    private String documentName;
+    private String path;
     @ManyToOne
     private Post post;
 }

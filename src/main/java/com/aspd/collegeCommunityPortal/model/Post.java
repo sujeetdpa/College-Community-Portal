@@ -26,10 +26,13 @@ public class Post {
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<Image> images;
+
     @OneToMany(fetch = FetchType.LAZY)
-    private List<File> files;
+    private List<Document> documents;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<Comment> comments;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<Review> reviews;
 
