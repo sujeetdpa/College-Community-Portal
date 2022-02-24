@@ -1,4 +1,4 @@
-package com.aspd.collegeCommunityPortal.resources;
+package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/api/post")
 public class PostController {
     @Autowired
     PostService postService;

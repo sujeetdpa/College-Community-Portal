@@ -17,6 +17,7 @@ import java.util.Optional;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
+
     @Autowired
     private AmazonS3 amazonS3;
 
