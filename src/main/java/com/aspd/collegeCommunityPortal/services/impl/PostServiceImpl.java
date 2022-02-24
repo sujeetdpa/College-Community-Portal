@@ -6,6 +6,8 @@ import com.aspd.collegeCommunityPortal.beans.response.DeleteResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.beans.response.PostSearchResponseViewList;
+import com.aspd.collegeCommunityPortal.config.BucketName;
+import com.aspd.collegeCommunityPortal.model.Image;
 import com.aspd.collegeCommunityPortal.model.Post;
 import com.aspd.collegeCommunityPortal.repositories.CommentRepository;
 import com.aspd.collegeCommunityPortal.repositories.ReviewRepository;
@@ -20,10 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +35,8 @@ public class PostServiceImpl implements PostService {
     private CommentRepository commentRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BucketName bucketName;
 
     @Override
     public PostResponseViewList getAllPost(PostRequest postRequest) {
@@ -92,15 +93,29 @@ public class PostServiceImpl implements PostService {
         post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
         post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
         Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
+
+        Post savedPost = postRepository.save(post);
         //Extract user from JWT header and fill it in post
 
 
-        //Upload files and images  to amazon S3
+        //Upload images  to amazon S3
+        if(createPostRequest.getImages().isPresent() && !createPostRequest.getImages().get().isEmpty()){
+               List<Image> images=new ArrayList<>();
+               createPostRequest.getImages().get().forEach(image->{
+                   Image image1=new Image();
+                   image1.setImageName(image.getName().concat(UUID.randomUUID().toString()));
+                   image1.setUser(null); //set user after extracting from JWT or Database;
+                   image1.setPost(savedPost);
+                   String path= bucketName.getCcpBucketName().concat("/").concat("username").concat("/images");
+                   image1.setPath(path);
+
+               });
+        }
 
         // Generate the UUID of images and files and save them to database
 
 
-        Post savedPost = postRepository.save(post);
+
         PostResponseView postResponseView=new PostResponseView();
         postResponseView.setId(savedPost.getId());
         postResponseView.setTitle(savedPost.getTitle());
