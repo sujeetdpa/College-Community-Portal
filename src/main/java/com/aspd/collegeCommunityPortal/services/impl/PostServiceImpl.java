@@ -7,12 +7,11 @@ import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.beans.response.PostSearchResponseViewList;
 import com.aspd.collegeCommunityPortal.config.BucketName;
+import com.aspd.collegeCommunityPortal.model.Document;
 import com.aspd.collegeCommunityPortal.model.Image;
 import com.aspd.collegeCommunityPortal.model.Post;
-import com.aspd.collegeCommunityPortal.repositories.CommentRepository;
-import com.aspd.collegeCommunityPortal.repositories.ReviewRepository;
-import com.aspd.collegeCommunityPortal.repositories.PostRepository;
-import com.aspd.collegeCommunityPortal.repositories.UserRepository;
+import com.aspd.collegeCommunityPortal.repositories.*;
+import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +37,12 @@ public class PostServiceImpl implements PostService {
     private UserRepository userRepository;
     @Autowired
     private BucketName bucketName;
+    @Autowired
+    private AmazonS3Service amazonS3Service;
+    @Autowired
+    private DocumentRepository documentRepository;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Override
     public PostResponseViewList getAllPost(PostRequest postRequest) {
@@ -97,24 +103,54 @@ public class PostServiceImpl implements PostService {
         Post savedPost = postRepository.save(post);
         //Extract user from JWT header and fill it in post
 
-
         //Upload images  to amazon S3
         if(createPostRequest.getImages().isPresent() && !createPostRequest.getImages().get().isEmpty()){
                List<Image> images=new ArrayList<>();
                createPostRequest.getImages().get().forEach(image->{
                    Image image1=new Image();
-                   image1.setImageName(image.getName().concat(UUID.randomUUID().toString()));
+                   String filename=image.getName().concat(UUID.randomUUID().toString());
+                   image1.setImageName(filename);
                    image1.setUser(null); //set user after extracting from JWT or Database;
                    image1.setPost(savedPost);
                    String path= bucketName.getCcpBucketName().concat("/").concat("username").concat("/images");
                    image1.setPath(path);
+                   Map<String,String> metadata=new HashMap<>();
+                   metadata.put("Content-Type", image.getContentType());
+                   metadata.put("Content-Length", String.valueOf(image.getSize()));
+                   try {
+                       amazonS3Service.uploadFile(path,filename,Optional.of(metadata),image.getInputStream());
+                       images.add(image1);
+                   }
+                   catch (IOException e){
+                       throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
+                   }
 
                });
+               imageRepository.saveAll(images);
         }
-
-        // Generate the UUID of images and files and save them to database
-
-
+        if (createPostRequest.getDocuments().isPresent() && !createPostRequest.getDocuments().get().isEmpty()){
+            List<Document> documents= new ArrayList<>();
+            createPostRequest.getDocuments().get().forEach(file -> {
+                String filename=file.getName().concat(UUID.randomUUID().toString());
+                String path=bucketName.getCcpBucketName().concat("/username").concat("/documents");
+                Document document=new Document();
+                document.setPost(savedPost);
+                document.setDocumentName(filename);
+                document.setUser(null); //TODO add user
+                document.setPath(path);
+                Map<String,String> metadata=new HashMap<>();
+                metadata.put("Content-Type", file.getContentType());
+                metadata.put("Content-Length", String.valueOf(file.getSize()));
+                try {
+                    amazonS3Service.uploadFile(path,filename,Optional.of(metadata),file.getInputStream());
+                    documents.add(document);
+                }
+                catch (IOException e){
+                    throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
+                }
+            });
+            documentRepository.saveAll(documents);
+        }
 
         PostResponseView postResponseView=new PostResponseView();
         postResponseView.setId(savedPost.getId());

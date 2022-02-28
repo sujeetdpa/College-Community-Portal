@@ -18,4 +18,7 @@ public class Document {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 }

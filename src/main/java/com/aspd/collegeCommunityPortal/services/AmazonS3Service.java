@@ -9,6 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface AmazonS3Service {
-    public void uploadFile(PutObjectRequest putObjectRequest);
-    public byte[] downloadFile(GetObjectRequest getObjectRequest);
+    public void uploadFile(String path,String filename,Optional<Map<String,String>> metadata,InputStream inputStream);
+    public byte[] downloadFile(String path,String filename);
 }
