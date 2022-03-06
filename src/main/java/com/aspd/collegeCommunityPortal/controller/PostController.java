@@ -2,6 +2,7 @@ package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
+import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
 import com.aspd.collegeCommunityPortal.beans.response.DeleteResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
@@ -23,6 +24,7 @@ public class PostController {
         PostResponseViewList postResponseViewList=postService.getAllPost(postRequest);
         return new ResponseEntity<>(postResponseViewList, HttpStatus.OK);
     }
+
     @PostMapping("/new")
     public ResponseEntity<PostResponseView> createPost(@RequestBody CreatePostRequest createPostRequest){
         PostResponseView postResponseView=postService.createPost(createPostRequest);
@@ -34,8 +36,8 @@ public class PostController {
         return new ResponseEntity<>(null,HttpStatus.OK);
     }
     @GetMapping("/search")
-    public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestParam("title") String title){
-        PostSearchResponseViewList postSearchResponseViewList=postService.searchPost(title);
+    public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestBody PostSearchRequest request){
+        PostSearchResponseViewList postSearchResponseViewList=postService.searchPost(request);
         return new ResponseEntity<>(postSearchResponseViewList,HttpStatus.OK);
     }
 

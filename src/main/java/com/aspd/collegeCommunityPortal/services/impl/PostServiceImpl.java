@@ -2,10 +2,8 @@ package com.aspd.collegeCommunityPortal.services.impl;
 
 import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.response.DeleteResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
-import com.aspd.collegeCommunityPortal.beans.response.PostSearchResponseViewList;
+import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
+import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.Document;
 import com.aspd.collegeCommunityPortal.model.Image;
@@ -164,12 +162,37 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostSearchResponseViewList searchPost(String title) {
-        return null;
+    public PostSearchResponseViewList searchPost(PostSearchRequest request) {
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItemsPerPage()).orElse(15), Sort.Direction.ASC);
+        Page<Post> postPage=null;
+        List<PostSearchResponseView> responseViewList=new ArrayList<>();
+        if(Optional.ofNullable(request.getTitle()).isPresent()){
+            postPage=postRepository.searchPostByTitle(request.getTitle(),pageable);
+        }
+        // TODO more searches to add here
+        if(postPage!=null && !postPage.isEmpty()){
+            postPage.forEach(post -> {
+                PostSearchResponseView responseView=new PostSearchResponseView();
+                Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
+                Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
+                Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
+                Optional.ofNullable(post.getUser().getFirstName().concat(" ").concat(post.getUser().getLastName())).ifPresent(responseView::setUser);
+                Optional.ofNullable(post.getUser().getUsername()).ifPresent(responseView::setUsername);
+                responseViewList.add(responseView);
+            });
+        }
+        PostSearchResponseViewList list=new PostSearchResponseViewList();
+        Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
+        Optional.ofNullable(postPage.getNumberOfElements()).ifPresent(list::setTotalPosts);
+        Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxPosts);
+        Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
+        Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
+        return list;
     }
 
     @Override
     public DeleteResponseView deletePost(int postId) {
+
         return null;
     }
 }
