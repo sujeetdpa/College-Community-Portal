@@ -108,7 +108,7 @@ public class PostServiceImpl implements PostService {
                List<Image> images=new ArrayList<>();
                createPostRequest.getImages().get().forEach(image->{
                    Image image1=new Image();
-                   String filename=image.getName().concat(UUID.randomUUID().toString());
+                   String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
                    image1.setImageName(filename);
                    image1.setUser(null); //set user after extracting from JWT or Database;
                    image1.setPost(savedPost);
@@ -131,7 +131,7 @@ public class PostServiceImpl implements PostService {
         if (createPostRequest.getDocuments().isPresent() && !createPostRequest.getDocuments().get().isEmpty()){
             List<Document> documents= new ArrayList<>();
             createPostRequest.getDocuments().get().forEach(file -> {
-                String filename=file.getName().concat(UUID.randomUUID().toString());
+                String filename=file.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
                 String path=bucketName.getCcpBucketName().concat("/username").concat("/documents");
                 Document document=new Document();
                 document.setPost(savedPost);
