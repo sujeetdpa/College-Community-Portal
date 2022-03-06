@@ -54,13 +54,14 @@ public class PostServiceImpl implements PostService {
         if(!postPage.isEmpty()){
             //Extracting post ids;
             List<Integer> postIds = postPage.get().map(Post::getId).collect(Collectors.toList());
+
             //Counting likes of post
-            Optional<Map<Integer, Integer>> postsLikeCount = reviewRepository.getPostsLikeCount(postIds);
+            Optional<Map<Integer, Integer>> postsLikeCount = reviewRepository.getPostsLikeCount(postPage.getContent());
             if(postsLikeCount.isPresent()){
                 postLikeCount=postsLikeCount.get();
             }
             //Counting comments of posts
-            Optional<Map<Integer, Integer>> postsCommentCount = commentRepository.getPostsCommentCount(postIds);
+            Optional<Map<Integer, Integer>> postsCommentCount = commentRepository.getPostsCommentCount(postPage.getContent());
             if (postsCommentCount.isPresent()){
                 postCommentCount=postsCommentCount.get();
             }
@@ -71,7 +72,7 @@ public class PostServiceImpl implements PostService {
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(post.getCreationDate());
                 postResponseView.setDescription(post.getDescription());
-                Optional.ofNullable(post.getUser().getFirstName().concat(" ").concat(post.getUser().getLastName())).ifPresent(postResponseView::setUser);
+                Optional.ofNullable(post.getUser().getFirstName().concat(" ").concat(post.getUser().getLastName())).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(postLikeCount.get(post.getId())).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(postCommentCount.get(post.getId())).ifPresent(postResponseView::setNoOfComments);
@@ -155,7 +156,7 @@ public class PostServiceImpl implements PostService {
         postResponseView.setTitle(savedPost.getTitle());
         postResponseView.setDescription(savedPost.getDescription());
         postResponseView.setCreationDate(savedPost.getCreationDate());
-        postResponseView.setUser(savedPost.getUser().getFirstName().concat(" ".concat(savedPost.getUser().getLastName())));
+        postResponseView.setFullName(savedPost.getUser().getFullName());
         postResponseView.setUserId(savedPost.getUser().getId());
 
         return postResponseView;
@@ -176,7 +177,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
                 Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
-                Optional.ofNullable(post.getUser().getFirstName().concat(" ").concat(post.getUser().getLastName())).ifPresent(responseView::setUser);
+                Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
                 Optional.ofNullable(post.getUser().getUsername()).ifPresent(responseView::setUsername);
                 responseViewList.add(responseView);
             });
@@ -193,6 +194,25 @@ public class PostServiceImpl implements PostService {
     @Override
     public DeleteResponseView deletePost(int postId) {
 
+        return null;
+    }
+
+    @Override
+    public PostResponseView getPost(int postId) {
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        if(optionalPost.isPresent()){
+            PostResponseView responseView=new PostResponseView();
+            Post post = optionalPost.get();
+            Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
+            Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
+            Optional.ofNullable(post.getDescription()).ifPresent(responseView::setDescription);
+            Optional.ofNullable(post.getCreationDate()).ifPresent(responseView::setCreationDate);
+            Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
+            Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
+            Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
+            Optional.ofNullable(reviewRepository.getPostLikeCount(post)).ifPresent(responseView::setNoOfLikes);
+            return responseView;
+        }
         return null;
     }
 }

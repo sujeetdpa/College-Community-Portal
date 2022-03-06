@@ -16,4 +16,6 @@ public interface PostService {
     PostSearchResponseViewList searchPost(PostSearchRequest request);
 
     DeleteResponseView deletePost(int postId);
+
+    PostResponseView getPost(int postId);
 }

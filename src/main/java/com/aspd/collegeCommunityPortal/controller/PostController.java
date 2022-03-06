@@ -24,7 +24,11 @@ public class PostController {
         PostResponseViewList postResponseViewList=postService.getAllPost(postRequest);
         return new ResponseEntity<>(postResponseViewList, HttpStatus.OK);
     }
-
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseView> getPost(@PathVariable("postId") int postId){
+        PostResponseView responseView=postService.getPost(postId);
+        return new ResponseEntity<>(responseView,HttpStatus.OK);
+    }
     @PostMapping("/new")
     public ResponseEntity<PostResponseView> createPost(@RequestBody CreatePostRequest createPostRequest){
         PostResponseView postResponseView=postService.createPost(createPostRequest);

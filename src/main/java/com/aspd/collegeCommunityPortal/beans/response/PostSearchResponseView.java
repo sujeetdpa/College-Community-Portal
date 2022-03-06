@@ -8,7 +8,7 @@ import lombok.Setter;
 public class PostSearchResponseView {
     private int id;
     private String title;
-    private String user;
+    private String fullName;
     private String username;
     private int userId;
 

@@ -28,5 +28,9 @@ public class User {
     @Column(unique = true)
     private String universityId;
 
+    public String getFullName(){
+        return this.getFirstName().concat(" ").concat(this.getLastName());
+    }
+
 
 }

@@ -12,7 +12,7 @@ public class PostResponseView {
     private String description;
     private String title;
     private LocalDateTime creationDate;
-    private String user;
+    private String fullName;
     private int userId;
     private int noOfLikes;
     private int noOfComments;
