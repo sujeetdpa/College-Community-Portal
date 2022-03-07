@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,6 +28,9 @@ public class User {
     private String mobileNo;
     @Column(unique = true)
     private String universityId;
+    private LocalDateTime userCreationTimestamp;
+    private LocalDateTime lastLoginTimestamp;
+    private LocalDateTime lastLogoutTimestamp;
 
     public String getFullName(){
         return this.getFirstName().concat(" ").concat(this.getLastName());
