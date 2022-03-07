@@ -10,12 +10,14 @@ import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
 import com.aspd.collegeCommunityPortal.services.PostService;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
+
+    private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -105,6 +109,9 @@ public class PostServiceImpl implements PostService {
         if(createPostRequest.getImages().isPresent() && !createPostRequest.getImages().get().isEmpty()){
                List<Image> images=new ArrayList<>();
                createPostRequest.getImages().get().forEach(image->{
+                   if (!imageExtensions.contains(image.getContentType())){
+                       //TODO throw error for incompatible file type
+                   }
                    Image image1=new Image();
                    String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
                    image1.setImageName(filename);
@@ -129,6 +136,7 @@ public class PostServiceImpl implements PostService {
         if (createPostRequest.getDocuments().isPresent() && !createPostRequest.getDocuments().get().isEmpty()){
             List<Document> documents= new ArrayList<>();
             createPostRequest.getDocuments().get().forEach(file -> {
+                //TODO check for file extensions and throw error
                 String filename=file.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
                 String path=bucketName.getCcpBucketName().concat("/username").concat("/documents");
                 Document document=new Document();

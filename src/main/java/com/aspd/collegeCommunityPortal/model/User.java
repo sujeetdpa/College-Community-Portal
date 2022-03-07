@@ -31,6 +31,7 @@ public class User {
     private LocalDateTime userCreationTimestamp;
     private LocalDateTime lastLoginTimestamp;
     private LocalDateTime lastLogoutTimestamp;
+    private String profileImage;
 
     public String getFullName(){
         return this.getFirstName().concat(" ").concat(this.getLastName());
