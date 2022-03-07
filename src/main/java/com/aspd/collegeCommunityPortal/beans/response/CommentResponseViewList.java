@@ -7,10 +7,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PostSearchResponseViewList {
-    private List<PostSearchResponseView> postSearchResponseViews;
+public class CommentResponseViewList {
+    private List<CommentResponseView> commentResponseViews;
     private int pageNo;
+    private long totalNoOfComment;
     private int totalPages;
-    private long totalPosts;
-    private int maxPosts;
 }

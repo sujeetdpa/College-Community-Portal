@@ -1,13 +1,12 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
+import com.aspd.collegeCommunityPortal.beans.request.CommentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
-import com.aspd.collegeCommunityPortal.model.Document;
-import com.aspd.collegeCommunityPortal.model.Image;
-import com.aspd.collegeCommunityPortal.model.Post;
+import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
 import com.aspd.collegeCommunityPortal.services.PostService;
@@ -72,7 +71,7 @@ public class PostServiceImpl implements PostService {
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(post.getCreationDate());
                 postResponseView.setDescription(post.getDescription());
-                Optional.ofNullable(post.getUser().getFirstName().concat(" ").concat(post.getUser().getLastName())).ifPresent(postResponseView::setFullName);
+                Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(postLikeCount.get(post.getId())).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(postCommentCount.get(post.getId())).ifPresent(postResponseView::setNoOfComments);
@@ -81,7 +80,7 @@ public class PostServiceImpl implements PostService {
             }
 
             postResponseViewList.setPostResponseViews(postResponseViews);
-            postResponseViewList.setTotalNoOfPost(postPage.getNumberOfElements());
+            postResponseViewList.setTotalNoOfPost(postPage.getTotalElements());
             postResponseViewList.setPageNo(postPage.getNumber());
             postResponseViewList.setTotalPages(postPage.getTotalPages());
 
@@ -184,7 +183,7 @@ public class PostServiceImpl implements PostService {
         }
         PostSearchResponseViewList list=new PostSearchResponseViewList();
         Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
-        Optional.ofNullable(postPage.getNumberOfElements()).ifPresent(list::setTotalPosts);
+        Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalPosts);
         Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxPosts);
         Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
         Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
@@ -193,7 +192,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public DeleteResponseView deletePost(int postId) {
-
         return null;
     }
 
@@ -211,7 +209,65 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
             Optional.ofNullable(reviewRepository.getPostLikeCount(post)).ifPresent(responseView::setNoOfLikes);
+            // TODO add images and files to view
             return responseView;
+        }
+        return null;
+    }
+
+    @Override
+    public CommentResponseView newComment(CommentRequest request) {
+        Optional<Post> optionalPost = postRepository.findById(request.getPostId());
+        Optional<User> optionalUser = userRepository.findById(request.getUserId());
+        if (optionalPost.isPresent() && optionalUser.isPresent()){
+            Comment comment=new Comment();
+            Optional.ofNullable(request.getTitle()).ifPresent(comment::setTitle);
+            Optional.ofNullable(request.getDescription()).ifPresent(comment::setDescription);
+            Optional.ofNullable(LocalDateTime.now()).ifPresent(comment::setCommentDate);
+            optionalPost.ifPresent(comment::setPost);
+            optionalUser.ifPresent(comment::setUser);
+            Comment savedComment = commentRepository.save(comment);
+
+            CommentResponseView view=new CommentResponseView();
+            Optional.ofNullable(savedComment.getTitle()).ifPresent(view::setTitle);
+            Optional.ofNullable(savedComment.getDescription()).ifPresent(view::setDescription);
+            Optional.ofNullable(savedComment.getId()).ifPresent(view::setId);
+            Optional.ofNullable(savedComment.getCommentDate()).ifPresent(view::setCommentDate);
+            Optional.ofNullable(savedComment.getPost().getId()).ifPresent(view::setPostId);
+            Optional.ofNullable(savedComment.getUser().getId()).ifPresent(view::setUserId);
+            Optional.ofNullable(savedComment.getUser().getFullName()).ifPresent(view::setFullName);
+            return view;
+        }
+        return null;
+    }
+
+    @Override
+    public CommentResponseViewList getPostComments(int postId,int pageNo) {
+        Pageable pageable=PageRequest.of(Optional.ofNullable(pageNo).orElse(0),15,Sort.by(Sort.Direction.ASC,"commentDate"));
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Page<Comment> comments=null;
+        if (optionalPost.isPresent()){
+            comments = commentRepository.findByPost(optionalPost.get(), pageable);
+        }
+        if(comments!=null && !comments.isEmpty()){
+            List<CommentResponseView> viewList=new ArrayList<>();
+            for (Comment comment:comments){
+                CommentResponseView view=new CommentResponseView();
+                Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
+                Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
+                Optional.ofNullable(comment.getId()).ifPresent(view::setId);
+                Optional.ofNullable(comment.getCommentDate()).ifPresent(view::setCommentDate);
+                Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
+                Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
+                Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
+                viewList.add(view);
+            }
+            CommentResponseViewList responseViewList=new CommentResponseViewList();
+            Optional.ofNullable(comments.getTotalPages()).ifPresent(responseViewList::setTotalPages);
+            Optional.ofNullable(comments.getTotalElements()).ifPresent(responseViewList::setTotalNoOfComment);
+            Optional.ofNullable(comments.getNumber()).ifPresent(responseViewList::setPageNo);
+            Optional.ofNullable(viewList).ifPresent(responseViewList::setCommentResponseViews);
+            return responseViewList;
         }
         return null;
     }

@@ -10,6 +10,6 @@ import java.util.List;
 public class PostResponseViewList {
     private List<PostResponseView> postResponseViews;
     private int pageNo;
-    private int totalNoOfPost;
+    private long totalNoOfPost;
     private int totalPages;
 }

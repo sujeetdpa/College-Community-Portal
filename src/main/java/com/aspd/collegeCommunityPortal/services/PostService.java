@@ -1,12 +1,10 @@
 package com.aspd.collegeCommunityPortal.services;
 
+import com.aspd.collegeCommunityPortal.beans.request.CommentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
-import com.aspd.collegeCommunityPortal.beans.response.DeleteResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.PostResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
-import com.aspd.collegeCommunityPortal.beans.response.PostSearchResponseViewList;
+import com.aspd.collegeCommunityPortal.beans.response.*;
 
 public interface PostService {
     PostResponseViewList getAllPost(PostRequest postRequest);
@@ -18,4 +16,8 @@ public interface PostService {
     DeleteResponseView deletePost(int postId);
 
     PostResponseView getPost(int postId);
+
+    CommentResponseView newComment(CommentRequest request);
+
+    CommentResponseViewList getPostComments(int postId,int pageNo);
 }
