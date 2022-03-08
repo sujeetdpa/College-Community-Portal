@@ -291,6 +291,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
             Optional.ofNullable("Like removed").ifPresent(response::setMessage);
+            reviewRepository.delete(optionalReview.get());
         }
         else if(optionalPost.isPresent() && optionalUser.isPresent()){
             Review review=new Review();
@@ -323,6 +324,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
             Optional.ofNullable("Dislike removed").ifPresent(response::setMessage);
+            reviewRepository.delete(optionalReview.get());
         }
         else if(optionalPost.isPresent() && optionalUser.isPresent()){
             Review review=new Review();

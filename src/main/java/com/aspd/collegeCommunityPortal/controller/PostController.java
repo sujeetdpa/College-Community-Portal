@@ -5,7 +5,6 @@ import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
 import com.aspd.collegeCommunityPortal.beans.response.*;
-import com.aspd.collegeCommunityPortal.model.Comment;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
