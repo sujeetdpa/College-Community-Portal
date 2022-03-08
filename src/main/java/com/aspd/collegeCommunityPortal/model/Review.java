@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"post","user"})})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,6 +20,6 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 }

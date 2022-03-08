@@ -54,5 +54,15 @@ public class PostController {
         CommentResponseViewList viewList=postService.getPostComments(postId,pageNo);
         return new ResponseEntity<>(viewList,HttpStatus.OK);
     }
+    @PostMapping("/{postId}/like/{userId}")
+    public ResponseEntity<LikePostResponse> likePost(@PathVariable("postId") int postId,@PathVariable("userId") int userId){
+        LikePostResponse response=postService.likePost(postId,userId);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @PostMapping("/{postId}/dislike/{userId}")
+    public ResponseEntity<DislikePostResponse> dislikePost(@PathVariable("postId") int postId,@PathVariable("userId") int userId){
+        DislikePostResponse response=postService.dislikePost(postId,userId);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 
 }

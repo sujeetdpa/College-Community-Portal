@@ -20,4 +20,8 @@ public interface PostService {
     CommentResponseView newComment(CommentRequest request);
 
     CommentResponseViewList getPostComments(int postId,int pageNo);
+
+    LikePostResponse likePost(int postId, int userId);
+
+    DislikePostResponse dislikePost(int postId, int userId);
 }
