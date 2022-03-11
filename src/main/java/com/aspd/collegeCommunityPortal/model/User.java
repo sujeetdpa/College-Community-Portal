@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -32,6 +33,9 @@ public class User {
     private LocalDateTime lastLoginTimestamp;
     private LocalDateTime lastLogoutTimestamp;
     private String profileImage;
+
+    @ManyToMany
+    private Collection<Role> roles;
 
     public String getFullName(){
         return this.getFirstName().concat(" ").concat(this.getLastName());
