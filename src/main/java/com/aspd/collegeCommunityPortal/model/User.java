@@ -24,15 +24,18 @@ public class User {
     private String username;
     private String password;
     private Gender gender;
-    private boolean isActive;
-    @Column(unique = true)
-    private String mobileNo;
-    @Column(unique = true)
-    private String universityId;
+    private Boolean isActive;
     private LocalDateTime userCreationTimestamp;
     private LocalDateTime lastLoginTimestamp;
     private LocalDateTime lastLogoutTimestamp;
     private String profileImage;
+    private Boolean isNotBlocked;
+
+    @Column(unique = true)
+    private String mobileNo;
+    @Column(unique = true)
+    private String universityId;
+
 
     @ManyToMany
     private Collection<Role> roles;
