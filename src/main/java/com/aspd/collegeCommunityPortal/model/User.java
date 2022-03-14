@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,6 +10,7 @@ import java.util.Collection;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
 public class User {
     @Id
@@ -21,6 +19,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
+    @Column(unique = true)
     private String username;
     private String password;
     private Gender gender;
@@ -35,7 +34,6 @@ public class User {
     private String mobileNo;
     @Column(unique = true)
     private String universityId;
-
 
     @ManyToMany
     private Collection<Role> roles;

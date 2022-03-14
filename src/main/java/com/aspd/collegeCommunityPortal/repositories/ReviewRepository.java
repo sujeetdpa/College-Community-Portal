@@ -19,7 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review,Integer> {
     @Query(value = "select post,count(user) from Review where post in ?1 and reviewType=?2 group by post")
     Optional<Map<Integer,Integer>> getPostsReviewCount(List<Post> post, ReviewType reviewType);
 
-    @Query(value = "select count(user) from Review where post= ?1 and nd reviewType= ?2")
+    @Query(value = "select count(user) from Review where post= ?1 and reviewType= ?2")
     Integer getPostReviewCount(Post post,ReviewType reviewType);
 
     Optional<Review> findByPostAndUserAndReviewType(Post post, User user,ReviewType reviewType);
