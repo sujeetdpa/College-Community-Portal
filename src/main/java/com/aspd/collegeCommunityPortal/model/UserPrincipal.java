@@ -24,12 +24,12 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.getPassword();
+        return this.user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.getUsername();
+        return this.user.getUsername();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isAccountNonExpired();
+        return this.user.getIsNotBlocked();
     }
 
     @Override

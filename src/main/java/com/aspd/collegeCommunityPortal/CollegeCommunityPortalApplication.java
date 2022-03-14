@@ -6,14 +6,11 @@ import com.aspd.collegeCommunityPortal.model.User;
 import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
 import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -30,7 +27,6 @@ public class CollegeCommunityPortalApplication {
 		SpringApplication.run(CollegeCommunityPortalApplication.class, args);
 	}
 
-	@PostConstruct
 	public void initialData(){
 		Role role=new Role();role.setName("ROLE_ADMIN");
 		Role role1=new Role();role1.setName("ROLE_USER");

@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@Data
 public class JWTConfig {
     @Value("${security.jwt.secret-key}")
     private String secretKey;

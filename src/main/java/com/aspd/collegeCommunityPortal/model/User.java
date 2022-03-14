@@ -35,7 +35,7 @@ public class User {
     @Column(unique = true)
     private String universityId;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Collection<Role> roles;
 
     public String getFullName(){
