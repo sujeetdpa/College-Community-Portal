@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    @Autowired
+    private JWTConfig jwtConfig;
     private final String SECRET_KEY="hjhacvjhvGGJVafusvajGFYTFgVtkgsjVVCUwvjACCVKUac";
 
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager){
