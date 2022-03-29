@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -39,7 +40,7 @@ public class User {
     private String mobileNo;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Collection<Role> roles;
+    private Collection<Role> roles=new ArrayList<>();
 
     public String getFullName(){
         return this.getFirstName().concat(" ").concat(this.getLastName());
