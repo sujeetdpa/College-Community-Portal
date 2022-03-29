@@ -1,7 +1,9 @@
 package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.AuthenticationRequest;
+import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
+import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,5 +23,10 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request){
         AuthenticationResponse response=authenticationService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PostMapping("/auth/signup")
+    public ResponseEntity<SignUpResponse> signUp(@RequestBody RegisterRequest request){
+        SignUpResponse response=authenticationService.signUp(request);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
