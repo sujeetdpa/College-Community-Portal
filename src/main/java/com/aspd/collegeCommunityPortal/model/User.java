@@ -20,8 +20,10 @@ public class User {
     private int id;
     private String firstName;
     private String lastName;
+
     @Column(unique = true)
     private String email;
+
     @Column(unique = true)
     private String username;
     private String password;
@@ -30,9 +32,12 @@ public class User {
     private LocalDate dob;
     private LocalDateTime userCreationTimestamp;
     private LocalDateTime lastLoginTimestamp;
+    private LocalDateTime currentLoginTimeStamp;
     private LocalDateTime lastLogoutTimestamp;
+    private LocalDateTime currentLogoutTimestamp;
     private String profileImage;
     private Boolean isNotBlocked;
+
     @Column(unique = true)
     private String universityId;
 

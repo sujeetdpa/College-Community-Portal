@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -23,6 +24,8 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with with username:" + username));
+        user.setLastLoginTimestamp(user.getCurrentLoginTimeStamp());
+        user.setCurrentLoginTimeStamp(LocalDateTime.now());
         return new UserPrincipal(user);
     }
 }
