@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -100,9 +101,10 @@ public class PostServiceImpl implements PostService {
         post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
         post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
         Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
-
-        Post savedPost = postRepository.save(post);
         //Extract user from JWT header and fill it in post
+        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        post.setUser(userPrincipal.getUser());
+        Post savedPost = postRepository.save(post);
 
         //Upload images  to amazon S3
         if(createPostRequest.getImages().isPresent() && !createPostRequest.getImages().get().isEmpty()){

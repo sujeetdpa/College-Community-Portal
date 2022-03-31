@@ -26,6 +26,7 @@ public class UserServiceImpl implements UserService {
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with with username:" + username));
         user.setLastLoginTimestamp(user.getCurrentLoginTimeStamp());
         user.setCurrentLoginTimeStamp(LocalDateTime.now());
+        userRepository.save(user);
         return new UserPrincipal(user);
     }
 }

@@ -15,10 +15,10 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
-    @Query(value = "select post,count(user) from Comment where post in :post group by post")
-    Optional<Map<Integer,Integer>> getPostsCommentCount(@Param("post") List<Post> post);
+    @Query(value = "select c.post,count(c.user) from Comment c where c.post in ?1 group by c.post")
+    Optional<Map<Integer,Integer>> getPostsCommentCount(List<Post> post);
 
-    @Query(value = "select count(user) from Comment where post= ?1")
+    @Query(value = "select count(c.user) from Comment c where c.post= ?1")
     Integer getPostCommentCount(Post post);
 
     Page<Comment> findByPost(Post post, Pageable pageable);

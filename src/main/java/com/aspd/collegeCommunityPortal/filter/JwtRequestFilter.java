@@ -1,5 +1,7 @@
 package com.aspd.collegeCommunityPortal.filter;
 
+import com.aspd.collegeCommunityPortal.model.UserPrincipal;
+import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
@@ -32,7 +36,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             username=jwtUtil.extractUsername(token);
         }
         if (username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-            UserDetails userDetails = userService.loadUserByUsername(username);
+            UserDetails userDetails = userRepository.findByUsername(username).map(UserPrincipal::new).orElse(null);
             if (jwtUtil.validateToken(token,userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

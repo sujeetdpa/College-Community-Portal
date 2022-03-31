@@ -16,10 +16,10 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Integer> {
 
-    @Query(value = "select post,count(user) from Review where post in ?1 and reviewType=?2 group by post")
+    @Query(value = "select r.post,count(r.user) from Review r where r.post in ?1 and r.reviewType=?2 group by r.post")
     Optional<Map<Integer,Integer>> getPostsReviewCount(List<Post> post, ReviewType reviewType);
 
-    @Query(value = "select count(user) from Review where post= ?1 and reviewType= ?2")
+    @Query(value = "select count(r.user) from Review r where r.post= ?1 and r.reviewType= ?2")
     Integer getPostReviewCount(Post post,ReviewType reviewType);
 
     Optional<Review> findByPostAndUserAndReviewType(Post post, User user,ReviewType reviewType);
