@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.services;
 
-import com.aspd.collegeCommunityPortal.beans.request.CommentRequest;
-import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
+import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 
 public interface PostService {
@@ -19,7 +16,7 @@ public interface PostService {
 
     CommentResponseView newComment(CommentRequest request);
 
-    CommentResponseViewList getPostComments(int postId,int pageNo);
+    CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request);
 
     LikePostResponse likePost(int postId, int userId);
 

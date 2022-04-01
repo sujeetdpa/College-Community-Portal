@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.controller;
 
-import com.aspd.collegeCommunityPortal.beans.request.CommentRequest;
-import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
+import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +46,8 @@ public class PostController {
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<CommentResponseViewList> getPostComments(@PathVariable("postId") int postId,@RequestParam("pageNo") int pageNo){
-        CommentResponseViewList viewList=postService.getPostComments(postId,pageNo);
+    public ResponseEntity<CommentResponseViewList> getPostComments(@PathVariable("postId") int postId, @RequestBody PostCommentFetchRequest request){
+        CommentResponseViewList viewList=postService.getPostComments(postId,request);
         return new ResponseEntity<>(viewList,HttpStatus.OK);
     }
     @PostMapping("/{postId}/like/{userId}")

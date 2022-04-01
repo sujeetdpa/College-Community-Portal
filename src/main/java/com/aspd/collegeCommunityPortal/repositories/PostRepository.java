@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post,Integer> {
 
-    @Query(value = "select p from Post p where p.title like '%?1%'")
+    @Query(value = "select p from Post p where p.title like %?1%")
     Page<Post> searchPostByTitle(String title, Pageable pageable);
 
 }

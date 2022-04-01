@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
-import com.aspd.collegeCommunityPortal.beans.request.CommentRequest;
-import com.aspd.collegeCommunityPortal.beans.request.CreatePostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.PostSearchRequest;
+import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
@@ -172,7 +169,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostSearchResponseViewList searchPost(PostSearchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItemsPerPage()).orElse(15), Sort.Direction.ASC);
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItemsPerPage()).orElse(15), Sort.by(Sort.Direction.DESC,"creationDate"));
         Page<Post> postPage=null;
         List<PostSearchResponseView> responseViewList=new ArrayList<>();
         if(Optional.ofNullable(request.getTitle()).isPresent()){
@@ -228,13 +225,14 @@ public class PostServiceImpl implements PostService {
     public CommentResponseView newComment(CommentRequest request) {
         Optional<Post> optionalPost = postRepository.findById(request.getPostId());
         Optional<User> optionalUser = userRepository.findById(request.getUserId());
-        if (optionalPost.isPresent() && optionalUser.isPresent()){
+        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (optionalPost.isPresent() && userPrincipal.getUser()!=null){
             Comment comment=new Comment();
             Optional.ofNullable(request.getTitle()).ifPresent(comment::setTitle);
             Optional.ofNullable(request.getDescription()).ifPresent(comment::setDescription);
             Optional.ofNullable(LocalDateTime.now()).ifPresent(comment::setCommentDate);
             optionalPost.ifPresent(comment::setPost);
-            optionalUser.ifPresent(comment::setUser);
+            Optional.ofNullable(userPrincipal.getUser()).ifPresent(comment::setUser);
             Comment savedComment = commentRepository.save(comment);
 
             CommentResponseView view=new CommentResponseView();
@@ -251,8 +249,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public CommentResponseViewList getPostComments(int postId,int pageNo) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(pageNo).orElse(0),15,Sort.by(Sort.Direction.ASC,"commentDate"));
+    public CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request) {
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getItemsPerPage()).orElse(15),Sort.by(Sort.Direction.ASC,"commentDate"));
         Optional<Post> optionalPost = postRepository.findById(postId);
         Page<Comment> comments=null;
         if (optionalPost.isPresent()){
