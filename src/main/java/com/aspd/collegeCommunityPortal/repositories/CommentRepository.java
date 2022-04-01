@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
-    @Query(value = "select c.post,count(c.user) from Comment c where c.post in ?1 group by c.post")
-    Optional<Map<Integer,Integer>> getPostsCommentCount(List<Post> post);
+    @Query(value = "select c.post_id,count(c.user_id) from Comment c where c.post_id in ?1 group by c.post_id",nativeQuery = true)
+    Optional<Map<Integer,Integer>> getPostsCommentCount(List<Integer> post);
 
     @Query(value = "select count(c.user) from Comment c where c.post= ?1")
     Integer getPostCommentCount(Post post);

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -52,19 +51,7 @@ public class PostServiceImpl implements PostService {
 
 
         if(!postPage.isEmpty()){
-            //Extracting post ids;
-            List<Integer> postIds = postPage.get().map(Post::getId).collect(Collectors.toList());
 
-            //Counting likes of post
-            Optional<Map<Integer, Integer>> postsLikeCount = reviewRepository.getPostsReviewCount(postPage.getContent(),ReviewType.LIKE);
-            if(postsLikeCount.isPresent()){
-                postLikeCount=postsLikeCount.get();
-            }
-            //Counting comments of posts
-            Optional<Map<Integer, Integer>> postsCommentCount = commentRepository.getPostsCommentCount(postPage.getContent());
-            if (postsCommentCount.isPresent()){
-                postCommentCount=postsCommentCount.get();
-            }
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
                 PostResponseView postResponseView=new PostResponseView();
@@ -74,8 +61,8 @@ public class PostServiceImpl implements PostService {
                 postResponseView.setDescription(post.getDescription());
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
-                Optional.ofNullable(postLikeCount.get(post.getId())).ifPresent(postResponseView::setNoOfLikes);
-                Optional.ofNullable(postCommentCount.get(post.getId())).ifPresent(postResponseView::setNoOfComments);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+                Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 // Add images and attachments related to posts
                 postResponseViews.add(postResponseView);
             }

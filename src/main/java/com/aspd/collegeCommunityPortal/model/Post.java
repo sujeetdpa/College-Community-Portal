@@ -17,7 +17,7 @@ import java.util.List;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private String title;
     private String description;
     private LocalDateTime creationDate;

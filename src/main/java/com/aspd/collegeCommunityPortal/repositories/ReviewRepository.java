@@ -6,18 +6,12 @@ import com.aspd.collegeCommunityPortal.model.ReviewType;
 import com.aspd.collegeCommunityPortal.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Integer> {
-
-    @Query(value = "select r.post,count(r.user) from Review r where r.post in ?1 and r.reviewType=?2 group by r.post")
-    Optional<Map<Integer,Integer>> getPostsReviewCount(List<Post> post, ReviewType reviewType);
 
     @Query(value = "select count(r.user) from Review r where r.post= ?1 and r.reviewType= ?2")
     Integer getPostReviewCount(Post post,ReviewType reviewType);

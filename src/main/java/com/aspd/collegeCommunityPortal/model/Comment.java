@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private String title;
     private String description;
     private LocalDateTime commentDate;

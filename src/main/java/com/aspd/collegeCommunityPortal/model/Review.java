@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private LocalDateTime reviewDate;
     @Enumerated(value = EnumType.STRING)
     private ReviewType reviewType;

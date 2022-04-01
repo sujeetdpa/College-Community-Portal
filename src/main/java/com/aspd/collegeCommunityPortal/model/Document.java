@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private String documentName;
     private String path;
 
