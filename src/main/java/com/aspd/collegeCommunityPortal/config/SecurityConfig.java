@@ -32,9 +32,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().cors();
         http.authorizeRequests().antMatchers("/auth/login").permitAll()
-                        .antMatchers("/auth/signup").permitAll();
-
-        http.authorizeRequests().anyRequest().permitAll();
+                        .antMatchers("/auth/signup").permitAll()
+                        .antMatchers("/api/post/**").hasAnyRole("ROLE_USER","ROLE_ADMIN");
+        http.authorizeRequests().anyRequest().authenticated();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
