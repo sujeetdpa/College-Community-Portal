@@ -6,6 +6,7 @@ import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
+import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +14,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
+    private final List<String> documentExtensions=Arrays.asList();
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -36,6 +41,8 @@ public class PostServiceImpl implements PostService {
     private BucketName bucketName;
     @Autowired
     private AmazonS3Service amazonS3Service;
+    @Autowired
+    private LocalStorageService localStorageService;
     @Autowired
     private DocumentRepository documentRepository;
     @Autowired
@@ -100,9 +107,9 @@ public class PostServiceImpl implements PostService {
                    Image image1=new Image();
                    String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
                    image1.setImageName(filename);
-                   image1.setUser(null); //set user after extracting from JWT or Database;
+                   image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                    image1.setPost(savedPost);
-                   String path= bucketName.getCcpBucketName().concat("/").concat("username").concat("/images");
+                   String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
                    image1.setPath(path);
                    Map<String,String> metadata=new HashMap<>();
                    metadata.put("Content-Type", image.getContentType());
@@ -329,5 +336,88 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable("You Disliked this post").ifPresent(response::setMessage);
         }
         return null;
+    }
+    @Override
+    public List<Integer> uploadImages(List<MultipartFile> files){
+        UserPrincipal userPrincipal=(UserPrincipal)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (files!=null && !files.isEmpty()){
+            List<Image> images=new ArrayList<>();
+                files.forEach(image->{
+                if (!imageExtensions.contains(image.getContentType())){
+                    throw new IllegalStateException("File type not allowed");
+                }
+                Image image1=new Image();
+                String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
+                image1.setImageName(filename);
+                image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
+                String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
+                image1.setPath(path);
+                Map<String,String> metadata=new HashMap<>();
+                metadata.put("Content-Type", image.getContentType());
+                metadata.put("Content-Length", String.valueOf(image.getSize()));
+                try {
+                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),image.getInputStream());
+                    if (uploaded){
+                        images.add(image1);
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException("Error in uploading images");
+                }
+                });
+            List<Image> imageList = imageRepository.saveAll(images);
+            return imageList.stream().map(Image::getId).collect(Collectors.toList());
+        }
+        return null;
+    }
+    @Override
+    public List<Integer> uploadDocuments(List<MultipartFile> files){
+        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (files!=null && !files.isEmpty()){
+            List<Document> documents=new ArrayList<>();
+            files.forEach(file->{
+                if (!imageExtensions.contains(file.getContentType())){
+                    //TODO throw error for incompatible file type
+                }
+                String filename=file.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
+                String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
+                Document document=new Document();
+                document.setDocumentName(filename);
+                document.setUser(userPrincipal.getUser()); //TODO add user
+                document.setPath(path);
+                Map<String,String> metadata=new HashMap<>();
+                metadata.put("Content-Type", file.getContentType());
+                metadata.put("Content-Length", String.valueOf(file.getSize()));
+                try {
+                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),file.getInputStream());
+                    if (uploaded){
+                        documents.add(document);
+                    }
+                }
+                catch (IOException e){
+                    throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
+                }
+            });
+            List<Document> documentList = documentRepository.saveAll(documents);
+            return documentList.stream().map(Document::getId).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @Override
+    public byte[] downloadImage(Integer imageId) throws IOException {
+        Optional<Image> image = imageRepository.findById(imageId);
+        if (image.isPresent()){
+            return localStorageService.downloadFile(image.get().getPath(),image.get().getImageName());
+        }
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] downloadDocument(Integer documentId) throws IOException {
+        Optional<Document> document = documentRepository.findById(documentId);
+        if (document.isPresent()){
+            return localStorageService.downloadFile(document.get().getPath(),document.get().getDocumentName());
+        }
+        return new byte[0];
     }
 }

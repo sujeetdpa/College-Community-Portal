@@ -25,7 +25,7 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
             map.forEach(objectMetadata::addUserMetadata);
         });
         try{
-            amazonS3.putObject(path,filename,inputStream,objectMetadata);
+            amazonS3.putObject(path, filename, inputStream, objectMetadata);
         }
         catch (AmazonServiceException e){
             throw new IllegalStateException("Failed to upload file",e);
