@@ -53,12 +53,10 @@ public class PostServiceImpl implements PostService {
         Map<Integer,Integer> postLikeCount=null;
         Map<Integer,Integer> postCommentCount=null;
         PostResponseViewList postResponseViewList=new PostResponseViewList();
-        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxPostRequest()).orElse(15), Sort.by(Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
+        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxPostRequest()).orElse(15), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
         Page<Post> postPage = postRepository.findAll(pageable);
 
-
         if(!postPage.isEmpty()){
-
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
                 PostResponseView postResponseView=new PostResponseView();
@@ -70,10 +68,10 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
-                // Add images and attachments related to posts
+                Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+                Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
                 postResponseViews.add(postResponseView);
             }
-
             postResponseViewList.setPostResponseViews(postResponseViews);
             postResponseViewList.setTotalNoOfPost(postPage.getTotalElements());
             postResponseViewList.setPageNo(postPage.getNumber());
@@ -81,7 +79,7 @@ public class PostServiceImpl implements PostService {
 
         }
         else {
-            //Exception Handeling
+            throw new IllegalStateException("Posts not found");
         }
         return postResponseViewList;
     }
@@ -92,64 +90,26 @@ public class PostServiceImpl implements PostService {
         post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
         post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
         Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
-        //Extract user from JWT header and fill it in post
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         post.setUser(userPrincipal.getUser());
         Post savedPost = postRepository.save(post);
 
-        //Upload images  to amazon S3
-        if(createPostRequest.getImages().isPresent() && !createPostRequest.getImages().get().isEmpty()){
-               List<Image> images=new ArrayList<>();
-               createPostRequest.getImages().get().forEach(image->{
-                   if (!imageExtensions.contains(image.getContentType())){
-                       //TODO throw error for incompatible file type
-                   }
-                   Image image1=new Image();
-                   String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
-                   image1.setImageName(filename);
-                   image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
-                   image1.setPost(savedPost);
-                   String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
-                   image1.setPath(path);
-                   Map<String,String> metadata=new HashMap<>();
-                   metadata.put("Content-Type", image.getContentType());
-                   metadata.put("Content-Length", String.valueOf(image.getSize()));
-                   try {
-                       amazonS3Service.uploadFile(path,filename,Optional.of(metadata),image.getInputStream());
-                       images.add(image1);
-                   }
-                   catch (IOException e){
-                       throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
-                   }
-
-               });
-               imageRepository.saveAll(images);
+        if (createPostRequest.getImages()!=null && !createPostRequest.getImages().isEmpty()){
+            List<Image> imageList = imageRepository.findAllById(createPostRequest.getImages());
+            if (imageList==null || imageList.isEmpty()){
+                throw new IllegalStateException("Images not uploaded");
+            }
+            imageList.forEach(image -> image.setPost(savedPost));
+            imageRepository.saveAll(imageList);
         }
-        if (createPostRequest.getDocuments().isPresent() && !createPostRequest.getDocuments().get().isEmpty()){
-            List<Document> documents= new ArrayList<>();
-            createPostRequest.getDocuments().get().forEach(file -> {
-                //TODO check for file extensions and throw error
-                String filename=file.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
-                String path=bucketName.getCcpBucketName().concat("/username").concat("/documents");
-                Document document=new Document();
-                document.setPost(savedPost);
-                document.setDocumentName(filename);
-                document.setUser(null); //TODO add user
-                document.setPath(path);
-                Map<String,String> metadata=new HashMap<>();
-                metadata.put("Content-Type", file.getContentType());
-                metadata.put("Content-Length", String.valueOf(file.getSize()));
-                try {
-                    amazonS3Service.uploadFile(path,filename,Optional.of(metadata),file.getInputStream());
-                    documents.add(document);
-                }
-                catch (IOException e){
-                    throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
-                }
-            });
-            documentRepository.saveAll(documents);
+        if (createPostRequest.getDocuments()!=null && !createPostRequest.getDocuments().isEmpty()){
+            List<Document> documentList = documentRepository.findAllById(createPostRequest.getDocuments());
+            if (documentList==null || documentList.isEmpty()){
+                throw new IllegalStateException("Documents not uploaded");
+            }
+            documentList.forEach(document -> document.setPost(savedPost));
+            documentRepository.saveAll(documentList);
         }
-
         PostResponseView postResponseView=new PostResponseView();
         postResponseView.setId(savedPost.getId());
         postResponseView.setTitle(savedPost.getTitle());
@@ -209,7 +169,8 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
-            // TODO add images and files to view
+            Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(responseView::setImageIds);
+            Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(responseView::setDocumentIds);
             return responseView;
         }
         return null;
@@ -347,7 +308,7 @@ public class PostServiceImpl implements PostService {
                     throw new IllegalStateException("File type not allowed");
                 }
                 Image image1=new Image();
-                String filename=image.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
+                String filename=LocalDateTime.now().toString().concat("_").concat(image.getOriginalFilename());
                 image1.setImageName(filename);
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                 String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
@@ -378,7 +339,7 @@ public class PostServiceImpl implements PostService {
                 if (!imageExtensions.contains(file.getContentType())){
                     //TODO throw error for incompatible file type
                 }
-                String filename=file.getName().concat(UUID.randomUUID().toString()).concat(LocalDateTime.now().toString());
+                String filename=LocalDateTime.now().toString().concat("_").concat(file.getOriginalFilename());
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
                 Document document=new Document();
                 document.setDocumentName(filename);

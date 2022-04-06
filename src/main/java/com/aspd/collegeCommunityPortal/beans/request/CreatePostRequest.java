@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Getter
@@ -13,7 +12,7 @@ import java.util.Optional;
 public class CreatePostRequest {
     private String title;
     private String description;
-    private Optional<List<MultipartFile>> images;
-    private Optional<List<MultipartFile>> documents;
+    private List<Integer> images;
+    private List<Integer> documents;
     //More fields to come here;
 }

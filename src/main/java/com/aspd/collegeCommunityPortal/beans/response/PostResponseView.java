@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,4 +17,6 @@ public class PostResponseView {
     private Integer userId;
     private Integer noOfLikes;
     private Integer noOfComments;
+    private List<Integer> imageIds;
+    private List<Integer> documentIds;
 }

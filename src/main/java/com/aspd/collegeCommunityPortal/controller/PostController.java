@@ -73,13 +73,13 @@ public class PostController {
         List<Integer> imageIds = postService.uploadImages(files);
         return new ResponseEntity<>(imageIds,HttpStatus.OK);
     }
-    @PostMapping("/local/storage/upload/doc")
+    @PostMapping("/local/storage/upload/document")
     public ResponseEntity<List<Integer>> uploadDoc(@RequestParam("documents") List<MultipartFile> files) throws IOException {
         List<Integer> documentIds = postService.uploadDocuments(files);
         return new ResponseEntity<>(documentIds,HttpStatus.OK);
     }
 
-    @GetMapping(value = "/local/storage/download/image/{imageId}" , produces = "application/image")
+    @GetMapping(value = "/local/storage/download/image/{imageId}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable("imageId") Integer imageId) throws IOException {
         return new ResponseEntity<>(postService.downloadImage(imageId),HttpStatus.OK);
     }
