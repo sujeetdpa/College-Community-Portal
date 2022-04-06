@@ -60,6 +60,9 @@ public class PostServiceImpl implements PostService {
         if(!postPage.isEmpty()){
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
+                if (post.getIsDeleted()){
+                    continue;
+                }
                 PostResponseView postResponseView=new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
@@ -153,13 +156,30 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public DeleteResponseView deletePost(int postId) {
-        return null;
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        DeleteResponseView responseView=new DeleteResponseView();
+        if (optionalPost.isEmpty() || !optionalPost.isPresent()){
+            responseView.setMessage("Invalid delete request");
+        }
+        else {
+            Post post=optionalPost.get();
+            UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (!post.getUser().equals(userPrincipal.getUser())){
+                responseView.setMessage("Unauthorised Request for user : "+userPrincipal.getUsername());
+            }
+            else{
+                post.setIsDeleted(true);
+                postRepository.save(post);
+                responseView.setMessage(String.format("Post deleted with id : %s and Title : %s",post.getId(),post.getTitle()));
+            }
+        }
+        return responseView;
     }
 
     @Override
     public PostResponseView getPost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        if(optionalPost.isPresent()){
+        if(optionalPost.isPresent() && !optionalPost.get().getIsDeleted()){
             PostResponseView responseView=new PostResponseView();
             Post post = optionalPost.get();
             Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
