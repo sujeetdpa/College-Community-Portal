@@ -83,7 +83,7 @@ public class PostController {
     public ResponseEntity<byte[]> downloadImage(@PathVariable("imageId") Integer imageId) throws IOException {
         return new ResponseEntity<>(postService.downloadImage(imageId),HttpStatus.OK);
     }
-    @GetMapping(value = "/local/storage/download/document/{documentId}",produces = "application/pdf")
+    @GetMapping(value = "/local/storage/download/document/{documentId}")
     public ResponseEntity<byte[]> downloadDocument(@PathVariable("documentId") Integer documentId) throws IOException {
         return new ResponseEntity<>(postService.downloadDocument(documentId),HttpStatus.OK);
     }

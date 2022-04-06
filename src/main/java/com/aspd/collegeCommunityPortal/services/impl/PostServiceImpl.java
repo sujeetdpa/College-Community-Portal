@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
-    private final List<String> documentExtensions=Arrays.asList();
+    private final List<String> documentExtensions=Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(),ContentType.TEXT_PLAIN.getMimeType(),".doc",".docx",".wps",".docm",".odt",".rtf",".csv",".ods",".xls",".xlsb",".xlsx",".ppt",".pptx");
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -305,7 +306,7 @@ public class PostServiceImpl implements PostService {
             List<Image> images=new ArrayList<>();
                 files.forEach(image->{
                 if (!imageExtensions.contains(image.getContentType())){
-                    throw new IllegalStateException("File type not allowed");
+                    throw new IllegalStateException("Image format not supported");
                 }
                 Image image1=new Image();
                 String filename=LocalDateTime.now().toString().concat("_").concat(image.getOriginalFilename());
@@ -313,6 +314,7 @@ public class PostServiceImpl implements PostService {
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                 String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
                 image1.setPath(path);
+                image1.setUploadDate(LocalDateTime.now());
                 Map<String,String> metadata=new HashMap<>();
                 metadata.put("Content-Type", image.getContentType());
                 metadata.put("Content-Length", String.valueOf(image.getSize()));
@@ -336,8 +338,8 @@ public class PostServiceImpl implements PostService {
         if (files!=null && !files.isEmpty()){
             List<Document> documents=new ArrayList<>();
             files.forEach(file->{
-                if (!imageExtensions.contains(file.getContentType())){
-                    //TODO throw error for incompatible file type
+                if (!documentExtensions.contains(file.getContentType())){
+                    throw new IllegalStateException("Document format not supported");
                 }
                 String filename=LocalDateTime.now().toString().concat("_").concat(file.getOriginalFilename());
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
@@ -345,6 +347,7 @@ public class PostServiceImpl implements PostService {
                 document.setDocumentName(filename);
                 document.setUser(userPrincipal.getUser()); //TODO add user
                 document.setPath(path);
+                document.setUploadDate(LocalDateTime.now());
                 Map<String,String> metadata=new HashMap<>();
                 metadata.put("Content-Type", file.getContentType());
                 metadata.put("Content-Length", String.valueOf(file.getSize()));
