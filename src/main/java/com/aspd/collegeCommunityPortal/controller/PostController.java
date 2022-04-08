@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/post")
 public class PostController {
     @Autowired
@@ -21,7 +22,7 @@ public class PostController {
     @Autowired
     LocalStorageService localStorageService;
 
-    @GetMapping("/all")
+    @PostMapping("/all")
     public ResponseEntity<PostResponseViewList> getAllPost(@RequestBody PostRequest postRequest){
         PostResponseViewList postResponseViewList=postService.getAllPost(postRequest);
         return new ResponseEntity<>(postResponseViewList, HttpStatus.OK);

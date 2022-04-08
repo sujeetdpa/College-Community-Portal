@@ -60,7 +60,7 @@ public class PostServiceImpl implements PostService {
         if(!postPage.isEmpty()){
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
-                if (post.getIsDeleted()){
+                if (post.getIsDeleted()==null || post.getIsDeleted()){
                     continue;
                 }
                 PostResponseView postResponseView=new PostResponseView();
