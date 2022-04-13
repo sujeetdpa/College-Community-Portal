@@ -262,12 +262,13 @@ public class PostServiceImpl implements PostService {
         Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(optionalPost.get(), optionalUser.get(), ReviewType.LIKE);
         LikePostResponse response=null;
         if(optionalReview.isPresent()){
+            reviewRepository.delete(optionalReview.get());
             response=new LikePostResponse();
             Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
             Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
             Optional.ofNullable("Like removed").ifPresent(response::setMessage);
-            reviewRepository.delete(optionalReview.get());
+
         }
         else if(optionalPost.isPresent() && optionalUser.isPresent()){
             Review review=new Review();
@@ -296,11 +297,12 @@ public class PostServiceImpl implements PostService {
         DislikePostResponse response=null;
         if(optionalReview.isPresent()){
             response=new DislikePostResponse();
+            reviewRepository.delete(optionalReview.get());
             Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
             Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
             Optional.ofNullable("Dislike removed").ifPresent(response::setMessage);
-            reviewRepository.delete(optionalReview.get());
+
         }
         else if(optionalPost.isPresent() && optionalUser.isPresent()){
             Review review=new Review();
