@@ -37,7 +37,7 @@ public class User {
     private LocalDateTime lastLogoutTimestamp;
     private LocalDateTime currentLogoutTimestamp;
     private String profileImage;
-    private Boolean isNotBlocked;
+    private Boolean isNotLocked;
 
     @Column(unique = true)
     private String universityId;

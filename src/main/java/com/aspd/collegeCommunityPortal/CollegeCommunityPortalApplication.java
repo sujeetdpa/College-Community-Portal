@@ -39,7 +39,7 @@ public class CollegeCommunityPortalApplication {
 		user.setEmail("hello@gmail.com");
 		user.setGender(Gender.MALE);
 		user.setIsActive(true);
-		user.setIsNotBlocked(true);
+		user.setIsNotLocked(true);
 		user.setUserCreationTimestamp(LocalDateTime.now());
 
 		System.out.println(userRepository.save(user));

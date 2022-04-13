@@ -15,15 +15,12 @@ import com.aspd.collegeCommunityPortal.util.JwtUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.lang.management.OperatingSystemMXBean;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -74,7 +71,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Optional.ofNullable(request.getUsername()).map(userUtil::getUniversityId).ifPresent(user::setUniversityId);
         Optional.ofNullable(LocalDateTime.now()).ifPresent(user::setUserCreationTimestamp);
         user.setIsActive(true);  // TODO implement later
-        user.setIsNotBlocked(true); //TODO implement later
+        user.setIsNotLocked(true); //TODO implement later
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));//TODO handle exception
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
