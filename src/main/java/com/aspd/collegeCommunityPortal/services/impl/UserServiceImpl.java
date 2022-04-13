@@ -25,7 +25,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with with username:" + username));
+        if (optionalUser.isEmpty()){
+            throw new UsernameNotFoundException("User not found with username: "+username);
+        }
+        User user = optionalUser.get();
         user.setLastLoginTimestamp(user.getCurrentLoginTimeStamp());
         user.setCurrentLoginTimeStamp(LocalDateTime.now());
         userRepository.save(user);

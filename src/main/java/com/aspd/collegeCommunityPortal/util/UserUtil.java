@@ -13,15 +13,6 @@ public class UserUtil {
         if (!split[1].equals(domain)){
             return false;
         }
-        try{
-            int year=Integer.parseInt(split[0].substring(0,4));
-            int rem=Integer.parseInt(split[0].substring(4));
-            if(!(year>=2000 && year<=LocalDate.now().getYear())) {
-                return false;
-            }
-        }catch (Exception e){
-            return false;
-        }
         return true;
     }
 

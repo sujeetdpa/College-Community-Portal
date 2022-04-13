@@ -47,16 +47,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) {
-        AuthenticationResponse response;
+        AuthenticationResponse response=null;
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         if(authenticate.isAuthenticated()){
             final UserDetails userDetails = (UserDetails) authenticate.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
             response=new AuthenticationResponse();
             response.setAccess_token(token);
-        }
-        else {
-            throw new BadCredentialsException("Invalid credentials");
         }
         return response;
     }
