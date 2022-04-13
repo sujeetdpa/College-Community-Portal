@@ -259,67 +259,92 @@ public class PostServiceImpl implements PostService {
     public LikePostResponse likePost(int postId, int userId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
-        Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(optionalPost.get(), optionalUser.get(), ReviewType.LIKE);
         LikePostResponse response=null;
-        if(optionalReview.isPresent()){
-            reviewRepository.delete(optionalReview.get());
+        if (validatePostDislike(optionalPost.get(),optionalUser.get()).isPresent()){
             response=new LikePostResponse();
-            Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
-            Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+            Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
+            Optional.ofNullable(optionalUser.get()).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
-            Optional.ofNullable("Like removed").ifPresent(response::setMessage);
-
+            Optional.ofNullable("You have already disliked this post").ifPresent(response::setMessage);
         }
-        else if(optionalPost.isPresent() && optionalUser.isPresent()){
-            Review review=new Review();
-            Optional.ofNullable(optionalPost.get()).ifPresent(review::setPost);
-            Optional.ofNullable(optionalUser.get()).ifPresent(review::setUser);
-            Optional.ofNullable(ReviewType.LIKE).ifPresent(review::setReviewType);
-            Optional.ofNullable(LocalDateTime.now()).ifPresent(review::setReviewDate);
+        else{
+            Optional<Review> optionalReview = validatePostLike(optionalPost.get(), optionalUser.get());
+            if (optionalReview.isPresent()) {
+                reviewRepository.delete(optionalReview.get());
+                response = new LikePostResponse();
+                Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
+                Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
+                Optional.ofNullable("Like removed").ifPresent(response::setMessage);
+            }
+            else if (optionalPost.isPresent() && optionalUser.isPresent()){
+                Review review=new Review();
+                Optional.ofNullable(optionalPost.get()).ifPresent(review::setPost);
+                Optional.ofNullable(optionalUser.get()).ifPresent(review::setUser);
+                Optional.ofNullable(ReviewType.LIKE).ifPresent(review::setReviewType);
+                Optional.ofNullable(LocalDateTime.now()).ifPresent(review::setReviewDate);
 
-            Review save = reviewRepository.save(review);
+                Review save = reviewRepository.save(review);
 
-            response=new LikePostResponse();
-            Optional.ofNullable(save).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
-            Optional.ofNullable(save).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
-            Optional.ofNullable("You Liked this post").ifPresent(response::setMessage);
+                response=new LikePostResponse();
+                Optional.ofNullable(save).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
+                Optional.ofNullable(save).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
+                Optional.ofNullable("You Liked this post").ifPresent(response::setMessage);
+
+            }
 
         }
         return response;
     }
 
+    private Optional<Review> validatePostDislike(Post post, User user) {
+        Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(post, user, ReviewType.DISLIKE);
+        return optionalReview;
+    }
+    private Optional<Review> validatePostLike(Post post,User user){
+        Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(post, user, ReviewType.LIKE);
+        return optionalReview;
+    }
     @Override
     public DislikePostResponse dislikePost(int postId, int userId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
-        Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(optionalPost.get(), optionalUser.get(), ReviewType.DISLIKE);
         DislikePostResponse response=null;
-        if(optionalReview.isPresent()){
+        if (validatePostLike(optionalPost.get(),optionalUser.get()).isPresent()){
             response=new DislikePostResponse();
-            reviewRepository.delete(optionalReview.get());
-            Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
-            Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+            Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
+            Optional.ofNullable(optionalUser.get()).map(User::getId).ifPresent(response::setUserId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
-            Optional.ofNullable("Dislike removed").ifPresent(response::setMessage);
-
+            Optional.ofNullable("You have already liked this post").ifPresent(response::setMessage);
         }
-        else if(optionalPost.isPresent() && optionalUser.isPresent()){
-            Review review=new Review();
-            Optional.ofNullable(optionalPost.get()).ifPresent(review::setPost);
-            Optional.ofNullable(optionalUser.get()).ifPresent(review::setUser);
-            Optional.ofNullable(ReviewType.DISLIKE).ifPresent(review::setReviewType);
-            Optional.ofNullable(LocalDateTime.now()).ifPresent(review::setReviewDate);
+        else {
+            Optional<Review> optionalReview = validatePostDislike(optionalPost.get(), optionalUser.get());
+            if (optionalReview.isPresent()) {
+                response = new DislikePostResponse();
+                reviewRepository.delete(optionalReview.get());
+                Optional.ofNullable(optionalReview.get()).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
+                Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
+                Optional.ofNullable("Dislike removed").ifPresent(response::setMessage);
 
-            Review save = reviewRepository.save(review);
+            } else if (optionalPost.isPresent() && optionalUser.isPresent()) {
+                Review review = new Review();
+                Optional.ofNullable(optionalPost.get()).ifPresent(review::setPost);
+                Optional.ofNullable(optionalUser.get()).ifPresent(review::setUser);
+                Optional.ofNullable(ReviewType.DISLIKE).ifPresent(review::setReviewType);
+                Optional.ofNullable(LocalDateTime.now()).ifPresent(review::setReviewDate);
 
-            response=new DislikePostResponse();
-            Optional.ofNullable(save).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
-            Optional.ofNullable(save).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
-            Optional.ofNullable("You Disliked this post").ifPresent(response::setMessage);
+                Review save = reviewRepository.save(review);
+
+                response = new DislikePostResponse();
+                Optional.ofNullable(save).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
+                Optional.ofNullable(save).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
+                Optional.ofNullable("You Disliked this post").ifPresent(response::setMessage);
+            }
         }
-        return null;
+        return response;
     }
     @Override
     public List<Integer> uploadImages(List<MultipartFile> files){
