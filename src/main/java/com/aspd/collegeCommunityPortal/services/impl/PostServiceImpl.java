@@ -136,7 +136,7 @@ public class PostServiceImpl implements PostService {
         }
         // TODO more searches to add here
         if(postPage!=null && !postPage.isEmpty()){
-            postPage.forEach(post -> {
+            postPage.stream().filter(post -> !post.getIsDeleted()).forEach(post -> {
                 PostSearchResponseView responseView=new PostSearchResponseView();
                 Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
                 Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
@@ -171,7 +171,7 @@ public class PostServiceImpl implements PostService {
             else{
                 post.setIsDeleted(true);
                 postRepository.save(post);
-                responseView.setMessage(String.format("Post deleted with id : %s and Title : %s",post.getId(),post.getTitle()));
+                responseView.setMessage(String.format("Post deleted with Title : %s",post.getTitle()));
             }
         }
         return responseView;
