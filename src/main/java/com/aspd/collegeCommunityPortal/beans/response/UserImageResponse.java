@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PostResponseViewList {
-    private List<PostResponseView> postResponseViews;
+public class UserImageResponse {
+    private List<Integer> imageIds;
     private int pageNo;
     private int totalPages;
     private long totalNumberOfItems;

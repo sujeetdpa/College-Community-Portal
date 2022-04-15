@@ -10,6 +10,7 @@ import java.util.List;
 public class CommentResponseViewList {
     private List<CommentResponseView> commentResponseViews;
     private int pageNo;
-    private long totalNoOfComment;
     private int totalPages;
+    private long totalNumberOfItems;
+    private int maxItems;
 }

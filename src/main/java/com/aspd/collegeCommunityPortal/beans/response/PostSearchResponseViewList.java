@@ -11,6 +11,6 @@ public class PostSearchResponseViewList {
     private List<PostSearchResponseView> postSearchResponseViews;
     private int pageNo;
     private int totalPages;
-    private long totalPosts;
-    private int maxPosts;
+    private long totalNumberOfItems;
+    private int maxItems;
 }

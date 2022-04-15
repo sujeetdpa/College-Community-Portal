@@ -1,5 +1,9 @@
 package com.aspd.collegeCommunityPortal.controller;
 
+import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
+import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
+import com.aspd.collegeCommunityPortal.beans.response.UserDocumentResponse;
+import com.aspd.collegeCommunityPortal.beans.response.UserImageResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.config.JWTConfig;
@@ -12,10 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -34,5 +35,16 @@ public class UserController {
     public ResponseEntity<UserResponseView> getUser(){
         UserResponseView responseView=userService.getUser();
         return new ResponseEntity<>(responseView, HttpStatus.OK);
+    }
+
+    @PostMapping("/images")
+    public ResponseEntity<UserImageResponse> getUserImages(@RequestBody UserImageRequest request){
+        UserImageResponse response=userService.getUserImages(request);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @PostMapping("/documents")
+    public ResponseEntity<UserDocumentResponse> getUserDocuments(@RequestBody UserDocumentRequest request){
+        UserDocumentResponse response=userService.getUserDocuments(request);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }

@@ -77,9 +77,10 @@ public class PostServiceImpl implements PostService {
                 postResponseViews.add(postResponseView);
             }
             postResponseViewList.setPostResponseViews(postResponseViews);
-            postResponseViewList.setTotalNoOfPost(postPage.getTotalElements());
+            postResponseViewList.setTotalNumberOfItems(postPage.getTotalElements());
             postResponseViewList.setPageNo(postPage.getNumber());
             postResponseViewList.setTotalPages(postPage.getTotalPages());
+            postResponseViewList.setMaxItems(postPage.getSize());
 
         }
         else {
@@ -147,8 +148,8 @@ public class PostServiceImpl implements PostService {
         }
         PostSearchResponseViewList list=new PostSearchResponseViewList();
         Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
-        Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalPosts);
-        Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxPosts);
+        Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalNumberOfItems);
+        Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxItems);
         Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
         Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
         return list;
@@ -247,8 +248,9 @@ public class PostServiceImpl implements PostService {
             }
             CommentResponseViewList responseViewList=new CommentResponseViewList();
             Optional.ofNullable(comments.getTotalPages()).ifPresent(responseViewList::setTotalPages);
-            Optional.ofNullable(comments.getTotalElements()).ifPresent(responseViewList::setTotalNoOfComment);
+            Optional.ofNullable(comments.getTotalElements()).ifPresent(responseViewList::setTotalNumberOfItems);
             Optional.ofNullable(comments.getNumber()).ifPresent(responseViewList::setPageNo);
+            Optional.ofNullable(comments.getSize()).ifPresent(responseViewList::setMaxItems);
             Optional.ofNullable(viewList).ifPresent(responseViewList::setCommentResponseViews);
             return responseViewList;
         }
