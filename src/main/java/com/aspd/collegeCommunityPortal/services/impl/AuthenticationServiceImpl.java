@@ -61,6 +61,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!userUtil.validateUsername(request.getUsername())){
             throw new IllegalStateException("Invalid username"); //TODO handle exception
         }
+        if (userRepository.findByUsername(request.getUsername()).isPresent()){
+            throw new IllegalStateException("Username already taken.");
+        }
+        if (userRepository.findByMobileNo(request.getMobileNo()).isPresent()){
+            throw new IllegalStateException("Mobile Number already taken.");
+        }
         Optional.ofNullable(request.getFirstName()).ifPresent(user::setFirstName);
         Optional.ofNullable(request.getLastName()).ifPresent(user::setLastName);
         Optional.ofNullable(request.getUsername()).ifPresent(user::setUsername);
