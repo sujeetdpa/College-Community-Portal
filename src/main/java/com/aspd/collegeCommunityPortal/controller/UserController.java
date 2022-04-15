@@ -1,7 +1,9 @@
 package com.aspd.collegeCommunityPortal.controller;
 
+import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
+import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.beans.response.UserDocumentResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserImageResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
@@ -46,5 +48,10 @@ public class UserController {
     public ResponseEntity<UserDocumentResponse> getUserDocuments(@RequestBody UserDocumentRequest request){
         UserDocumentResponse response=userService.getUserDocuments(request);
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @PostMapping("/post")
+    public ResponseEntity<PostResponseViewList> getUserPost(@RequestBody PostRequest postRequest){
+        PostResponseViewList responseViewList=userService.getUserPost(postRequest);
+        return new ResponseEntity<>(responseViewList,HttpStatus.OK);
     }
 }

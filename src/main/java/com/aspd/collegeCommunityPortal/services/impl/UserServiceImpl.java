@@ -1,29 +1,25 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
+import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
-import com.aspd.collegeCommunityPortal.beans.response.UserDocumentResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserImageResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
-import com.aspd.collegeCommunityPortal.model.Document;
-import com.aspd.collegeCommunityPortal.model.Image;
-import com.aspd.collegeCommunityPortal.model.User;
-import com.aspd.collegeCommunityPortal.model.UserPrincipal;
-import com.aspd.collegeCommunityPortal.repositories.DocumentRepository;
-import com.aspd.collegeCommunityPortal.repositories.ImageRepository;
-import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
-import com.aspd.collegeCommunityPortal.repositories.UserRepository;
+import com.aspd.collegeCommunityPortal.beans.response.*;
+import com.aspd.collegeCommunityPortal.model.*;
+import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +33,12 @@ public class UserServiceImpl implements UserService {
     private ImageRepository imageRepository;
     @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -108,5 +110,44 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public PostResponseViewList getUserPost(PostRequest postRequest) {
+        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(15), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userPrincipal!=null){
+            Page<Post> userPosts = postRepository.findPostByUser(userPrincipal.getUser(), pageable);
+            if (userPosts ==null || userPosts.isEmpty()){
+                throw new IllegalStateException("You haven't posted anything yet.");
+            }
+            PostResponseViewList postResponseViewList=new PostResponseViewList();
+            List<PostResponseView> postResponseViews=new ArrayList<>();
+            for(Post post:userPosts){
+                if (post.getIsDeleted()==null || post.getIsDeleted()){
+                    continue;
+                }
+                PostResponseView postResponseView=new PostResponseView();
+                postResponseView.setId(post.getId());
+                postResponseView.setTitle(post.getTitle());
+                postResponseView.setCreationDate(post.getCreationDate());
+                postResponseView.setDescription(post.getDescription());
+                Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
+                Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+                Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
+                Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+                Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
+                postResponseViews.add(postResponseView);
+            }
+            postResponseViewList.setPostResponseViews(postResponseViews);
+            postResponseViewList.setTotalNumberOfItems(userPosts.getTotalElements());
+            postResponseViewList.setPageNo(userPosts.getNumber());
+            postResponseViewList.setTotalPages(userPosts.getTotalPages());
+            postResponseViewList.setMaxItems(userPosts.getSize());
+            return postResponseViewList;
+        }
+        return null;
+    }
+
 
 }

@@ -8,5 +8,5 @@ import lombok.Setter;
 public class PostRequest {
     private int pageNo;
     private String sortBy;
-    private int maxPostRequest;
+    private int maxItem;
 }
