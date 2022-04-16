@@ -373,7 +373,7 @@ public class PostServiceImpl implements PostService {
                         images.add(image1);
                     }
                 } catch (IOException e) {
-                    throw new IllegalStateException("Error in uploading images");
+                    throw new IllegalStateException("Error in uploading images"+e);
                 }
                 });
             List<Image> imageList = imageRepository.saveAll(images);
