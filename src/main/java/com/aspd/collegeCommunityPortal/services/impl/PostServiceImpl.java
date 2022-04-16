@@ -95,6 +95,7 @@ public class PostServiceImpl implements PostService {
         post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
         post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
         Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
+        post.setIsDeleted(false);
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         post.setUser(userPrincipal.getUser());
         Post savedPost = postRepository.save(post);

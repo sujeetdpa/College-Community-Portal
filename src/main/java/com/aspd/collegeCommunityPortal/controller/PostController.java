@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -71,8 +72,8 @@ public class PostController {
     }
 
     @PostMapping("/local/storage/upload/image")
-    public ResponseEntity<List<Integer>> uploadImage(@RequestParam("images") List<MultipartFile> files) throws IOException {
-        List<Integer> imageIds = postService.uploadImages(files);
+    public ResponseEntity<List<Integer>> uploadImage(@RequestParam("images") List<MultipartFile> images) throws IOException {
+        List<Integer> imageIds = postService.uploadImages(images);
         return new ResponseEntity<>(imageIds,HttpStatus.OK);
     }
     @PostMapping("/local/storage/upload/document")
@@ -89,4 +90,12 @@ public class PostController {
     public ResponseEntity<byte[]> downloadDocument(@PathVariable("documentId") Integer documentId) throws IOException {
         return new ResponseEntity<>(postService.downloadDocument(documentId),HttpStatus.OK);
     }
+
+    @PostMapping("/local/storage/upload/image/new")
+    public ResponseEntity<List<Integer>> uploadImageNew(@RequestParam("images") MultipartFile[] files) throws IOException {
+        List<MultipartFile> files1=Arrays.asList(files);
+        files1.forEach(file -> System.out.println(file.getOriginalFilename()));
+        return new ResponseEntity<>(Arrays.asList(1,2,3),HttpStatus.OK);
+    }
+
 }
