@@ -36,7 +36,7 @@ public class User {
     private LocalDateTime currentLoginTimeStamp;
     private LocalDateTime lastLogoutTimestamp;
     private LocalDateTime currentLogoutTimestamp;
-    private String profileImage;
+    private Integer profileImageId;
     private Boolean isNotLocked;
 
     @Column(unique = true)

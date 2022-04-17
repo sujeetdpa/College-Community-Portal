@@ -55,7 +55,7 @@ public class PostController {
         CommentResponseView responseView=postService.newComment(request);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }
-    @GetMapping("/{postId}/comments")
+    @PostMapping("/{postId}/comments")
     public ResponseEntity<CommentResponseViewList> getPostComments(@PathVariable("postId") int postId, @RequestBody PostCommentFetchRequest request){
         CommentResponseViewList viewList=postService.getPostComments(postId,request);
         return new ResponseEntity<>(viewList,HttpStatus.OK);

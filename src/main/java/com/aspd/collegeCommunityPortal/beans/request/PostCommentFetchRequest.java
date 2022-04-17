@@ -8,5 +8,5 @@ import lombok.Setter;
 public class PostCommentFetchRequest {
     private int postId;
     private int pageNo;
-    private int itemsPerPage;
+    private int maxItem;
 }

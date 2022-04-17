@@ -11,5 +11,6 @@ public class PostSearchResponseView {
     private String fullName;
     private String username;
     private int userId;
+    private int profileImageId;
 
 }
