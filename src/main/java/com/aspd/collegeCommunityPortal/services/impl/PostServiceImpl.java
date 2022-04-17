@@ -54,7 +54,7 @@ public class PostServiceImpl implements PostService {
         Map<Integer,Integer> postLikeCount=null;
         Map<Integer,Integer> postCommentCount=null;
         PostResponseViewList postResponseViewList=new PostResponseViewList();
-        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(15), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
+        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
         Page<Post> postPage = postRepository.findAll(pageable);
 
         if(!postPage.isEmpty()){
@@ -228,7 +228,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getItemsPerPage()).orElse(15),Sort.by(Sort.Direction.ASC,"commentDate"));
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.ASC,"commentDate"));
         Optional<Post> optionalPost = postRepository.findById(postId);
         Page<Comment> comments=null;
         if (optionalPost.isPresent()){
