@@ -4,9 +4,13 @@ import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
 import com.aspd.collegeCommunityPortal.beans.response.*;
+import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
+import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
+import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.UserService;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,15 +20,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private final List<String> imageExtensions= Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -39,6 +46,12 @@ public class UserServiceImpl implements UserService {
     private ReviewRepository reviewRepository;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired
+    private LocalStorageService localStorageService;
+    @Autowired
+    private AmazonS3Service amazonS3Service;
+    @Autowired
+    private BucketName bucketName;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -147,6 +160,37 @@ public class UserServiceImpl implements UserService {
             return postResponseViewList;
         }
         return null;
+    }
+
+    @Override
+    public Integer updateProfileImage(MultipartFile profileImage) {
+        if(profileImage.isEmpty()){
+           throw new IllegalStateException("File cannot be empty");
+        }
+        if (!imageExtensions.contains(profileImage.getContentType())){
+            throw new IllegalStateException("File format supported are: "+imageExtensions);
+        }
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user=userPrincipal.getUser();
+        Image image=new Image();
+        String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
+        String filename=LocalDateTime.now().toString().concat("_").concat(profileImage.getOriginalFilename());
+        image.setImageName(filename);
+        image.setUser(user);
+        image.setPath(path);
+        image.setUploadDate(LocalDateTime.now());
+        Map<String,String> metadata=new HashMap<>();
+        metadata.put("Content-Type", profileImage.getContentType());
+        metadata.put("Content-Length", String.valueOf(profileImage.getSize()));
+        try {
+            Boolean uploaded = localStorageService.uploadFile(path, filename, Optional.ofNullable(metadata), profileImage.getInputStream());
+            Image savedImage = imageRepository.save(image);
+            user.setProfileImageId(savedImage.getId());
+            userRepository.save(user);
+            return savedImage.getId();
+        }catch (IOException e) {
+            throw new IllegalStateException("Error in uploading images");
+        }
     }
 
 

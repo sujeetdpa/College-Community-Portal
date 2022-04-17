@@ -356,7 +356,7 @@ public class PostServiceImpl implements PostService {
             List<Image> images=new ArrayList<>();
                 files.forEach(image->{
                 if (!imageExtensions.contains(image.getContentType())){
-                    throw new IllegalStateException("Image format not supported");
+                    throw new IllegalStateException("File format supported are: "+imageExtensions);
                 }
                 Image image1=new Image();
                 String filename=LocalDateTime.now().toString().concat("_").concat(image.getOriginalFilename());
@@ -374,7 +374,7 @@ public class PostServiceImpl implements PostService {
                         images.add(image1);
                     }
                 } catch (IOException e) {
-                    throw new IllegalStateException("Error in uploading images"+e);
+                    throw new IllegalStateException("Error in uploading images");
                 }
                 });
             List<Image> imageList = imageRepository.saveAll(images);
