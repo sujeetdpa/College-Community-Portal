@@ -16,5 +16,5 @@ public class UserResponseView {
     private LocalDate dob;
     private LocalDateTime lastLoginTimestamp;
     private String mobileNo;
-    private int profileImageId;
+    private Integer profileImageId;
 }

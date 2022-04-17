@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LikePostResponse {
-    private int noOfLikes;
-    private int postId;
-    private int userId;
+    private Integer noOfLikes;
+    private Integer postId;
+    private Integer userId;
     private String message;
 }

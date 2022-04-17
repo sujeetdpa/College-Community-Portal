@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CommentResponseView {
-    private int id;
+    private Integer id;
     private String description;
     private String title;
-    private int postId;
-    private int userId;
-    private int profileImageId;
+    private Integer postId;
+    private Integer userId;
+    private Integer profileImageId;
     private String fullName;
     private LocalDateTime commentDate;
+    private Integer numberOfComments;
 }

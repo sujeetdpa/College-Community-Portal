@@ -15,7 +15,7 @@ public class PostResponseView {
     private LocalDateTime creationDate;
     private String fullName;
     private Integer userId;
-    private int profileImageId;
+    private Integer profileImageId;
     private Integer noOfLikes;
     private Integer noOfComments;
     private List<Integer> imageIds;

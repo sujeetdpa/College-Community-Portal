@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SignUpResponse {
-    private int id;
+    private Integer id;
     private String username;
     private String fullName;
 }

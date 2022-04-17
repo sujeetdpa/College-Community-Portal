@@ -6,11 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PostSearchResponseView {
-    private int id;
+    private Integer id;
     private String title;
     private String fullName;
     private String username;
-    private int userId;
-    private int profileImageId;
+    private Integer userId;
+    private Integer profileImageId;
 
 }
