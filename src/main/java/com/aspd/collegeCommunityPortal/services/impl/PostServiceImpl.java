@@ -221,7 +221,6 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(savedComment.getPost().getId()).ifPresent(view::setPostId);
             Optional.ofNullable(savedComment.getUser().getId()).ifPresent(view::setUserId);
             Optional.ofNullable(savedComment.getUser().getFullName()).ifPresent(view::setFullName);
-            Optional.ofNullable(commentRepository.getPostCommentCount(optionalPost.get())).ifPresent(view::setNumberOfComments);
             return view;
         }
         return null;
