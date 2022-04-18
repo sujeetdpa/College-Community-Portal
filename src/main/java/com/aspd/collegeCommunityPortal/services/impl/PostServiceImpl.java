@@ -129,7 +129,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostSearchResponseViewList searchPost(PostSearchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItemsPerPage()).orElse(15), Sort.by(Sort.Direction.DESC,"creationDate"));
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(15), Sort.by(Sort.Direction.DESC,"creationDate"));
         Page<Post> postPage=null;
         List<PostSearchResponseView> responseViewList=new ArrayList<>();
         if(Optional.ofNullable(request.getTitle()).isPresent()){

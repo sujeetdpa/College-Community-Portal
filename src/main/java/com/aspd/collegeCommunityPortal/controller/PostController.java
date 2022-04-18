@@ -44,7 +44,7 @@ public class PostController {
         DeleteResponseView deleteResponseView=postService.deletePost(postId);
         return new ResponseEntity<>(null,HttpStatus.OK);
     }
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestBody PostSearchRequest request){
         PostSearchResponseViewList postSearchResponseViewList=postService.searchPost(request);
         return new ResponseEntity<>(postSearchResponseViewList,HttpStatus.OK);
