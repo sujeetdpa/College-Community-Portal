@@ -8,4 +8,5 @@ import lombok.Setter;
 public class AuthenticationResponse {
     private String access_token;
     private String refresh_token;
+    private UserResponseView userResponseView;
 }

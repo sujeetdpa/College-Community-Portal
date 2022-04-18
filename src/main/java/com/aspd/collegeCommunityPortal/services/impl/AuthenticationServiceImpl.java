@@ -4,9 +4,11 @@ import com.aspd.collegeCommunityPortal.beans.request.AuthenticationRequest;
 import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
 import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
+import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
 import com.aspd.collegeCommunityPortal.model.Gender;
 import com.aspd.collegeCommunityPortal.model.Role;
 import com.aspd.collegeCommunityPortal.model.User;
+import com.aspd.collegeCommunityPortal.model.UserPrincipal;
 import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
 import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
@@ -49,8 +51,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(authenticate.isAuthenticated()){
             final UserDetails userDetails = (UserDetails) authenticate.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
+            UserPrincipal userPrincipal=(UserPrincipal)userDetails;
+
+            UserResponseView view=new UserResponseView();
+            User user=userPrincipal.getUser();
+            Optional.ofNullable(user.getId()).ifPresent(view::setId);
+            Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
+            Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
+            Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
+            Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+            Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
+            Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
             response=new AuthenticationResponse();
             response.setAccess_token(token);
+            response.setUserResponseView(view);
         }
         return response;
     }

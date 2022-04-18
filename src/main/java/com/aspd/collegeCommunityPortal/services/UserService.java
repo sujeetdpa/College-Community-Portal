@@ -22,5 +22,5 @@ public interface UserService extends UserDetailsService {
 
     PostResponseViewList getUserPost(PostRequest postRequest);
 
-    Integer updateProfileImage(MultipartFile profileImage) throws IOException;
+    Integer updateProfileImage(MultipartFile profileImage);
 }
