@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserImageResponse getUserImages(UserImageRequest request) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxImage()).orElse(10));
+        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userPrincipal !=null){
             Page<Image> userImages = imageRepository.findImageByUser(userPrincipal.getUser(), pageable);
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDocumentResponse getUserDocuments(UserDocumentRequest request) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxImage()).orElse(10));
+        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userPrincipal!=null){
             Page<Document> userDocuments = documentRepository.findByUser(userPrincipal.getUser(), pageable);

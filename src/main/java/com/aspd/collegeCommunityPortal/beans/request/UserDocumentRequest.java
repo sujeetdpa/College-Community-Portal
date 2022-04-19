@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class UserDocumentRequest {
     private int pageNo;
-    private int maxImage;
+    private int maxItems;
 }
