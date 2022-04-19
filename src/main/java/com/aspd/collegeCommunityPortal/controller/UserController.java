@@ -3,6 +3,7 @@ package com.aspd.collegeCommunityPortal.controller;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
+import com.aspd.collegeCommunityPortal.beans.request.UserUpdateRequest;
 import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
 import com.aspd.collegeCommunityPortal.beans.response.UserDocumentResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserImageResponse;
@@ -34,9 +35,9 @@ public class UserController {
         return "hello";
     }
 
-    @GetMapping
-    public ResponseEntity<UserResponseView> getUser(){
-        UserResponseView responseView=userService.getUser();
+    @GetMapping("/{universityId)")
+    public ResponseEntity<UserResponseView> getUser(@PathVariable("universityId") String universityId){
+        UserResponseView responseView=userService.getUser(universityId);
         return new ResponseEntity<>(responseView, HttpStatus.OK);
     }
 
@@ -59,5 +60,11 @@ public class UserController {
     public ResponseEntity<Integer> updateProfileImage(@RequestParam("profileImage") MultipartFile profileImage){
         Integer profileImageId=userService.updateProfileImage(profileImage);
         return new ResponseEntity<>(profileImageId,HttpStatus.OK);
+    }
+
+    @PostMapping("/update/{userId}")
+    public ResponseEntity<UserResponseView> updateUser(@PathVariable("userId") Integer userId,@RequestBody UserUpdateRequest request){
+        UserResponseView responseView=userService.updateUser(userId,request);
+        return new ResponseEntity<>(responseView,HttpStatus.OK);
     }
 }

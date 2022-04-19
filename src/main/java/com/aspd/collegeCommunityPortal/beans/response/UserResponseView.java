@@ -10,9 +10,13 @@ import java.time.LocalDateTime;
 @Setter
 public class UserResponseView {
     private String fullName;
+    private String firstName;
+    private String lastName;
     private Integer id;
+    private String gender;
     private String username;
     private String universityId;
+    private LocalDateTime userCreationTimestamp;
     private LocalDate dob;
     private LocalDateTime lastLoginTimestamp;
     private String mobileNo;

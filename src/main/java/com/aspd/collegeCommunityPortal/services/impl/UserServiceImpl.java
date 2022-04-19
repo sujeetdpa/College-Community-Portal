@@ -3,6 +3,7 @@ package com.aspd.collegeCommunityPortal.services.impl;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
+import com.aspd.collegeCommunityPortal.beans.request.UserUpdateRequest;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
@@ -67,11 +68,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseView getUser() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userPrincipal!=null){
+    public UserResponseView getUser(String universityId) {
+        Optional<User> optionalUser = userRepository.findByUniversityId(universityId);
+        if (optionalUser.isEmpty()){
+            throw new IllegalStateException("User not found with id: "+universityId);
+        }
             UserResponseView view=new UserResponseView();
-            User user=userPrincipal.getUser();
+            User user=optionalUser.get();
             Optional.ofNullable(user.getId()).ifPresent(view::setId);
             Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
             Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
@@ -79,11 +82,10 @@ public class UserServiceImpl implements UserService {
             Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
             Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
             Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
+            Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
+            Optional.ofNullable(user.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
             return view;
-        }
-        return null;
     }
-
     @Override
     public UserImageResponse getUserImages(UserImageRequest request) {
         Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(10));
@@ -191,6 +193,38 @@ public class UserServiceImpl implements UserService {
         }catch (IOException e) {
             throw new IllegalStateException("Error in uploading images");
         }
+    }
+
+    @Override
+    public UserResponseView updateUser(Integer userId, UserUpdateRequest request) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (Optional.ofNullable(request).isEmpty()){
+            throw new IllegalStateException("Invalid data");
+        }
+        User user = userPrincipal.getUser();
+        if (!user.getId().equals(userId)){
+            throw new IllegalStateException("You don't have the required permissions");
+        }
+        Optional.ofNullable(request.getMobileNo()).ifPresent(user::setMobileNo);
+        Optional.ofNullable(request.getDob()).ifPresent(user::setDob);
+        Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
+        Optional.ofNullable(request.getFirstName()).ifPresent(user::setFirstName);
+        Optional.ofNullable(request.getLastName()).ifPresent(user::setLastName);
+        User updatedUser = userRepository.save(user);
+
+        UserResponseView view=new UserResponseView();
+        Optional.ofNullable(updatedUser.getId()).ifPresent(view::setId);
+        Optional.ofNullable(updatedUser.getFirstName()).ifPresent(view::setFirstName);
+        Optional.ofNullable(updatedUser.getLastName()).ifPresent(view::setLastName);
+        Optional.ofNullable(updatedUser.getFullName()).ifPresent(view::setFullName);
+        Optional.ofNullable(updatedUser.getUsername()).ifPresent(view::setUsername);
+        Optional.ofNullable(updatedUser.getDob()).ifPresent(view::setDob);
+        Optional.ofNullable(updatedUser.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+        Optional.ofNullable(updatedUser.getMobileNo()).ifPresent(view::setMobileNo);
+        Optional.ofNullable(updatedUser.getUniversityId()).ifPresent(view::setUniversityId);
+        Optional.ofNullable(updatedUser.getGender().toString()).ifPresent(view::setGender);
+        Optional.ofNullable(updatedUser.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
+        return view;
     }
 
 
