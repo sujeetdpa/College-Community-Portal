@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final List<String> imageExtensions= Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
+    private final List<String> imageExtensions = Arrays.asList(ContentType.IMAGE_GIF.getMimeType(), ContentType.IMAGE_JPEG.getMimeType(), ContentType.IMAGE_PNG.getMimeType(), ContentType.IMAGE_BMP.getMimeType());
 
     @Autowired
     private UserRepository userRepository;
@@ -57,8 +57,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isEmpty()){
-            throw new UsernameNotFoundException("User not found with username: "+username);
+        if (optionalUser.isEmpty()) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
         User user = optionalUser.get();
         user.setLastLoginTimestamp(user.getCurrentLoginTimeStamp());
@@ -70,32 +70,35 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseView getUser(String universityId) {
         Optional<User> optionalUser = userRepository.findByUniversityId(universityId);
-        if (optionalUser.isEmpty()){
-            throw new IllegalStateException("User not found with id: "+universityId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalStateException("User not found with id: " + universityId);
         }
-            UserResponseView view=new UserResponseView();
-            User user=optionalUser.get();
-            Optional.ofNullable(user.getId()).ifPresent(view::setId);
-            Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
-            Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
-            Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
-            Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
-            Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
-            Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
-            Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
-            Optional.ofNullable(user.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
-            return view;
+        UserResponseView view = new UserResponseView();
+        User user = optionalUser.get();
+        Optional.ofNullable(user.getId()).ifPresent(view::setId);
+        Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
+        Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
+        Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
+        Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
+        Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
+        Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+        Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
+        Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
+        Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
+        Optional.ofNullable(user.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
+        return view;
     }
+
     @Override
     public UserImageResponse getUserImages(UserImageRequest request) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(10));
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userPrincipal !=null){
+        if (userPrincipal != null) {
             Page<Image> userImages = imageRepository.findImageByUser(userPrincipal.getUser(), pageable);
-            if (userImages==null || userImages.isEmpty()){
+            if (userImages == null || userImages.isEmpty()) {
                 throw new IllegalStateException("No images found.");
             }
-            UserImageResponse userImageResponse=new UserImageResponse();
+            UserImageResponse userImageResponse = new UserImageResponse();
             Optional.ofNullable(userImages.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(userImageResponse::setImageIds);
             Optional.ofNullable(userImages.getTotalPages()).ifPresent(userImageResponse::setTotalPages);
             Optional.ofNullable(userImages.getTotalElements()).ifPresent(userImageResponse::setTotalNumberOfItems);
@@ -108,14 +111,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDocumentResponse getUserDocuments(UserDocumentRequest request) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(10));
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userPrincipal!=null){
+        if (userPrincipal != null) {
             Page<Document> userDocuments = documentRepository.findByUser(userPrincipal.getUser(), pageable);
-            if (userDocuments==null || userDocuments.isEmpty()){
+            if (userDocuments == null || userDocuments.isEmpty()) {
                 throw new IllegalStateException("No documents found");
             }
-            UserDocumentResponse userDocumentResponse=new UserDocumentResponse();
+            UserDocumentResponse userDocumentResponse = new UserDocumentResponse();
             Optional.ofNullable(userDocuments.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(userDocumentResponse::setDocumentIds);
             Optional.ofNullable(userDocuments.getTotalPages()).ifPresent(userDocumentResponse::setTotalPages);
             Optional.ofNullable(userDocuments.getTotalElements()).ifPresent(userDocumentResponse::setTotalNumberOfItems);
@@ -128,27 +131,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PostResponseViewList getUserPost(PostRequest postRequest) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(15), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
+        Pageable pageable = PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0), Optional.ofNullable(postRequest.getMaxItem()).orElse(15), Sort.by(Sort.Direction.DESC, Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userPrincipal!=null){
+        if (userPrincipal != null) {
             Page<Post> userPosts = postRepository.findPostByUser(userPrincipal.getUser(), pageable);
-            if (userPosts ==null || userPosts.isEmpty()){
+            if (userPosts == null || userPosts.isEmpty()) {
                 throw new IllegalStateException("You haven't posted anything yet.");
             }
-            PostResponseViewList postResponseViewList=new PostResponseViewList();
-            List<PostResponseView> postResponseViews=new ArrayList<>();
-            for(Post post:userPosts){
-                if (post.getIsDeleted()==null || post.getIsDeleted()){
+            PostResponseViewList postResponseViewList = new PostResponseViewList();
+            List<PostResponseView> postResponseViews = new ArrayList<>();
+            for (Post post : userPosts) {
+                if (post.getIsDeleted() == null || post.getIsDeleted()) {
                     continue;
                 }
-                PostResponseView postResponseView=new PostResponseView();
+                PostResponseView postResponseView = new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(post.getCreationDate());
                 postResponseView.setDescription(post.getDescription());
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
-                Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
                 Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
@@ -166,22 +169,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Integer updateProfileImage(MultipartFile profileImage) {
-        if(profileImage.isEmpty()){
-           throw new IllegalStateException("File cannot be empty");
+        if (profileImage.isEmpty()) {
+            throw new IllegalStateException("File cannot be empty");
         }
-        if (!imageExtensions.contains(profileImage.getContentType())){
-            throw new IllegalStateException("File format supported are: "+imageExtensions);
+        if (!imageExtensions.contains(profileImage.getContentType())) {
+            throw new IllegalStateException("File format supported are: " + imageExtensions);
         }
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user=userPrincipal.getUser();
-        Image image=new Image();
-        String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
-        String filename=LocalDateTime.now().toString().concat("_").concat(profileImage.getOriginalFilename());
+        User user = userPrincipal.getUser();
+        Image image = new Image();
+        String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
+        String filename = LocalDateTime.now().toString().concat("_").concat(profileImage.getOriginalFilename());
         image.setImageName(filename);
         image.setUser(user);
         image.setPath(path);
         image.setUploadDate(LocalDateTime.now());
-        Map<String,String> metadata=new HashMap<>();
+        Map<String, String> metadata = new HashMap<>();
         metadata.put("Content-Type", profileImage.getContentType());
         metadata.put("Content-Length", String.valueOf(profileImage.getSize()));
         try {
@@ -190,7 +193,7 @@ public class UserServiceImpl implements UserService {
             user.setProfileImageId(savedImage.getId());
             userRepository.save(user);
             return savedImage.getId();
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new IllegalStateException("Error in uploading images");
         }
     }
@@ -198,11 +201,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseView updateUser(Integer userId, UserUpdateRequest request) {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (Optional.ofNullable(request).isEmpty()){
+        if (Optional.ofNullable(request).isEmpty()) {
             throw new IllegalStateException("Invalid data");
         }
         User user = userPrincipal.getUser();
-        if (!user.getId().equals(userId)){
+        if (!user.getId().equals(userId)) {
             throw new IllegalStateException("You don't have the required permissions");
         }
         Optional.ofNullable(request.getMobileNo()).ifPresent(user::setMobileNo);
@@ -212,7 +215,7 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(request.getLastName()).ifPresent(user::setLastName);
         User updatedUser = userRepository.save(user);
 
-        UserResponseView view=new UserResponseView();
+        UserResponseView view = new UserResponseView();
         Optional.ofNullable(updatedUser.getId()).ifPresent(view::setId);
         Optional.ofNullable(updatedUser.getFirstName()).ifPresent(view::setFirstName);
         Optional.ofNullable(updatedUser.getLastName()).ifPresent(view::setLastName);

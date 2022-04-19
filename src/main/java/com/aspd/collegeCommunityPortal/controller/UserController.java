@@ -35,7 +35,7 @@ public class UserController {
         return "hello";
     }
 
-    @GetMapping("/{universityId)")
+    @GetMapping("/{universityId}")
     public ResponseEntity<UserResponseView> getUser(@PathVariable("universityId") String universityId){
         UserResponseView responseView=userService.getUser(universityId);
         return new ResponseEntity<>(responseView, HttpStatus.OK);
