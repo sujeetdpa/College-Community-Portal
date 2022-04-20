@@ -21,4 +21,5 @@ public class UserResponseView {
     private LocalDateTime lastLoginTimestamp;
     private String mobileNo;
     private Integer profileImageId;
+    private String role;
 }

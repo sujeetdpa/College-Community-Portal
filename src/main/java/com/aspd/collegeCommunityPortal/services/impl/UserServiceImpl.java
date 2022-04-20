@@ -86,6 +86,8 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
         Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
         Optional.ofNullable(user.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
+        Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
+        user.getRoles().stream().findFirst().map(Role::getName).ifPresent(view::setRole);
         return view;
     }
 

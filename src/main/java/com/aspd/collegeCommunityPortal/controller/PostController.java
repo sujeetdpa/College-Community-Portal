@@ -82,7 +82,7 @@ public class PostController {
         return new ResponseEntity<>(documentIds,HttpStatus.OK);
     }
 
-    @GetMapping(value = "/local/storage/download/image/{imageId}")
+    @GetMapping(value = "/local/storage/download/image/{imageId}",produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> downloadImage(@PathVariable("imageId") Integer imageId) throws IOException {
         return new ResponseEntity<>(postService.downloadImage(imageId),HttpStatus.OK);
     }
@@ -91,7 +91,7 @@ public class PostController {
         return new ResponseEntity<>(postService.downloadDocument(documentId),HttpStatus.OK);
     }
 
-    @PostMapping("/local/storage/upload/image/new")
+    @PostMapping("/local/storage/upload/image/new")  //testing purpose
     public ResponseEntity<List<Integer>> uploadImageNew(@RequestParam("images") MultipartFile[] files) throws IOException {
         List<MultipartFile> files1=Arrays.asList(files);
         files1.forEach(file -> System.out.println(file.getOriginalFilename()));
