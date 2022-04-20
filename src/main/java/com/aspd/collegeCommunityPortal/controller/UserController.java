@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.controller;
 
-import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserUpdateRequest;
+import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.config.JWTConfig;

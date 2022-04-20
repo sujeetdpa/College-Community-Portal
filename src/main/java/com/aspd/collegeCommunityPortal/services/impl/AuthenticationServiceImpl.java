@@ -2,6 +2,7 @@ package com.aspd.collegeCommunityPortal.services.impl;
 
 import com.aspd.collegeCommunityPortal.beans.request.AuthenticationRequest;
 import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
+import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
 import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -100,5 +102,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Optional.ofNullable(savedUser.getUsername()).ifPresent(response::setUsername);
         Optional.ofNullable(savedUser.getFullName()).ifPresent(response::setFullName);
         return response;
+    }
+
+    @Override
+    public String updatePassword(UpdatePasswordRequest request) {
+        if (request == null ||  request.getCurrentPassword()==null || request.getCurrentPassword().isEmpty()|| request.getCurrentPassword().isBlank()
+                || request.getNewPassword()==null ||request.getNewPassword().isEmpty()|| request.getNewPassword().isBlank()
+                ||  request.getCnfNewPassword()==null || request.getCnfNewPassword().isEmpty() || request.getCnfNewPassword().isBlank()){
+            throw new IllegalStateException("Fields cannot be empty");
+        }
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user=userPrincipal.getUser();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+            throw new IllegalStateException("Incorrect Password.");
+        }
+        if (!request.getNewPassword().equals(request.getCnfNewPassword())){
+            throw new IllegalStateException("New password and Confirm password didn't match.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getCnfNewPassword()));
+        userRepository.save(user);
+        return "Password Updated Successfully";
     }
 }

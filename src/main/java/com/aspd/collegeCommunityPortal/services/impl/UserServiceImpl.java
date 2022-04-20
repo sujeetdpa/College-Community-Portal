@@ -1,9 +1,6 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
-import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
-import com.aspd.collegeCommunityPortal.beans.request.UserUpdateRequest;
+import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
@@ -20,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -251,6 +249,8 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(user).map(documentRepository::countByUser).ifPresent(response::setNumberOfDocuments);
         return response;
     }
+
+
 
 
 }
