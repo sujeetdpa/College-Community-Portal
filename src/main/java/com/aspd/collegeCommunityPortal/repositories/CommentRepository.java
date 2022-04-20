@@ -2,6 +2,7 @@ package com.aspd.collegeCommunityPortal.repositories;
 
 import com.aspd.collegeCommunityPortal.model.Comment;
 import com.aspd.collegeCommunityPortal.model.Post;
+import com.aspd.collegeCommunityPortal.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,8 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     Integer getPostCommentCount(Post post);
 
     Page<Comment> findByPost(Post post, Pageable pageable);
+    @Query(value = "select count(c) from Comment c where c.user = ?1")
+    Integer countByUser(User user);
+    @Query(value = "select count(c) from Comment c where c.post in ?1")
+    Integer countByPosts(List<Post> posts);
 }

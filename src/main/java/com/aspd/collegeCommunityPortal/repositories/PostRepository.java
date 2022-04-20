@@ -17,4 +17,6 @@ public interface PostRepository extends JpaRepository<Post,Integer> {
     Page<Post> searchPostByTitle(String title, Pageable pageable);
 
     Page<Post> findPostByUser(User user,Pageable pageable);
+    @Query(value = "select count(p) from Post p where p.user = ?1")
+    Integer countByUser(User user);
 }

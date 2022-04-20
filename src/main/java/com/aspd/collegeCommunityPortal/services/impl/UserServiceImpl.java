@@ -232,5 +232,25 @@ public class UserServiceImpl implements UserService {
         return view;
     }
 
+    @Override
+    public UserDashboardResponse getUserDashboard() {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user=userPrincipal.getUser();
+        UserDashboardResponse response=new UserDashboardResponse();
+        Page<Post> posts = postRepository.findPostByUser(user, Pageable.unpaged());
+        if (!posts.isEmpty()){
+            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1,ReviewType.LIKE)).ifPresent(response::setNumberOfLikesAchieved);
+            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1,ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikesAchieved);
+            Optional.ofNullable(posts.getContent()).map(posts1 -> commentRepository.countByPosts(posts1)).ifPresent(response::setNumberOfCommentsAchieved);
+        }
+        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user1,ReviewType.LIKE)).ifPresent(response::setNumberOfLikesMade);
+        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user,ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikedMade);
+        Optional.ofNullable(user).map(commentRepository::countByUser).ifPresent(response::setNumberOfCommentsMade);
+        Optional.ofNullable(user).map(postRepository::countByUser).ifPresent(response::setNumberOfPosts);
+        Optional.ofNullable(user).map(imageRepository::countByUser).ifPresent(response::setNumberOfImages);
+        Optional.ofNullable(user).map(documentRepository::countByUser).ifPresent(response::setNumberOfDocuments);
+        return response;
+    }
+
 
 }

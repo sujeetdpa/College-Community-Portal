@@ -4,10 +4,7 @@ import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserDocumentRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserImageRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserUpdateRequest;
-import com.aspd.collegeCommunityPortal.beans.response.PostResponseViewList;
-import com.aspd.collegeCommunityPortal.beans.response.UserDocumentResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserImageResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
+import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.config.JWTConfig;
 import com.aspd.collegeCommunityPortal.model.User;
@@ -18,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,5 +62,11 @@ public class UserController {
     public ResponseEntity<UserResponseView> updateUser(@PathVariable("userId") Integer userId,@RequestBody UserUpdateRequest request){
         UserResponseView responseView=userService.updateUser(userId,request);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
+    }
+
+    @GetMapping("/data/dashboard")
+    public ResponseEntity<UserDashboardResponse> getUserDashboard(){
+        UserDashboardResponse response=userService.getUserDashboard();
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
