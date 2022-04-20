@@ -15,5 +15,5 @@ public class CommentResponseView {
     private Integer userId;
     private Integer profileImageId;
     private String fullName;
-    private LocalDateTime commentDate;
+    private String commentDate;
 }

@@ -12,7 +12,7 @@ public class PostResponseView {
     private Integer id;
     private String description;
     private String title;
-    private LocalDateTime creationDate;
+    private String creationDate;
     private String fullName;
     private Integer userId;
     private Integer profileImageId;

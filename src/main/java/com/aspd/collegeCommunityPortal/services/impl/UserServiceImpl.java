@@ -8,6 +8,7 @@ import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
 import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.UserService;
+import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +51,8 @@ public class UserServiceImpl implements UserService {
     private AmazonS3Service amazonS3Service;
     @Autowired
     private BucketName bucketName;
+    @Autowired
+    private TimeUtil timeUtil;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -79,11 +81,11 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
         Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
         Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
-        Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+        Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
         Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
         Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
         Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
-        Optional.ofNullable(user.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
+        Optional.ofNullable(user.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
         Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
         user.getRoles().stream().findFirst().map(Role::getName).ifPresent(view::setRole);
         return view;
@@ -147,7 +149,7 @@ public class UserServiceImpl implements UserService {
                 PostResponseView postResponseView = new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
-                postResponseView.setCreationDate(post.getCreationDate());
+                postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
                 postResponseView.setDescription(post.getDescription());
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
@@ -222,11 +224,11 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(updatedUser.getFullName()).ifPresent(view::setFullName);
         Optional.ofNullable(updatedUser.getUsername()).ifPresent(view::setUsername);
         Optional.ofNullable(updatedUser.getDob()).ifPresent(view::setDob);
-        Optional.ofNullable(updatedUser.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+        Optional.ofNullable(updatedUser.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
         Optional.ofNullable(updatedUser.getMobileNo()).ifPresent(view::setMobileNo);
         Optional.ofNullable(updatedUser.getUniversityId()).ifPresent(view::setUniversityId);
         Optional.ofNullable(updatedUser.getGender().toString()).ifPresent(view::setGender);
-        Optional.ofNullable(updatedUser.getUserCreationTimestamp()).ifPresent(view::setUserCreationTimestamp);
+        Optional.ofNullable(updatedUser.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
         return view;
     }
 

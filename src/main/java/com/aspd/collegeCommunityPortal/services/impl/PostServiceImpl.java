@@ -8,6 +8,7 @@ import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
 import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.PostService;
+import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,6 +48,8 @@ public class PostServiceImpl implements PostService {
     private DocumentRepository documentRepository;
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    private TimeUtil timeUtil;
 
     @Override
     public PostResponseViewList getAllPost(PostRequest postRequest) {
@@ -66,7 +68,7 @@ public class PostServiceImpl implements PostService {
                 PostResponseView postResponseView=new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
-                postResponseView.setCreationDate(post.getCreationDate());
+                postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
                 postResponseView.setDescription(post.getDescription());
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
@@ -120,7 +122,7 @@ public class PostServiceImpl implements PostService {
         postResponseView.setId(savedPost.getId());
         postResponseView.setTitle(savedPost.getTitle());
         postResponseView.setDescription(savedPost.getDescription());
-        postResponseView.setCreationDate(savedPost.getCreationDate());
+        postResponseView.setCreationDate(timeUtil.getCreationTimestamp(savedPost.getCreationDate()));
         postResponseView.setFullName(savedPost.getUser().getFullName());
         postResponseView.setUserId(savedPost.getUser().getId());
 
@@ -187,9 +189,10 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
             Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
             Optional.ofNullable(post.getDescription()).ifPresent(responseView::setDescription);
-            Optional.ofNullable(post.getCreationDate()).ifPresent(responseView::setCreationDate);
+            Optional.ofNullable(timeUtil.getCreationTimestamp(post.getCreationDate())).ifPresent(responseView::setCreationDate);
             Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
             Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
+            Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(responseView::setProfileImageId);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
             Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(responseView::setImageIds);
@@ -217,7 +220,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(savedComment.getTitle()).ifPresent(view::setTitle);
             Optional.ofNullable(savedComment.getDescription()).ifPresent(view::setDescription);
             Optional.ofNullable(savedComment.getId()).ifPresent(view::setId);
-            Optional.ofNullable(savedComment.getCommentDate()).ifPresent(view::setCommentDate);
+            Optional.ofNullable(timeUtil.getCreationTimestamp(savedComment.getCommentDate())).ifPresent(view::setCommentDate);
             Optional.ofNullable(savedComment.getPost().getId()).ifPresent(view::setPostId);
             Optional.ofNullable(savedComment.getUser().getId()).ifPresent(view::setUserId);
             Optional.ofNullable(savedComment.getUser().getFullName()).ifPresent(view::setFullName);
@@ -241,7 +244,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
                 Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
                 Optional.ofNullable(comment.getId()).ifPresent(view::setId);
-                Optional.ofNullable(comment.getCommentDate()).ifPresent(view::setCommentDate);
+                Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
                 Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
                 Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
                 Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);

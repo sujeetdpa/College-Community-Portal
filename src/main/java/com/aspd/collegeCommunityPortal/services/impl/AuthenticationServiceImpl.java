@@ -15,6 +15,7 @@ import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.JwtUtil;
+import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,6 +46,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TimeUtil timeUtil;
     
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) {
@@ -61,7 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
             Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
             Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
-            Optional.ofNullable(user.getLastLoginTimestamp()).ifPresent(view::setLastLoginTimestamp);
+            Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
             Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
             Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
             response=new AuthenticationResponse();

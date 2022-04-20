@@ -16,9 +16,9 @@ public class UserResponseView {
     private String gender;
     private String username;
     private String universityId;
-    private LocalDateTime userCreationTimestamp;
+    private String userCreationTimestamp;
     private LocalDate dob;
-    private LocalDateTime lastLoginTimestamp;
+    private String lastLoginTimestamp;
     private String mobileNo;
     private Integer profileImageId;
     private String role;
