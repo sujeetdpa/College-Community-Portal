@@ -137,7 +137,6 @@ public class PostServiceImpl implements PostService {
         if(Optional.ofNullable(request.getTitle()).isPresent()){
             postPage=postRepository.searchPostByTitle(request.getTitle(),pageable);
         }
-        // TODO more searches to add here
         if(postPage!=null && !postPage.isEmpty()){
             postPage.stream().filter(post -> !post.getIsDeleted()).forEach(post -> {
                 PostSearchResponseView responseView=new PostSearchResponseView();
@@ -148,14 +147,17 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getUsername()).ifPresent(responseView::setUsername);
                 responseViewList.add(responseView);
             });
+            PostSearchResponseViewList list=new PostSearchResponseViewList();
+            Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
+            Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalNumberOfItems);
+            Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxItems);
+            Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
+            Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
+            return list;
         }
-        PostSearchResponseViewList list=new PostSearchResponseViewList();
-        Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
-        Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalNumberOfItems);
-        Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxItems);
-        Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
-        Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
-        return list;
+        else {
+            throw new IllegalStateException("No post found with title: "+request.getTitle());
+        }
     }
 
     @Override
@@ -392,7 +394,7 @@ public class PostServiceImpl implements PostService {
             List<Document> documents=new ArrayList<>();
             files.forEach(file->{
                 if (!documentExtensions.contains(file.getContentType())){
-                    throw new IllegalStateException("Document format not supported");
+                    throw new IllegalStateException("Document format supported are: "+documentExtensions);
                 }
                 String filename=LocalDateTime.now().toString().concat("_").concat(file.getOriginalFilename());
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
