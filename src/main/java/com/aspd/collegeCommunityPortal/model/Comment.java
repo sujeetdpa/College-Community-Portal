@@ -16,6 +16,7 @@ public class Comment {
     private String title;
     private String description;
     private LocalDateTime commentDate;
+    private Boolean isDeleted=false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;

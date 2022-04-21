@@ -33,4 +33,6 @@ public interface PostService {
     byte[] downloadImage(Integer imageId) throws IOException;
 
     byte[] downloadDocument(Integer documentId) throws IOException;
+
+    DeleteResponseView deleteComment(Integer commentId);
 }

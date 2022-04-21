@@ -60,6 +60,11 @@ public class PostController {
         CommentResponseViewList viewList=postService.getPostComments(postId,request);
         return new ResponseEntity<>(viewList,HttpStatus.OK);
     }
+    @DeleteMapping("/comment/delete/{commentId}")
+    public ResponseEntity<DeleteResponseView> deleteComment(@PathVariable("commentId") Integer commentId){
+        DeleteResponseView responseView=postService.deleteComment(commentId);
+        return new ResponseEntity<>(responseView,HttpStatus.OK);
+    }
     @PostMapping("/{postId}/like/{userId}")
     public ResponseEntity<LikePostResponse> likePost(@PathVariable("postId") int postId,@PathVariable("userId") int userId){
         LikePostResponse response=postService.likePost(postId,userId);

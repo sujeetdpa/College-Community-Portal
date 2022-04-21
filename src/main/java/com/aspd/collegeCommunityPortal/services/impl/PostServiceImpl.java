@@ -215,6 +215,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(request.getDescription()).ifPresent(comment::setDescription);
             Optional.ofNullable(LocalDateTime.now()).ifPresent(comment::setCommentDate);
             optionalPost.ifPresent(comment::setPost);
+            comment.setIsDeleted(false);
             Optional.ofNullable(userPrincipal.getUser()).ifPresent(comment::setUser);
             Comment savedComment = commentRepository.save(comment);
 
@@ -242,6 +243,9 @@ public class PostServiceImpl implements PostService {
         if(comments!=null && !comments.isEmpty()){
             List<CommentResponseView> viewList=new ArrayList<>();
             for (Comment comment:comments){
+                if(comment.getIsDeleted()){
+                    continue;
+                }
                 CommentResponseView view=new CommentResponseView();
                 Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
                 Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
@@ -438,5 +442,23 @@ public class PostServiceImpl implements PostService {
             return localStorageService.downloadFile(document.get().getPath(),document.get().getDocumentName());
         }
         return new byte[0];
+    }
+
+    @Override
+    public DeleteResponseView deleteComment(Integer commentId) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isEmpty()){
+            throw new IllegalStateException("Invalid Delete Request.");
+        }
+        Comment comment=optionalComment.get();
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!comment.getUser().equals(userPrincipal.getUser())){
+            throw new IllegalStateException("You don't have the required permission");
+        }
+        comment.setIsDeleted(true);
+        commentRepository.save(comment);
+        DeleteResponseView view=new DeleteResponseView();
+        view.setMessage("Comment Removed Successfully");
+        return view;
     }
 }
