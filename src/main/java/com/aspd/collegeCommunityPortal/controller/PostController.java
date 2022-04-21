@@ -42,7 +42,7 @@ public class PostController {
     @DeleteMapping("/delete/{postId}")
     public ResponseEntity<DeleteResponseView> deletePost(@PathVariable("postId") int postId){
         DeleteResponseView deleteResponseView=postService.deletePost(postId);
-        return new ResponseEntity<>(null,HttpStatus.OK);
+        return new ResponseEntity<>(deleteResponseView,HttpStatus.OK);
     }
     @PostMapping("/search")
     public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestBody PostSearchRequest request){

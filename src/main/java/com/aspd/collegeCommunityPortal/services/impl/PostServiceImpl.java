@@ -57,14 +57,11 @@ public class PostServiceImpl implements PostService {
         Map<Integer,Integer> postCommentCount=null;
         PostResponseViewList postResponseViewList=new PostResponseViewList();
         Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
-        Page<Post> postPage = postRepository.findAll(pageable);
+        Page<Post> postPage = postRepository.findAllPost(pageable);
 
         if(!postPage.isEmpty()){
             List<PostResponseView> postResponseViews=new ArrayList<>();
             for(Post post:postPage){
-                if (post.getIsDeleted()==null || post.getIsDeleted()){
-                    continue;
-                }
                 PostResponseView postResponseView=new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
@@ -138,7 +135,7 @@ public class PostServiceImpl implements PostService {
             postPage=postRepository.searchPostByTitle(request.getTitle(),pageable);
         }
         if(postPage!=null && !postPage.isEmpty()){
-            postPage.stream().filter(post -> !post.getIsDeleted()).forEach(post -> {
+            postPage.forEach(post -> {
                 PostSearchResponseView responseView=new PostSearchResponseView();
                 Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
                 Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
@@ -163,28 +160,31 @@ public class PostServiceImpl implements PostService {
     @Override
     public DeleteResponseView deletePost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        DeleteResponseView responseView=new DeleteResponseView();
-        if (optionalPost.isEmpty() || !optionalPost.isPresent()){
-            responseView.setMessage("Invalid delete request");
+
+        if (optionalPost.isEmpty() || !optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Invalid delete request");
         }
         else {
-            Post post=optionalPost.get();
+            Post post = optionalPost.get();
             UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (!post.getUser().equals(userPrincipal.getUser())){
-                responseView.setMessage("Unauthorised Request for user : "+userPrincipal.getUsername());
-            }
-            else{
+            if (!post.getUser().getId().equals(userPrincipal.getUser().getId())) {
+                throw new IllegalStateException("You don't have the required permission");
+            } else {
                 post.setIsDeleted(true);
                 postRepository.save(post);
-                responseView.setMessage(String.format("Post deleted with Title : %s",post.getTitle()));
+                DeleteResponseView responseView = new DeleteResponseView();
+                responseView.setMessage(String.format("Post deleted with Title : %s", post.getTitle()));
+                return responseView;
             }
         }
-        return responseView;
     }
 
     @Override
     public PostResponseView getPost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
+        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Post not Found");
+        }
         if(optionalPost.isPresent() && !optionalPost.get().getIsDeleted()){
             PostResponseView responseView=new PostResponseView();
             Post post = optionalPost.get();
@@ -209,6 +209,9 @@ public class PostServiceImpl implements PostService {
         Optional<Post> optionalPost = postRepository.findById(request.getPostId());
         Optional<User> optionalUser = userRepository.findById(request.getUserId());
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Post not Found");
+        }
         if (optionalPost.isPresent() && userPrincipal.getUser()!=null){
             Comment comment=new Comment();
             Optional.ofNullable(request.getTitle()).ifPresent(comment::setTitle);
@@ -237,7 +240,10 @@ public class PostServiceImpl implements PostService {
         Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.ASC,"commentDate"));
         Optional<Post> optionalPost = postRepository.findById(postId);
         Page<Comment> comments=null;
-        if (optionalPost.isPresent()){
+        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Post not Found");
+        }
+        if (optionalPost.isPresent() && !optionalPost.get().getIsDeleted()){
             comments = commentRepository.findByPost(optionalPost.get(), pageable);
         }
         if(comments!=null && !comments.isEmpty()){
@@ -272,6 +278,9 @@ public class PostServiceImpl implements PostService {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
         LikePostResponse response=null;
+        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Post not Found");
+        }
         if (validatePostDislike(optionalPost.get(),optionalUser.get()).isPresent()){
             response=new LikePostResponse();
             Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
@@ -323,6 +332,9 @@ public class PostServiceImpl implements PostService {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
         DislikePostResponse response=null;
+        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+            throw new IllegalStateException("Post not Found");
+        }
         if (validatePostLike(optionalPost.get(),optionalUser.get()).isPresent()){
             response=new DislikePostResponse();
             Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
