@@ -51,7 +51,7 @@ public class PostController {
     }
 
     @PostMapping("/comment/new")
-    public ResponseEntity<CommentResponseView> newComment(@RequestBody CommentRequest request){
+    public ResponseEntity<CommentResponseView> newComment(@RequestBody NewCommentRequest request){
         CommentResponseView responseView=postService.newComment(request);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }

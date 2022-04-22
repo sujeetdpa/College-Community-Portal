@@ -18,7 +18,7 @@ public interface PostService {
 
     PostResponseView getPost(int postId);
 
-    CommentResponseView newComment(CommentRequest request);
+    CommentResponseView newComment(NewCommentRequest request);
 
     CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request);
 

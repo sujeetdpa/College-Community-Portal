@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CommentRequest {
+public class NewCommentRequest {
     private String title;
     private String description;
     private int postId;

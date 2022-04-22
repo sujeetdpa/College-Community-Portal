@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +22,5 @@ public class UserResponseView {
     private String lastLoginTimestamp;
     private String mobileNo;
     private Integer profileImageId;
-    private String role;
+    private List<String> role;
 }
