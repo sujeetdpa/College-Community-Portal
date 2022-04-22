@@ -259,6 +259,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
                 Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
                 Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
+                Optional.ofNullable(comment.getUser().getProfileImageId()).ifPresent(view::setProfileImageId);
                 Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
                 viewList.add(view);
             }
@@ -464,7 +465,7 @@ public class PostServiceImpl implements PostService {
         }
         Comment comment=optionalComment.get();
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!comment.getUser().equals(userPrincipal.getUser())){
+        if (!comment.getUser().getId().equals(userPrincipal.getUser().getId())){
             throw new IllegalStateException("You don't have the required permission");
         }
         comment.setIsDeleted(true);
