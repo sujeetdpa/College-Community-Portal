@@ -64,9 +64,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
             Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
             Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
-            Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
-            Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
             Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
+            Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
             response=new AuthenticationResponse();
             response.setAccess_token(token);
             response.setUserResponseView(view);

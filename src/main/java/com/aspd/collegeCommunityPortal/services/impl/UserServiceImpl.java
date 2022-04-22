@@ -143,14 +143,12 @@ public class UserServiceImpl implements UserService {
             PostResponseViewList postResponseViewList = new PostResponseViewList();
             List<PostResponseView> postResponseViews = new ArrayList<>();
             for (Post post : userPosts) {
-                if (post.getIsDeleted() == null || post.getIsDeleted()) {
-                    continue;
-                }
                 PostResponseView postResponseView = new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
                 postResponseView.setDescription(post.getDescription());
+                postResponseView.setProfileImageId(post.getUser().getProfileImageId());
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);

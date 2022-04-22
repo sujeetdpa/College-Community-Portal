@@ -161,7 +161,7 @@ public class PostServiceImpl implements PostService {
     public DeleteResponseView deletePost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
 
-        if (optionalPost.isEmpty() || !optionalPost.get().getIsDeleted()){
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
             throw new IllegalStateException("Invalid delete request");
         }
         else {
