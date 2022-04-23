@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -167,8 +168,17 @@ public class PostServiceImpl implements PostService {
         else {
             Post post = optionalPost.get();
             UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (!post.getUser().getId().equals(userPrincipal.getUser().getId())) {
+            boolean role_admin = userPrincipal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            if (!post.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin) {
                 throw new IllegalStateException("You don't have the required permission");
+            }
+            else if (role_admin) {
+                post.setIsDeleted(true);
+                postRepository.save(post);
+                //TODO send email for deleting post by admin
+                DeleteResponseView responseView = new DeleteResponseView();
+                responseView.setMessage(String.format("Post deleted with Title : %s", post.getTitle()));
+                return responseView;
             } else {
                 post.setIsDeleted(true);
                 postRepository.save(post);
@@ -465,13 +475,22 @@ public class PostServiceImpl implements PostService {
         }
         Comment comment=optionalComment.get();
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!comment.getUser().getId().equals(userPrincipal.getUser().getId())){
+        boolean role_admin = userPrincipal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (!comment.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin){
             throw new IllegalStateException("You don't have the required permission");
+        } else if (role_admin) {
+            comment.setIsDeleted(true);
+            commentRepository.save(comment);
+            //TODO send email to the user for deleted comment
+            DeleteResponseView view = new DeleteResponseView();
+            view.setMessage("Comment Removed Successfully");
+            return view;
+        } else {
+            comment.setIsDeleted(true);
+            commentRepository.save(comment);
+            DeleteResponseView view = new DeleteResponseView();
+            view.setMessage("Comment Removed Successfully");
+            return view;
         }
-        comment.setIsDeleted(true);
-        commentRepository.save(comment);
-        DeleteResponseView view=new DeleteResponseView();
-        view.setMessage("Comment Removed Successfully");
-        return view;
     }
 }

@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
     private TimeUtil timeUtil;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username){
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
@@ -249,8 +249,5 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(user).map(documentRepository::countByUser).ifPresent(response::setNumberOfDocuments);
         return response;
     }
-
-
-
 
 }
