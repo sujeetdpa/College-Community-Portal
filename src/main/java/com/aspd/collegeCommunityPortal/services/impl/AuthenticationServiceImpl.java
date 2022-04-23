@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -69,6 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
             Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
             Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
+            //Optional.ofNullable(user.getRoles()).map(roles -> roles.stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
             response=new AuthenticationResponse();
             response.setAccess_token(token);
             response.setUserResponseView(view);
