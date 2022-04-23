@@ -11,7 +11,7 @@ import java.util.Date;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    public static final String FROM_EMAIL="admin@ccp.com";
+    public static final String FROM_EMAIL="sujeetdpa@gmail.com";
     public static final String SUBJECT_PREFIX="CCP Admin- ";
 
     @Autowired
@@ -80,6 +80,18 @@ public class EmailServiceImpl implements EmailService {
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "CollegeCommunityPortal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
+
+    @Override
+    public void emailTest(String firstName,String email) {
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Test email");
+        String body="Hello "+firstName+",\n"+"This is a test email";
         simpleMailMessage.setText(body);
         simpleMailMessage.setTo(email);
         simpleMailMessage.setSentDate(new Date());

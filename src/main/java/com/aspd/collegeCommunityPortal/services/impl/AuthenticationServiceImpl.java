@@ -13,6 +13,7 @@ import com.aspd.collegeCommunityPortal.model.UserPrincipal;
 import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
 import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
+import com.aspd.collegeCommunityPortal.services.EmailService;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.JwtUtil;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
@@ -47,6 +48,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    EmailService emailService;
+    @Autowired
     private TimeUtil timeUtil;
     
     @Override
@@ -69,6 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             response=new AuthenticationResponse();
             response.setAccess_token(token);
             response.setUserResponseView(view);
+
         }
         return response;
     }
