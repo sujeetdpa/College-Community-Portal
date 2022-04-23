@@ -172,7 +172,7 @@ public class PostServiceImpl implements PostService {
             if (!post.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin) {
                 throw new IllegalStateException("You don't have the required permission");
             }
-            else if (role_admin) {
+            else if (role_admin && !post.getUser().getId().equals(userPrincipal.getUser().getId())) {
                 post.setIsDeleted(true);
                 postRepository.save(post);
                 //TODO send email for deleting post by admin
@@ -478,7 +478,8 @@ public class PostServiceImpl implements PostService {
         boolean role_admin = userPrincipal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         if (!comment.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin){
             throw new IllegalStateException("You don't have the required permission");
-        } else if (role_admin) {
+        }
+        else if (role_admin && !comment.getUser().getId().equals(userPrincipal.getUser().getId())) {
             comment.setIsDeleted(true);
             commentRepository.save(comment);
             //TODO send email to the user for deleted comment
