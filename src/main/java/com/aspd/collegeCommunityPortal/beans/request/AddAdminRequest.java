@@ -3,13 +3,15 @@ package com.aspd.collegeCommunityPortal.beans.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Getter
 @Setter
-public class AddUserRequest {
+public class AddAdminRequest {
     private String firstName;
     private String lastName;
     private String username;
     private String password;
-    private Integer roleId;
+    private List<Integer> roles;
 }

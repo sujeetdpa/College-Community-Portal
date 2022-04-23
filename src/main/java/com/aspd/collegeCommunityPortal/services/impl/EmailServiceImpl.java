@@ -71,7 +71,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendBlockedAccountEmail(String firstName, String email) {
+    public void sendLockedAccountEmail(String firstName, String email) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account blocked");

@@ -23,4 +23,7 @@ public class UserResponseView {
     private String mobileNo;
     private Integer profileImageId;
     private List<String> role;
+    private Boolean isActive;
+    private Boolean isNotLocked;
+    private String email;
 }
