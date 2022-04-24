@@ -105,7 +105,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UserResponseView toggleAccountLock(Integer userId) {
+    public Boolean toggleAccountLock(Integer userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()){
             throw new IllegalStateException("User not found");
@@ -119,24 +119,25 @@ public class AdminServiceImpl implements AdminService {
             user.setIsNotLocked(true);
             //TODO send mail for account unlocked
         }
-        UserResponseView view=new UserResponseView();
-        Optional.ofNullable(user.getId()).ifPresent(view::setId);
-        Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
-        Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
-        Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
-        Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
-        Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
-        Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
-        Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
-        Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
-        Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
-        Optional.ofNullable(user.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
-        Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
-        Optional.ofNullable(user.getRoles().stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
-        Optional.ofNullable(user.getIsActive()).ifPresent(view::setIsActive);
-        Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
-        Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
-        return view;
+        user=userRepository.save(user);
+//        UserResponseView view=new UserResponseView();
+//        Optional.ofNullable(user.getId()).ifPresent(view::setId);
+//        Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
+//        Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
+//        Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
+//        Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
+//        Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
+//        Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
+//        Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
+//        Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
+//        Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
+//        Optional.ofNullable(user.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
+//        Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
+//        Optional.ofNullable(user.getRoles().stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
+//        Optional.ofNullable(user.getIsActive()).ifPresent(view::setIsActive);
+//        Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
+//        Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
+        return user.getIsNotLocked();
     }
 
 }

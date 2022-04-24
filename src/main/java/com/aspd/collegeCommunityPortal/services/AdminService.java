@@ -10,5 +10,5 @@ public interface AdminService {
 
     UserResponseView addAdmin(AddAdminRequest request);
 
-    UserResponseView toggleAccountLock(Integer userId);
+    Boolean toggleAccountLock(Integer userId);
 }
