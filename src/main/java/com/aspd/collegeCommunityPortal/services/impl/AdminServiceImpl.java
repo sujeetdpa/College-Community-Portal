@@ -140,4 +140,9 @@ public class AdminServiceImpl implements AdminService {
         return user.getIsNotLocked();
     }
 
+    @Override
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
+    }
+
 }
