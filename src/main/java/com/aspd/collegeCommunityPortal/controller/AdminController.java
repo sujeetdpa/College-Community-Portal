@@ -2,6 +2,7 @@ package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.AddAdminRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
+import com.aspd.collegeCommunityPortal.beans.response.AdminDashboardResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseViewList;
 import com.aspd.collegeCommunityPortal.model.Role;
@@ -40,4 +41,10 @@ public class AdminController {
         List<Role> roles=adminService.getRoles();
         return new ResponseEntity<>(roles,HttpStatus.OK);
     }
+    @GetMapping("/dashboard")
+    public ResponseEntity<AdminDashboardResponse> getDashboard(){
+        AdminDashboardResponse response=adminService.getDashboard();
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
 }

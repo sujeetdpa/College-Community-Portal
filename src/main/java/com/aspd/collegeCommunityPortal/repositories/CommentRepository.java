@@ -27,4 +27,7 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     Integer countByUser(User user);
     @Query(value = "select count(c) from Comment c where c.post in ?1")
     Integer countByPosts(List<Post> posts);
+
+    @Query(value = "select count(c) from Comment c where c.isDeleted=true")
+    Integer countDeletedComment();
 }

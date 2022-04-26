@@ -2,12 +2,13 @@ package com.aspd.collegeCommunityPortal.services.impl;
 
 import com.aspd.collegeCommunityPortal.beans.request.AddAdminRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
+import com.aspd.collegeCommunityPortal.beans.response.AdminDashboardResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseViewList;
+import com.aspd.collegeCommunityPortal.model.ReviewType;
 import com.aspd.collegeCommunityPortal.model.Role;
 import com.aspd.collegeCommunityPortal.model.User;
-import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
-import com.aspd.collegeCommunityPortal.repositories.UserRepository;
+import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AdminService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
@@ -31,6 +32,16 @@ public class AdminServiceImpl implements AdminService {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+    @Autowired
+    private ImageRepository imageRepository;
+    @Autowired
+    private DocumentRepository documentRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -143,6 +154,22 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<Role> getRoles() {
         return roleRepository.findAll();
+    }
+
+    @Override
+    public AdminDashboardResponse getDashboard() {
+        AdminDashboardResponse response=new AdminDashboardResponse();
+        response.setNumberOfPosts(postRepository.count());
+        response.setNumberOfDeletedPost(postRepository.countDeletedPost());
+        response.setNumberOfDeletedComment(commentRepository.countDeletedComment());
+        response.setNumberOfUsers(userRepository.count());
+        response.setNumberOfAdmins(userRepository.countByRole(roleRepository.findByName("ADMIN_ROLE").get()));
+        response.setNumberOfComments(commentRepository.count());
+        response.setNumberOfLikes(reviewRepository.countByReviewType(ReviewType.LIKE));
+        response.setNumberOfDislikes(reviewRepository.countByReviewType(ReviewType.DISLIKE));
+        response.setNumberOfImages(imageRepository.count());
+        response.setNumberOfDocuments(documentRepository.count());
+        return response;
     }
 
 }

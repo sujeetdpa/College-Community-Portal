@@ -22,4 +22,7 @@ public interface PostRepository extends JpaRepository<Post,Integer> {
 
     @Query(value = "select p from Post p where p.isDeleted=false")
     Page<Post> findAllPost(Pageable pageable);
+
+    @Query(value = "select count(p) from Post p where p.isDeleted=true")
+    Integer countDeletedPost();
 }

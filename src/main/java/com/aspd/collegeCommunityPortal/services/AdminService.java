@@ -2,6 +2,7 @@ package com.aspd.collegeCommunityPortal.services;
 
 import com.aspd.collegeCommunityPortal.beans.request.AddAdminRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
+import com.aspd.collegeCommunityPortal.beans.response.AdminDashboardResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseViewList;
 import com.aspd.collegeCommunityPortal.model.Role;
@@ -16,4 +17,6 @@ public interface AdminService {
     Boolean toggleAccountLock(Integer userId);
 
     List<Role> getRoles();
+
+    AdminDashboardResponse getDashboard();
 }

@@ -22,4 +22,7 @@ public interface ReviewRepository extends JpaRepository<Review,Integer> {
     Integer countByUser(User user,ReviewType reviewType);
     @Query(value = "select count(r) from Review r where r.post in ?1 and r.reviewType= ?2")
     Integer countByPosts(List<Post> posts,ReviewType reviewType);
+
+    @Query(value = "select count(r) from Review r where r.reviewType= ?1")
+    Integer countByReviewType(ReviewType reviewType);
 }
