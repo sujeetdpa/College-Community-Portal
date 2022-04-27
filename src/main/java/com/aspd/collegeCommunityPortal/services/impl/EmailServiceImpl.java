@@ -85,6 +85,38 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
+    public void sendUnlockedAccountEmail(String firstName, String email) {
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Unlocked");
+        String body="Hello "+firstName+",\n"+"Your account has been unblocked by the administrator. You can access your account using your previous credentials."+"\n"+
+                "<b>Note: </b> Please avoid malpractices on the application otherwise your account will be blocked permanently."+"\n\n\n"+
+                "Thanks & Regards"+"\n"+
+                "Admin"+"\n"+
+                "CollegeCommunityPortal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
+    @Override
+    public void sendRegistrationEmail(String firstName,String email,String password){
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        String link="";
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Creation");
+        String body="Congratulations "+firstName+",\n"+"Your account has been created successfully and your login credentials are :-"+"\n"+
+                "Username: "+email+
+                "Password: "+password+
+                "<b>Note: </b> Please update your profile details in account section"+"\n\n\n"+
+                "Thanks & Regards"+"\n"+
+                "Admin"+"\n"+
+                "College Community Portal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
 
     @Override
     public void emailTest(String firstName,String email) {
@@ -97,5 +129,6 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
+
 
 }

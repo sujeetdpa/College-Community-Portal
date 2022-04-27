@@ -8,8 +8,11 @@ import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AdminService;
+import com.aspd.collegeCommunityPortal.services.EmailService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +44,8 @@ public class AdminServiceImpl implements AdminService {
     private ImageRepository imageRepository;
     @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -100,14 +105,15 @@ public class AdminServiceImpl implements AdminService {
         user.setUsername(Optional.ofNullable(request.getUsername()).orElseThrow(() -> new IllegalStateException("Username cannot be empty")));
         user.setRoles(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById).orElseThrow(() -> new IllegalStateException("Select at least one role")));
         Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
-        UUID password = UUID.randomUUID();
-        user.setPassword(passwordEncoder.encode(password.toString()));
+        String password = RandomStringUtils.random(10);
+        user.setPassword(passwordEncoder.encode(password));
         user.setIsActive(true);
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
         user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
-        // Send email to the username
         userRepository.save(user);
+        emailService.sendRegistrationEmail(user.getFirstName(),user.getUsername(),password);
+
         UserResponseView view=new UserResponseView();
         Optional.ofNullable(user.getId()).ifPresent(view::setId);
         Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
@@ -125,11 +131,11 @@ public class AdminServiceImpl implements AdminService {
         User user=optionalUser.get();
         if (user.getIsNotLocked()) {
             user.setIsNotLocked(false);
-            //TODO send mail for account locked
+            emailService.sendLockedAccountEmail(user.getFirstName(),user.getUsername());
         }
         else {
             user.setIsNotLocked(true);
-            //TODO send mail for account unlocked
+            emailService.sendUnlockedAccountEmail(user.getFirstName(),user.getUsername());
         }
         user=userRepository.save(user);
 //        UserResponseView view=new UserResponseView();
