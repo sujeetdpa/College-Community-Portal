@@ -1,13 +1,11 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
 import com.aspd.collegeCommunityPortal.beans.request.AddAdminRequest;
+import com.aspd.collegeCommunityPortal.beans.request.PostCommentFetchRequest;
+import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
-import com.aspd.collegeCommunityPortal.beans.response.AdminDashboardResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseViewList;
-import com.aspd.collegeCommunityPortal.model.ReviewType;
-import com.aspd.collegeCommunityPortal.model.Role;
-import com.aspd.collegeCommunityPortal.model.User;
+import com.aspd.collegeCommunityPortal.beans.response.*;
+import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AdminService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -171,5 +170,68 @@ public class AdminServiceImpl implements AdminService {
         response.setNumberOfDocuments(documentRepository.count());
         return response;
     }
+
+    @Override
+    public PostResponseViewList getDeletedPost(PostRequest request) {
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(request.getSortBy()).orElse("creationDate")));
+        Page<Post> postPage=null;
+        postPage=postRepository.findAllDeletedPost(pageable);
+        if (postPage.isEmpty()){
+            throw new IllegalStateException("No deleted post found");
+        }
+        PostResponseViewList postResponseViewList=new PostResponseViewList();
+        List<PostResponseView> postResponseViews=new ArrayList<>();
+        for(Post post:postPage){
+            PostResponseView postResponseView=new PostResponseView();
+            postResponseView.setId(post.getId());
+            postResponseView.setTitle(post.getTitle());
+            postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
+            postResponseView.setDescription(post.getDescription());
+            Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
+            Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
+            Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
+            Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+            Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
+            Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+            Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
+            postResponseViews.add(postResponseView);
+        }
+        postResponseViewList.setPostResponseViews(postResponseViews);
+        postResponseViewList.setTotalNumberOfItems(postPage.getTotalElements());
+        postResponseViewList.setPageNo(postPage.getNumber());
+        postResponseViewList.setTotalPages(postPage.getTotalPages());
+        postResponseViewList.setMaxItems(postPage.getSize());
+        return postResponseViewList;
+    }
+
+    @Override
+    public CommentResponseViewList getDeletedComment(PostCommentFetchRequest request) {
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"commentDate"));
+        Page<Comment> commentPage=commentRepository.findAllDeletedComment(pageable);
+        if (commentPage.isEmpty()){
+            throw new IllegalStateException("No Deleted Comment found");
+        }
+        List<CommentResponseView> viewList=new ArrayList<>();
+        for (Comment comment:commentPage){
+            CommentResponseView view=new CommentResponseView();
+            Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
+            Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
+            Optional.ofNullable(comment.getId()).ifPresent(view::setId);
+            Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
+            Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
+            Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
+            Optional.ofNullable(comment.getUser().getProfileImageId()).ifPresent(view::setProfileImageId);
+            Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
+            viewList.add(view);
+        }
+        CommentResponseViewList responseViewList=new CommentResponseViewList();
+        Optional.ofNullable(commentPage.getTotalPages()).ifPresent(responseViewList::setTotalPages);
+        Optional.ofNullable(commentPage.getTotalElements()).ifPresent(responseViewList::setTotalNumberOfItems);
+        Optional.ofNullable(commentPage.getNumber()).ifPresent(responseViewList::setPageNo);
+        Optional.ofNullable(commentPage.getSize()).ifPresent(responseViewList::setMaxItems);
+        Optional.ofNullable(viewList).ifPresent(responseViewList::setCommentResponseViews);
+        return responseViewList;
+    }
+
 
 }

@@ -248,7 +248,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.ASC,"commentDate"));
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"commentDate"));
         Optional<Post> optionalPost = postRepository.findById(postId);
         Page<Comment> comments=null;
         if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){

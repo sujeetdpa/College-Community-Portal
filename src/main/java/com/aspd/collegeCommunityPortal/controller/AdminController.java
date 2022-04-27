@@ -1,10 +1,10 @@
 package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.AddAdminRequest;
+import com.aspd.collegeCommunityPortal.beans.request.PostCommentFetchRequest;
+import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
-import com.aspd.collegeCommunityPortal.beans.response.AdminDashboardResponse;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
-import com.aspd.collegeCommunityPortal.beans.response.UserResponseViewList;
+import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.model.Role;
 import com.aspd.collegeCommunityPortal.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,16 @@ public class AdminController {
     public ResponseEntity<AdminDashboardResponse> getDashboard(){
         AdminDashboardResponse response=adminService.getDashboard();
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @PostMapping("/deletedPosts")
+    public ResponseEntity<PostResponseViewList> getDeletedPost(@RequestBody PostRequest request){
+        PostResponseViewList responseViewList=adminService.getDeletedPost(request);
+        return new ResponseEntity<>(responseViewList,HttpStatus.OK);
+    }
+    @PostMapping("/deletedComments")
+    public ResponseEntity<CommentResponseViewList> getDeletedComment(@RequestBody PostCommentFetchRequest request){
+        CommentResponseViewList responseViewList=adminService.getDeletedComment(request);
+        return new ResponseEntity<>(responseViewList,HttpStatus.OK);
     }
 
 }
