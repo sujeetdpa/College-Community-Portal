@@ -94,10 +94,12 @@ public class AdminServiceImpl implements AdminService {
         if (userRepository.findByUsername(request.getUsername()).isPresent()){
             throw new IllegalStateException("Username already taken");
         }
+        System.out.println(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById));
         user.setFirstName(Optional.ofNullable(request.getFirstName()).orElseThrow(() -> new IllegalStateException("First Name cannot be empty")));
         user.setLastName(Optional.ofNullable(request.getLastName()).orElseThrow(() -> new IllegalStateException("Last Name cannot be empty")));
         user.setUsername(Optional.ofNullable(request.getUsername()).orElseThrow(() -> new IllegalStateException("Username cannot be empty")));
         user.setRoles(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById).orElseThrow(() -> new IllegalStateException("Select at least one role")));
+        Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
         UUID password = UUID.randomUUID();
         user.setPassword(passwordEncoder.encode(password.toString()));
         user.setIsActive(true);
@@ -192,6 +194,8 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
+            Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+            Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
             postResponseViews.add(postResponseView);
         }
         postResponseViewList.setPostResponseViews(postResponseViews);

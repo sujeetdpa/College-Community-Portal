@@ -13,4 +13,5 @@ public class AddAdminRequest {
     private String lastName;
     private String username;
     private List<Integer> roles;
+    private String gender;
 }
