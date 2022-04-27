@@ -10,6 +10,7 @@ import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import org.apache.http.entity.ContentType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +72,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
+                Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(postResponseView::setUniversityId);
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
@@ -124,7 +126,7 @@ public class PostServiceImpl implements PostService {
         postResponseView.setCreationDate(timeUtil.getCreationTimestamp(savedPost.getCreationDate()));
         postResponseView.setFullName(savedPost.getUser().getFullName());
         postResponseView.setUserId(savedPost.getUser().getId());
-
+        postResponseView.setUniversityId(savedPost.getUser().getUniversityId());
         return postResponseView;
     }
 
@@ -205,6 +207,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(timeUtil.getCreationTimestamp(post.getCreationDate())).ifPresent(responseView::setCreationDate);
             Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
             Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
+            Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(responseView::setUniversityId);
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(responseView::setProfileImageId);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
@@ -240,6 +243,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(timeUtil.getCreationTimestamp(savedComment.getCommentDate())).ifPresent(view::setCommentDate);
             Optional.ofNullable(savedComment.getPost().getId()).ifPresent(view::setPostId);
             Optional.ofNullable(savedComment.getUser().getId()).ifPresent(view::setUserId);
+            Optional.ofNullable(savedComment.getUser().getUniversityId()).ifPresent(view::setUniversityId);
             Optional.ofNullable(savedComment.getUser().getFullName()).ifPresent(view::setFullName);
             return view;
         }
@@ -270,6 +274,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
                 Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
                 Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
+                Optional.ofNullable(comment.getUser().getUniversityId()).ifPresent(view::setUniversityId);
                 Optional.ofNullable(comment.getUser().getProfileImageId()).ifPresent(view::setProfileImageId);
                 Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
                 viewList.add(view);

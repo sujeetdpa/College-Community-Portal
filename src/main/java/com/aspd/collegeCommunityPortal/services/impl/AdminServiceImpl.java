@@ -191,6 +191,7 @@ public class AdminServiceImpl implements AdminService {
             postResponseView.setDescription(post.getDescription());
             Optional.ofNullable(post.getUser().getFullName()).ifPresent(postResponseView::setFullName);
             Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
+            Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(postResponseView::setUniversityId);
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
@@ -222,6 +223,7 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
             Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
             Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
+            Optional.ofNullable(comment.getUser().getUniversityId()).ifPresent(view::setUniversityId);
             Optional.ofNullable(comment.getUser().getProfileImageId()).ifPresent(view::setProfileImageId);
             Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
             viewList.add(view);

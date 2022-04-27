@@ -15,6 +15,7 @@ public class PostResponseView {
     private String creationDate;
     private String fullName;
     private Integer userId;
+    private String universityId;
     private Integer profileImageId;
     private Integer noOfLikes;
     private Integer noOfComments;

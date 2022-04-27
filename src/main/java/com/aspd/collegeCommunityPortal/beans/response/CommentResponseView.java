@@ -13,6 +13,7 @@ public class CommentResponseView {
     private String title;
     private Integer postId;
     private Integer userId;
+    private String universityId;
     private Integer profileImageId;
     private String fullName;
     private String commentDate;
