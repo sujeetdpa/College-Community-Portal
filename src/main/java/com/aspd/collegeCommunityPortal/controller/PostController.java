@@ -4,6 +4,7 @@ import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
 import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.PostService;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -87,11 +88,11 @@ public class PostController {
         return new ResponseEntity<>(documentIds,HttpStatus.OK);
     }
 
-    @GetMapping(value = "/local/storage/download/image/{imageId}",produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "/local/storage/download/image/{imageId}",produces = {MediaType.IMAGE_JPEG_VALUE,MediaType.IMAGE_GIF_VALUE,MediaType.IMAGE_PNG_VALUE})
     public ResponseEntity<byte[]> downloadImage(@PathVariable("imageId") Integer imageId) throws IOException {
         return new ResponseEntity<>(postService.downloadImage(imageId),HttpStatus.OK);
     }
-    @GetMapping(value = "/local/storage/download/document/{documentId}")
+    @GetMapping(value = "/local/storage/download/document/{documentId}",produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> downloadDocument(@PathVariable("documentId") Integer documentId) throws IOException {
         return new ResponseEntity<>(postService.downloadDocument(documentId),HttpStatus.OK);
     }

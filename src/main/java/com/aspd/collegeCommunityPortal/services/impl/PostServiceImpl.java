@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
 
-    private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType(),ContentType.IMAGE_BMP.getMimeType());
+    private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType());
     private final List<String> documentExtensions=Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(),ContentType.TEXT_PLAIN.getMimeType(),".doc",".docx",".wps",".docm",".odt",".rtf",".csv",".ods",".xls",".xlsb",".xlsx",".ppt",".pptx");
     @Autowired
     private PostRepository postRepository;
@@ -406,8 +406,9 @@ public class PostServiceImpl implements PostService {
                     if (uploaded){
                         images.add(image1);
                     }
-                } catch (IOException e) {
-                    throw new IllegalStateException("Error in uploading images");
+                }
+                catch (IOException e) {
+                    throw new IllegalStateException("Error in uploading images"+e);
                 }
                 });
             List<Image> imageList = imageRepository.saveAll(images);
