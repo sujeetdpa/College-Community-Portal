@@ -97,11 +97,5 @@ public class PostController {
         return new ResponseEntity<>(postService.downloadDocument(documentId),HttpStatus.OK);
     }
 
-    @PostMapping("/local/storage/upload/image/new")  //testing purpose
-    public ResponseEntity<List<Integer>> uploadImageNew(@RequestParam("images") MultipartFile[] files) throws IOException {
-        List<MultipartFile> files1=Arrays.asList(files);
-        files1.forEach(file -> System.out.println(file.getOriginalFilename()));
-        return new ResponseEntity<>(Arrays.asList(1,2,3),HttpStatus.OK);
-    }
 
 }
