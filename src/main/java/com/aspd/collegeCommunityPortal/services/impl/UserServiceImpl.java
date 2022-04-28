@@ -179,7 +179,7 @@ public class UserServiceImpl implements UserService {
         User user = userPrincipal.getUser();
         Image image = new Image();
         String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
-        String filename = LocalDateTime.now().toString().concat("_").concat(profileImage.getOriginalFilename());
+        String filename = UUID.randomUUID().toString().concat("_").concat(profileImage.getOriginalFilename());
         image.setImageName(filename);
         image.setUser(user);
         image.setPath(path);

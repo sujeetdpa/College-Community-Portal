@@ -22,9 +22,12 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     @Query(value = "select count(c.user) from Comment c where c.post= ?1")
     Integer getPostCommentCount(Post post);
 
+    @Query(value = "select c from Comment c where c.post = ?1 and c.isDeleted=false")
     Page<Comment> findByPost(Post post, Pageable pageable);
+
     @Query(value = "select count(c) from Comment c where c.user = ?1")
     Integer countByUser(User user);
+
     @Query(value = "select count(c) from Comment c where c.post in ?1")
     Integer countByPosts(List<Post> posts);
 
