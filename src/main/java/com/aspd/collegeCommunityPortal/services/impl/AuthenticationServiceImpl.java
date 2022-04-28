@@ -51,7 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
     @Autowired
     private TimeUtil timeUtil;
     

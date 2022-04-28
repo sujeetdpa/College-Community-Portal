@@ -400,7 +400,7 @@ public class PostServiceImpl implements PostService {
                     throw new IllegalStateException("File format supported are: "+imageExtensions);
                 }
                 Image image1=new Image();
-                String filename=LocalDateTime.now().toString().concat("_").concat(image.getOriginalFilename());
+                String filename=UUID.randomUUID().toString().concat("_").concat(image.getOriginalFilename());
                 image1.setImageName(filename);
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                 String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
@@ -433,7 +433,7 @@ public class PostServiceImpl implements PostService {
                 if (!documentExtensions.contains(file.getContentType())){
                     throw new IllegalStateException("Document format supported are: "+documentExtensions);
                 }
-                String filename=LocalDateTime.now().toString().concat("_").concat(file.getOriginalFilename());
+                String filename=UUID.randomUUID().toString().concat("_").concat(file.getOriginalFilename());
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
                 Document document=new Document();
                 document.setDocumentName(filename);
