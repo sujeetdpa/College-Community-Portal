@@ -105,7 +105,7 @@ public class AdminServiceImpl implements AdminService {
         user.setUsername(Optional.ofNullable(request.getUsername()).orElseThrow(() -> new IllegalStateException("Username cannot be empty")));
         user.setRoles(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById).orElseThrow(() -> new IllegalStateException("Select at least one role")));
         Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
-        String password = RandomStringUtils.random(10);
+        String password = RandomStringUtils.randomAlphanumeric(10);
         user.setPassword(passwordEncoder.encode(password));
         user.setIsActive(true);
         user.setIsNotLocked(true);

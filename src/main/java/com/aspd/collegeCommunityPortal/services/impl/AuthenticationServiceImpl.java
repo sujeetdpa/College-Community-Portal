@@ -1,6 +1,7 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
 import com.aspd.collegeCommunityPortal.beans.request.AuthenticationRequest;
+import com.aspd.collegeCommunityPortal.beans.request.ForgotPasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
@@ -18,6 +19,7 @@ import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.JwtUtil;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -102,7 +104,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Optional.ofNullable(LocalDateTime.now()).ifPresent(user::setUserCreationTimestamp);
         user.setIsActive(true);  // TODO implement later
         user.setIsNotLocked(true); //TODO implement later
-        Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));//TODO handle exception
+        Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
         //TODO send activate account email
@@ -134,5 +136,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         emailService.sendPasswordChangeEmail(user.getFirstName(),user.getUsername(), request.getCnfNewPassword());
         return "Password Updated Successfully";
+    }
+
+    @Override
+    public String forgotPassword(ForgotPasswordRequest request) {
+        Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
+        if (optionalUser.isEmpty()){
+            throw new IllegalStateException("Incorrect Username / DOB");
+        }
+        User user=optionalUser.get();
+        if (!user.getDob().equals(request.getDob())){
+            throw new IllegalStateException("Incorrect Username / DOB");
+        }
+        String password= RandomStringUtils.randomAlphanumeric(10);
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        emailService.sendForgotPasswordEmail(user.getFirstName(),user.getUsername(),password);
+        return "Password is sent on the username : "+request.getUsername();
     }
 }

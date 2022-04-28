@@ -1,6 +1,7 @@
 package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.AuthenticationRequest;
+import com.aspd.collegeCommunityPortal.beans.request.ForgotPasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
@@ -32,5 +33,10 @@ public class AuthenticationController {
     public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request){
         String response=authenticationService.updatePassword(request);
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+    @PostMapping("/forgot/password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request){
+        String message=authenticationService.forgotPassword(request);
+        return new ResponseEntity<>(message,HttpStatus.OK);
     }
 }
