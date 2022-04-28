@@ -1,5 +1,7 @@
 package com.aspd.collegeCommunityPortal.services.impl;
 
+import com.aspd.collegeCommunityPortal.model.Comment;
+import com.aspd.collegeCommunityPortal.model.Post;
 import com.aspd.collegeCommunityPortal.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -85,6 +87,7 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
+    @Override
     public void sendUnlockedAccountEmail(String firstName, String email) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -109,6 +112,44 @@ public class EmailServiceImpl implements EmailService {
                 "Username: "+email+
                 "Password: "+password+
                 "<b>Note: </b> Please update your profile details in account section"+"\n\n\n"+
+                "Thanks & Regards"+"\n"+
+                "Admin"+"\n"+
+                "College Community Portal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
+    public void sendPostRemovedEmail(String firstName, String email, Post post){
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        String link="";
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Post removed");
+        String body="Hey "+firstName+",\n"+"Your post with the following details have been removed by the administrator due to improper content."+"\n"+
+                "Username: "+email+
+                "Post ID: "+post.getId()+
+                "Post Title: "+post.getTitle()+"\n"+
+                "Post Creation Date and Time: "+post.getCreationDate().toLocalDate()+" AT "+post.getCreationDate().toLocalTime()+"\n"+
+                "<b>Note: </b> If this is a fault please contact administrator"+"\n\n\n"+
+                "Thanks & Regards"+"\n"+
+                "Admin"+"\n"+
+                "College Community Portal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
+    public void sendCommentRemovedEmail(String firstName, String email, Comment comment){
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        String link="";
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Post removed");
+        String body="Hey "+firstName+",\n"+"Your comment with the following details have been removed by the administrator due to improper content."+"\n"+
+                "Username: "+email+
+                "Comment ID: "+comment.getId()+
+                "Comment Description: "+comment.getTitle()+"\n"+
+                "Comment Creation Date and Time: "+comment.getCommentDate().toLocalDate()+" AT "+comment.getCommentDate().toLocalTime()+"\n"+
+                "<b>Note: </b> If this is a fault please contact administrator"+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";

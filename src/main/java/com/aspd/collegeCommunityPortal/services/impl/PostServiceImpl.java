@@ -6,6 +6,7 @@ import com.aspd.collegeCommunityPortal.config.BucketName;
 import com.aspd.collegeCommunityPortal.model.*;
 import com.aspd.collegeCommunityPortal.repositories.*;
 import com.aspd.collegeCommunityPortal.services.AmazonS3Service;
+import com.aspd.collegeCommunityPortal.services.EmailService;
 import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.PostService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
@@ -50,6 +51,8 @@ public class PostServiceImpl implements PostService {
     private DocumentRepository documentRepository;
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private TimeUtil timeUtil;
 
@@ -178,7 +181,7 @@ public class PostServiceImpl implements PostService {
             else if (role_admin && !post.getUser().getId().equals(userPrincipal.getUser().getId())) {
                 post.setIsDeleted(true);
                 postRepository.save(post);
-                //TODO send email for deleting post by admin
+                emailService.sendPostRemovedEmail(post.getUser().getFirstName(),post.getUser().getUsername(),post);
                 DeleteResponseView responseView = new DeleteResponseView();
                 responseView.setMessage(String.format("Post deleted with Title : %s", post.getTitle()));
                 return responseView;
@@ -434,7 +437,7 @@ public class PostServiceImpl implements PostService {
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
                 Document document=new Document();
                 document.setDocumentName(filename);
-                document.setUser(userPrincipal.getUser()); //TODO add user
+                document.setUser(userPrincipal.getUser());
                 document.setPath(path);
                 document.setUploadDate(LocalDateTime.now());
                 Map<String,String> metadata=new HashMap<>();
@@ -447,7 +450,7 @@ public class PostServiceImpl implements PostService {
                     }
                 }
                 catch (IOException e){
-                    throw new IllegalStateException("Failed to upload image",e);  //TODO implement custom exception
+                    throw new IllegalStateException("Failed to upload image",e);
                 }
             });
             List<Document> documentList = documentRepository.saveAll(documents);
@@ -489,7 +492,7 @@ public class PostServiceImpl implements PostService {
         else if (role_admin && !comment.getUser().getId().equals(userPrincipal.getUser().getId())) {
             comment.setIsDeleted(true);
             commentRepository.save(comment);
-            //TODO send email to the user for deleted comment
+            emailService.sendCommentRemovedEmail(comment.getUser().getFirstName(),comment.getUser().getUsername(),comment);
             DeleteResponseView view = new DeleteResponseView();
             view.setMessage("Comment Removed Successfully");
             return view;
