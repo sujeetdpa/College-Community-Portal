@@ -105,6 +105,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));//TODO handle exception
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
+        //TODO send activate account email
+        emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),request.getPassword());
         SignUpResponse response=new SignUpResponse();
         Optional.ofNullable(savedUser.getId()).ifPresent(response::setId);
         Optional.ofNullable(savedUser.getUsername()).ifPresent(response::setUsername);
@@ -130,6 +132,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         user.setPassword(passwordEncoder.encode(request.getCnfNewPassword()));
         userRepository.save(user);
+        emailService.sendPasswordChangeEmail(user.getFirstName(),user.getUsername(), request.getCnfNewPassword());
         return "Password Updated Successfully";
     }
 }
