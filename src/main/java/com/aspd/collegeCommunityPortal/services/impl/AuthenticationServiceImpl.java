@@ -7,10 +7,8 @@ import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
 import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
 import com.aspd.collegeCommunityPortal.beans.response.UserResponseView;
-import com.aspd.collegeCommunityPortal.model.Gender;
-import com.aspd.collegeCommunityPortal.model.Role;
-import com.aspd.collegeCommunityPortal.model.User;
-import com.aspd.collegeCommunityPortal.model.UserPrincipal;
+import com.aspd.collegeCommunityPortal.model.*;
+import com.aspd.collegeCommunityPortal.repositories.ConfirmationTokenRepository;
 import com.aspd.collegeCommunityPortal.repositories.RoleRepository;
 import com.aspd.collegeCommunityPortal.repositories.UserRepository;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
@@ -21,6 +19,7 @@ import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,10 +30,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+
+    @Value("${server.domain}")
+    private String serverDomain;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -52,6 +55,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private UserRepository userRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     private TimeUtil timeUtil;
     
@@ -102,12 +107,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Optional.ofNullable(request.getPassword()).map(passwordEncoder::encode).ifPresent(user::setPassword);
         Optional.ofNullable(request.getUsername()).map(userUtil::getUniversityId).ifPresent(user::setUniversityId);
         Optional.ofNullable(LocalDateTime.now()).ifPresent(user::setUserCreationTimestamp);
-        user.setIsActive(true);  // TODO implement later
-        user.setIsNotLocked(true); //TODO implement later
+        user.setIsActive(false);
+        user.setIsNotLocked(true);
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
-        //TODO send activate account email
+
+        ConfirmationToken confirmationToken=new ConfirmationToken();
+        confirmationToken.setCreatedAt(LocalDateTime.now());
+        String token=UUID.randomUUID().toString();
+        confirmationToken.setToken(token);
+        confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+        confirmationToken.setUser(savedUser);
+        confirmationTokenRepository.save(confirmationToken);
+
+        String link=serverDomain+"/activate/account?token="+token;
+        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
         emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),request.getPassword());
         SignUpResponse response=new SignUpResponse();
         Optional.ofNullable(savedUser.getId()).ifPresent(response::setId);
@@ -153,5 +168,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         emailService.sendForgotPasswordEmail(user.getFirstName(),user.getUsername(),password);
         return "Password is sent on the username : "+request.getUsername();
+    }
+
+    @Override
+    public String activateAccount(String token) {
+        Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenRepository.findByToken(token);
+        if (optionalConfirmationToken.isEmpty()){
+            return "<h1>Invalid activation token</h1>";
+        }
+        ConfirmationToken confirmationToken=optionalConfirmationToken.get();
+        if (confirmationToken.getConfirmedAt() !=null){
+            return "<h1>Account already activated</h1>";
+        }
+        User user=confirmationToken.getUser();
+        confirmationToken.setConfirmedAt(LocalDateTime.now());
+        confirmationTokenRepository.save(confirmationToken);
+        user.setIsActive(true);
+        userRepository.save(user);
+        return "<h1>Account activated successfully</h1>";
     }
 }

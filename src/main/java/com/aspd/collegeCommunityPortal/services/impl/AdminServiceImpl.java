@@ -14,6 +14,7 @@ import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
+
+    @Value("${server.domain}")
+    private String serverDomain;
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -46,7 +51,8 @@ public class AdminServiceImpl implements AdminService {
     private DocumentRepository documentRepository;
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -107,12 +113,23 @@ public class AdminServiceImpl implements AdminService {
         Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
         String password = RandomStringUtils.randomAlphanumeric(10);
         user.setPassword(passwordEncoder.encode(password));
-        user.setIsActive(true);
+        user.setIsActive(false);
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
         user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
-        userRepository.save(user);
-        emailService.sendRegistrationEmail(user.getFirstName(),user.getUsername(),password);
+        User savedUser=userRepository.save(user);
+
+        ConfirmationToken confirmationToken=new ConfirmationToken();
+        confirmationToken.setCreatedAt(LocalDateTime.now());
+        String token=UUID.randomUUID().toString();
+        confirmationToken.setToken(token);
+        confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+        confirmationToken.setUser(savedUser);
+        confirmationTokenRepository.save(confirmationToken);
+
+        String link=serverDomain+"/activate/account?token="+token;
+        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
+        emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),password);
 
         UserResponseView view=new UserResponseView();
         Optional.ofNullable(user.getId()).ifPresent(view::setId);

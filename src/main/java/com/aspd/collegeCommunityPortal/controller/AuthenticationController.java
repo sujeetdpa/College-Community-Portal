@@ -39,4 +39,9 @@ public class AuthenticationController {
         String message=authenticationService.forgotPassword(request);
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
+    @GetMapping("/activate/account")
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token){
+        String message=authenticationService.activateAccount(token);
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
 }

@@ -17,4 +17,6 @@ public interface AuthenticationService {
     String updatePassword(UpdatePasswordRequest request);
 
     String forgotPassword(ForgotPasswordRequest request);
+
+    String activateAccount(String token);
 }

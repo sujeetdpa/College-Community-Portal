@@ -20,7 +20,7 @@ public class EmailServiceImpl implements EmailService {
     private JavaMailSender javaMailSender;
 
     @Override
-    public boolean sendForgotPasswordEmail(String firstName,String email,String password) {
+    public void sendForgotPasswordEmail(String firstName,String email,String password) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
 
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -56,12 +56,12 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendActivateAccountEmail(String firstName,String email) {
+    public void sendActivationLinkEmail(String firstName, String email,String link) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
-        String link="";
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Activate account");
-        String body="Congratulations "+firstName+",\n"+"Your account successfully created on College Community Portal. Click on the below link to activate your account."+"\n"+
+        String body="Hello "+firstName+",\n"+"Your account has been successfully created on College Community Portal. Click on the below link to activate your account."+"\n"+
+                "Username: "+email+"\n"+
                 "Link: "+link+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
@@ -93,7 +93,7 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setFrom(FROM_EMAIL);
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Unlocked");
         String body="Hello "+firstName+",\n"+"Your account has been unblocked by the administrator. You can access your account using your previous credentials."+"\n"+
-                "<b>Note: </b> Please avoid malpractices on the application otherwise your account will be blocked permanently."+"\n\n\n"+
+                "Note: Please avoid malpractices on the application otherwise your account will be blocked permanently."+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "CollegeCommunityPortal";
@@ -106,12 +106,11 @@ public class EmailServiceImpl implements EmailService {
     public void sendRegistrationEmail(String firstName,String email,String password){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
-        String link="";
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Creation");
         String body="Congratulations "+firstName+",\n"+"Your account has been created successfully and your login credentials are :-"+"\n"+
-                "Username: "+email+
-                "Password: "+password+
-                "<b>Note: </b> Please update your profile details in account section"+"\n\n\n"+
+                "Username: "+email+"\n"+
+                "Password: "+password+"\n"+
+                "Note: Make sure to activate your account via the activation link sent to you before login."+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";
@@ -123,14 +122,13 @@ public class EmailServiceImpl implements EmailService {
     public void sendPostRemovedEmail(String firstName, String email, Post post){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
-        String link="";
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Post removed");
         String body="Hey "+firstName+",\n"+"Your post with the following details have been removed by the administrator due to improper content."+"\n"+
-                "Username: "+email+
-                "Post ID: "+post.getId()+
+                "Username: "+email+"\n"+
+                "Post ID: "+post.getId()+"\n"+
                 "Post Title: "+post.getTitle()+"\n"+
                 "Post Creation Date and Time: "+post.getCreationDate().toLocalDate()+" AT "+post.getCreationDate().toLocalTime()+"\n"+
-                "<b>Note: </b> If this is a fault please contact administrator"+"\n\n\n"+
+                "Note: If this is a fault please contact administrator"+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";
@@ -142,14 +140,13 @@ public class EmailServiceImpl implements EmailService {
     public void sendCommentRemovedEmail(String firstName, String email, Comment comment){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
-        String link="";
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"Post removed");
         String body="Hey "+firstName+",\n"+"Your comment with the following details have been removed by the administrator due to improper content."+"\n"+
-                "Username: "+email+
-                "Comment ID: "+comment.getId()+
+                "Username: "+email+"\n"+
+                "Comment ID: "+comment.getId()+"\n"+
                 "Comment Description: "+comment.getTitle()+"\n"+
                 "Comment Creation Date and Time: "+comment.getCommentDate().toLocalDate()+" AT "+comment.getCommentDate().toLocalTime()+"\n"+
-                "<b>Note: </b> If this is a fault please contact administrator"+"\n\n\n"+
+                "Note: If this is a fault please contact administrator"+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";
@@ -158,18 +155,4 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
-
-    @Override
-    public void emailTest(String firstName,String email) {
-        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
-        simpleMailMessage.setFrom(FROM_EMAIL);
-        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Test email");
-        String body="Hello "+firstName+",\n"+"This is a test email";
-        simpleMailMessage.setText(body);
-        simpleMailMessage.setTo(email);
-        simpleMailMessage.setSentDate(new Date());
-        javaMailSender.send(simpleMailMessage);
-    }
-
-
 }
