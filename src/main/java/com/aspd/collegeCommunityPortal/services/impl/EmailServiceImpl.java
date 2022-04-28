@@ -22,7 +22,6 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendForgotPasswordEmail(String firstName,String email,String password) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
-
         simpleMailMessage.setFrom(FROM_EMAIL);
         simpleMailMessage.setSubject(SUBJECT_PREFIX+"New Password");
         String body="Hello "+firstName+",\n"+"Your new login credentials for College Community Portal is :-"+"\n"+
@@ -35,7 +34,6 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setTo(email);
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
-        return true;
     }
 
     @Override
