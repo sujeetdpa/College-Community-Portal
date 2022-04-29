@@ -1,8 +1,6 @@
 package com.aspd.collegeCommunityPortal.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY="hjhacvjhvGGJVafusvajGFYTFgVtkgsjVVCUwvjACCVKUac";
+    private final String SECRET_KEY = "hjhacvjhvGGJVafusvajGFYTFgVtkgsjVVCUwvjACCVKUac";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -30,6 +28,7 @@ public class JwtUtil {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     private Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
@@ -40,8 +39,8 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        List<String> roles=userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        claims.put("Roles",roles);
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        claims.put("Roles", roles);
         return createToken(claims, userDetails.getUsername());
     }
 

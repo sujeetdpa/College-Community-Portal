@@ -5,6 +5,7 @@ import com.aspd.collegeCommunityPortal.beans.request.PostCommentFetchRequest;
 import com.aspd.collegeCommunityPortal.beans.request.PostRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UserRequest;
 import com.aspd.collegeCommunityPortal.beans.response.*;
+import com.aspd.collegeCommunityPortal.exception.AuthenticationExceptionHandler;
 import com.aspd.collegeCommunityPortal.model.Role;
 import com.aspd.collegeCommunityPortal.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;

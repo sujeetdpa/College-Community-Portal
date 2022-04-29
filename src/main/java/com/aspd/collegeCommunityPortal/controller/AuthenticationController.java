@@ -6,6 +6,7 @@ import com.aspd.collegeCommunityPortal.beans.request.RegisterRequest;
 import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
 import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
+import com.aspd.collegeCommunityPortal.exception.AuthenticationExceptionHandler;
 import com.aspd.collegeCommunityPortal.services.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/auth")
 @CrossOrigin(origins = "*")
-public class AuthenticationController {
+public class AuthenticationController{
     @Autowired
     private AuthenticationService authenticationService;
 

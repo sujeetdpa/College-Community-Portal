@@ -81,7 +81,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             response=new AuthenticationResponse();
             response.setAccess_token(token);
             response.setUserResponseView(view);
-
         }
         return response;
     }
