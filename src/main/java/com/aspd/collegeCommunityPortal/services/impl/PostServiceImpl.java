@@ -410,10 +410,12 @@ public class PostServiceImpl implements PostService {
                 metadata.put("Content-Type", image.getContentType());
                 metadata.put("Content-Length", String.valueOf(image.getSize()));
                 try {
-                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),image.getInputStream());
-                    if (uploaded){
-                        images.add(image1);
-                    }
+//                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),image.getInputStream());
+//                    if (uploaded){
+//                        images.add(image1);
+//                    }
+                    amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),image.getInputStream());
+                    images.add(image1);
                 }
                 catch (IOException e) {
                     throw new IllegalStateException("Error in uploading images"+e);
@@ -444,10 +446,12 @@ public class PostServiceImpl implements PostService {
                 metadata.put("Content-Type", file.getContentType());
                 metadata.put("Content-Length", String.valueOf(file.getSize()));
                 try {
-                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),file.getInputStream());
-                    if (uploaded){
-                        documents.add(document);
-                    }
+//                    Boolean uploaded=localStorageService.uploadFile(path,filename,Optional.ofNullable(metadata),file.getInputStream());
+//                    if (uploaded){
+//                        documents.add(document);
+//                    }
+                    amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),file.getInputStream());
+                    documents.add(document);
                 }
                 catch (IOException e){
                     throw new IllegalStateException("Failed to upload image",e);
@@ -463,7 +467,8 @@ public class PostServiceImpl implements PostService {
     public byte[] downloadImage(Integer imageId) throws IOException {
         Optional<Image> image = imageRepository.findById(imageId);
         if (image.isPresent()){
-            return localStorageService.downloadFile(image.get().getPath(),image.get().getImageName());
+//            return localStorageService.downloadFile(image.get().getPath(),image.get().getImageName());
+            return amazonS3Service.downloadFile(image.get().getPath(),image.get().getImageName());
         }
         return new byte[0];
     }
@@ -472,7 +477,8 @@ public class PostServiceImpl implements PostService {
     public byte[] downloadDocument(Integer documentId) throws IOException {
         Optional<Document> document = documentRepository.findById(documentId);
         if (document.isPresent()){
-            return localStorageService.downloadFile(document.get().getPath(),document.get().getDocumentName());
+//            return localStorageService.downloadFile(document.get().getPath(),document.get().getDocumentName());
+            return amazonS3Service.downloadFile(document.get().getPath(),document.get().getDocumentName());
         }
         return new byte[0];
     }
