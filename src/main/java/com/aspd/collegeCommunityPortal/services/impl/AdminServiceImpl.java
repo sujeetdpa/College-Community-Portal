@@ -127,7 +127,7 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link=serverDomain+"/activate/account?token="+token;
+        String link=serverDomain+"/auth/activate/account?token="+token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
         emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),password);
 
