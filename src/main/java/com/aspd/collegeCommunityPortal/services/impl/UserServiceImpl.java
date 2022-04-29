@@ -188,7 +188,8 @@ public class UserServiceImpl implements UserService {
         metadata.put("Content-Type", profileImage.getContentType());
         metadata.put("Content-Length", String.valueOf(profileImage.getSize()));
         try {
-            Boolean uploaded = localStorageService.uploadFile(path, filename, Optional.ofNullable(metadata), profileImage.getInputStream());
+//            Boolean uploaded = localStorageService.uploadFile(path, filename, Optional.ofNullable(metadata), profileImage.getInputStream());
+            amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),profileImage.getInputStream());
             Image savedImage = imageRepository.save(image);
             user.setProfileImageId(savedImage.getId());
             userRepository.save(user);

@@ -24,12 +24,10 @@ public class AmazonS3ServiceImpl implements AmazonS3Service {
         metadata.ifPresent(map->{
             map.forEach(objectMetadata::addUserMetadata);
         });
-
         try{
-            objectMetadata.setContentLength(IOUtils.toByteArray(inputStream).length);
             amazonS3.putObject(path, filename, inputStream, objectMetadata);
         }
-        catch (AmazonServiceException | IOException e){
+        catch (AmazonServiceException e){
             throw new IllegalStateException("Failed to upload file",e);
         }
     }
