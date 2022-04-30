@@ -180,6 +180,7 @@ public class PostServiceImpl implements PostService {
             }
             else if (role_admin && !post.getUser().getId().equals(userPrincipal.getUser().getId())) {
                 post.setIsDeleted(true);
+                post.setDeleteTimestamp(LocalDateTime.now());
                 postRepository.save(post);
                 emailService.sendPostRemovedEmail(post.getUser().getFirstName(),post.getUser().getUsername(),post);
                 DeleteResponseView responseView = new DeleteResponseView();
@@ -187,6 +188,7 @@ public class PostServiceImpl implements PostService {
                 return responseView;
             } else {
                 post.setIsDeleted(true);
+                post.setDeleteTimestamp(LocalDateTime.now());
                 postRepository.save(post);
                 DeleteResponseView responseView = new DeleteResponseView();
                 responseView.setMessage(String.format("Post deleted with Title : %s", post.getTitle()));
@@ -497,6 +499,7 @@ public class PostServiceImpl implements PostService {
         }
         else if (role_admin && !comment.getUser().getId().equals(userPrincipal.getUser().getId())) {
             comment.setIsDeleted(true);
+            comment.setDeleteTimestamp(LocalDateTime.now());
             commentRepository.save(comment);
             emailService.sendCommentRemovedEmail(comment.getUser().getFirstName(),comment.getUser().getUsername(),comment);
             DeleteResponseView view = new DeleteResponseView();
@@ -504,6 +507,7 @@ public class PostServiceImpl implements PostService {
             return view;
         } else {
             comment.setIsDeleted(true);
+            comment.setDeleteTimestamp(LocalDateTime.now());
             commentRepository.save(comment);
             DeleteResponseView view = new DeleteResponseView();
             view.setMessage("Comment Removed Successfully");

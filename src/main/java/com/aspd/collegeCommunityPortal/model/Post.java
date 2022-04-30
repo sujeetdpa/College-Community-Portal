@@ -21,7 +21,8 @@ public class Post {
     private String title;
     private String description;
     private LocalDateTime creationDate;
-    private Boolean isDeleted;
+    private Boolean isDeleted=false;
+    private LocalDateTime deleteTimestamp;
     @ManyToOne
     private User user;
 

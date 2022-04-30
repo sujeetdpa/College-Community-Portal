@@ -13,6 +13,7 @@ public class PostResponseView {
     private String description;
     private String title;
     private String creationDate;
+    private String deleteDate;
     private String fullName;
     private Integer userId;
     private String universityId;

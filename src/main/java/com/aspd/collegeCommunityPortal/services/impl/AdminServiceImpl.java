@@ -198,7 +198,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PostResponseViewList getDeletedPost(PostRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(request.getSortBy()).orElse("creationDate")));
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(request.getSortBy()).orElse("deleteTimestamp")));
         Page<Post> postPage=null;
         postPage=postRepository.findAllDeletedPost(pageable);
         if (postPage.isEmpty()){
@@ -216,6 +216,7 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
             Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(postResponseView::setUniversityId);
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
+            Optional.ofNullable(post.getDeleteTimestamp()).map(timeUtil::getCreationTimestamp).ifPresent(postResponseView::setDeleteDate);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
             Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
@@ -232,7 +233,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public CommentResponseViewList getDeletedComment(PostCommentFetchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"commentDate"));
+        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"deleteTimestamp"));
         Page<Comment> commentPage=commentRepository.findAllDeletedComment(pageable);
         if (commentPage.isEmpty()){
             throw new IllegalStateException("No Deleted Comment found");
@@ -244,6 +245,7 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
             Optional.ofNullable(comment.getId()).ifPresent(view::setId);
             Optional.ofNullable(timeUtil.getCreationTimestamp(comment.getCommentDate())).ifPresent(view::setCommentDate);
+            Optional.ofNullable(comment.getDeleteTimestamp()).map(timeUtil::getCreationTimestamp).ifPresent(view::setDeleteDate);
             Optional.ofNullable(comment.getPost().getId()).ifPresent(view::setPostId);
             Optional.ofNullable(comment.getUser().getId()).ifPresent(view::setUserId);
             Optional.ofNullable(comment.getUser().getUniversityId()).ifPresent(view::setUniversityId);
