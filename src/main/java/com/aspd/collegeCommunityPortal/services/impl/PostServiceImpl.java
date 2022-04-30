@@ -149,6 +149,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
                 Optional.ofNullable(post.getUser().getUsername()).ifPresent(responseView::setUsername);
+                Optional.ofNullable(post.getCreationDate()).map(timeUtil::getCreationTimestamp).ifPresent(responseView::setCreationDate);
                 responseViewList.add(responseView);
             });
             PostSearchResponseViewList list=new PostSearchResponseViewList();
