@@ -10,6 +10,7 @@ import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import org.apache.http.entity.ContentType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDocumentResponse getUserDocuments(UserDocumentRequest request) {
+    public UserDocumentResponseList getUserDocuments(UserDocumentRequest request) {
         Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userPrincipal != null) {
@@ -120,13 +121,21 @@ public class UserServiceImpl implements UserService {
             if (userDocuments == null || userDocuments.isEmpty()) {
                 throw new IllegalStateException("No documents found");
             }
-            UserDocumentResponse userDocumentResponse = new UserDocumentResponse();
-            Optional.ofNullable(userDocuments.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(userDocumentResponse::setDocumentIds);
-            Optional.ofNullable(userDocuments.getTotalPages()).ifPresent(userDocumentResponse::setTotalPages);
-            Optional.ofNullable(userDocuments.getTotalElements()).ifPresent(userDocumentResponse::setTotalNumberOfItems);
-            Optional.ofNullable(userDocuments.getSize()).ifPresent(userDocumentResponse::setMaxItems);
-            Optional.ofNullable(userDocuments.getNumber()).ifPresent(userDocumentResponse::setPageNo);
-            return userDocumentResponse;
+            List<UserDocumentResponse> documentResponses=new ArrayList<>();
+            userDocuments.forEach(document -> {
+                UserDocumentResponse response=new UserDocumentResponse();
+                Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                documentResponses.add(response);
+            });
+            UserDocumentResponseList responseList = new UserDocumentResponseList();
+            responseList.setUserDocumentResponses(documentResponses);
+            Optional.ofNullable(userDocuments.getTotalPages()).ifPresent(responseList::setTotalPages);
+            Optional.ofNullable(userDocuments.getTotalElements()).ifPresent(responseList::setTotalNumberOfItems);
+            Optional.ofNullable(userDocuments.getSize()).ifPresent(responseList::setMaxItems);
+            Optional.ofNullable(userDocuments.getNumber()).ifPresent(responseList::setPageNo);
+            return responseList;
         }
         return null;
     }
@@ -154,7 +163,18 @@ public class UserServiceImpl implements UserService {
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
-                Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
+                List<Document> documents = documentRepository.findByPost(post);
+                if(!documents.isEmpty()) {
+                    List<UserDocumentResponse> documentResponses = new ArrayList<>();
+                    documents.forEach(document -> {
+                        UserDocumentResponse response = new UserDocumentResponse();
+                        Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                        Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                        Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                        documentResponses.add(response);
+                    });
+                    postResponseView.setDocumentResponses(documentResponses);
+                }
                 postResponseViews.add(postResponseView);
             }
             postResponseViewList.setPostResponseViews(postResponseViews);

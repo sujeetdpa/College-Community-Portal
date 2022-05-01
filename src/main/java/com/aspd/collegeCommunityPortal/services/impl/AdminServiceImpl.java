@@ -220,7 +220,18 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
             Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
-            Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
+            List<Document> documents = documentRepository.findByPost(post);
+            if(!documents.isEmpty()) {
+                List<UserDocumentResponse> documentResponses = new ArrayList<>();
+                documents.forEach(document -> {
+                    UserDocumentResponse response = new UserDocumentResponse();
+                    Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                    Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                    Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                    documentResponses.add(response);
+                });
+                postResponseView.setDocumentResponses(documentResponses);
+            }
             postResponseViews.add(postResponseView);
         }
         postResponseViewList.setPostResponseViews(postResponseViews);

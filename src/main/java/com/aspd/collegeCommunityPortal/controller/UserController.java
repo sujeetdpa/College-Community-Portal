@@ -2,14 +2,8 @@ package com.aspd.collegeCommunityPortal.controller;
 
 import com.aspd.collegeCommunityPortal.beans.request.*;
 import com.aspd.collegeCommunityPortal.beans.response.*;
-import com.aspd.collegeCommunityPortal.config.BucketName;
-import com.aspd.collegeCommunityPortal.config.JWTConfig;
-import com.aspd.collegeCommunityPortal.model.User;
-import com.aspd.collegeCommunityPortal.model.UserPrincipal;
 import com.aspd.collegeCommunityPortal.services.UserService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +34,8 @@ public class UserController {
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
     @PostMapping("/documents")
-    public ResponseEntity<UserDocumentResponse> getUserDocuments(@RequestBody UserDocumentRequest request){
-        UserDocumentResponse response=userService.getUserDocuments(request);
+    public ResponseEntity<UserDocumentResponseList> getUserDocuments(@RequestBody UserDocumentRequest request){
+        UserDocumentResponseList response=userService.getUserDocuments(request);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
     @PostMapping("/post")

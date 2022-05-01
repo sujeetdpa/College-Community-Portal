@@ -21,5 +21,5 @@ public class PostResponseView {
     private Integer noOfLikes;
     private Integer noOfComments;
     private List<Integer> imageIds;
-    private List<Integer> documentIds;
+    private List<UserDocumentResponse> documentResponses;
 }

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType());
-    private final List<String> documentExtensions=Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(),ContentType.TEXT_PLAIN.getMimeType(),".doc",".docx",".wps",".docm",".odt",".rtf",".csv",".ods",".xls",".xlsb",".xlsx",".ppt",".pptx");
+    private final List<String> documentExtensions=Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(),ContentType.TEXT_PLAIN.getMimeType());
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -79,7 +79,18 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
-                Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(postResponseView::setDocumentIds);
+                List<Document> documents = documentRepository.findByPost(post);
+                if(!documents.isEmpty()) {
+                    List<UserDocumentResponse> documentResponses = new ArrayList<>();
+                    documents.forEach(document -> {
+                        UserDocumentResponse response = new UserDocumentResponse();
+                        Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                        Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                        Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                        documentResponses.add(response);
+                    });
+                    postResponseView.setDocumentResponses(documentResponses);
+                }
                 postResponseViews.add(postResponseView);
             }
             postResponseViewList.setPostResponseViews(postResponseViews);
@@ -218,7 +229,18 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
             Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(responseView::setImageIds);
-            Optional.ofNullable(documentRepository.findByPost(post)).map(documents -> documents.stream().map(Document::getId).collect(Collectors.toList())).ifPresent(responseView::setDocumentIds);
+            List<Document> documents = documentRepository.findByPost(post);
+            if(!documents.isEmpty()) {
+                List<UserDocumentResponse> documentResponses = new ArrayList<>();
+                documents.forEach(document -> {
+                    UserDocumentResponse response = new UserDocumentResponse();
+                    Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                    Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                    Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                    documentResponses.add(response);
+                });
+                responseView.setDocumentResponses(documentResponses);
+            }
             return responseView;
         }
         return null;
