@@ -164,8 +164,9 @@ public class UserServiceImpl implements UserService {
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
                 List<Document> documents = documentRepository.findByPost(post);
+                List<UserDocumentResponse> documentResponses = new ArrayList<>();
                 if(!documents.isEmpty()) {
-                    List<UserDocumentResponse> documentResponses = new ArrayList<>();
+
                     documents.forEach(document -> {
                         UserDocumentResponse response = new UserDocumentResponse();
                         Optional.ofNullable(document.getId()).ifPresent(response::setId);
@@ -173,8 +174,9 @@ public class UserServiceImpl implements UserService {
                         Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
                         documentResponses.add(response);
                     });
-                    postResponseView.setDocumentResponses(documentResponses);
+
                 }
+                Optional.ofNullable(documentResponses).ifPresent(postResponseView::setDocumentResponses);
                 postResponseViews.add(postResponseView);
             }
             postResponseViewList.setPostResponseViews(postResponseViews);
