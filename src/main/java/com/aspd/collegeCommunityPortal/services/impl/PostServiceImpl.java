@@ -24,6 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -449,7 +452,7 @@ public class PostServiceImpl implements PostService {
                     throw new IllegalStateException("File format supported are: "+imageExtensions);
                 }
                 Image image1=new Image();
-                String filename=UUID.randomUUID().toString().concat("_").concat(image.getOriginalFilename());
+                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat("_").concat(image.getOriginalFilename());
                 image1.setImageName(filename);
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                 String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
@@ -492,7 +495,7 @@ public class PostServiceImpl implements PostService {
                 if (!documentExtensions.contains(file.getContentType())){
                     throw new IllegalStateException("Document format supported are: "+documentExtensions);
                 }
-                String filename=UUID.randomUUID().toString().concat("_").concat(file.getOriginalFilename());
+                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(file.getOriginalFilename());
                 String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
                 Document document=new Document();
                 document.setDocumentName(filename);
