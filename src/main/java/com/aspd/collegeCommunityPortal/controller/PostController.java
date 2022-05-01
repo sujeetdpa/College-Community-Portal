@@ -78,14 +78,14 @@ public class PostController {
     }
 
     @PostMapping("/local/storage/upload/image")
-    public ResponseEntity<List<Integer>> uploadImage(@RequestParam("images") List<MultipartFile> images) throws IOException {
-        List<Integer> imageIds = postService.uploadImages(images);
-        return new ResponseEntity<>(imageIds,HttpStatus.OK);
+    public ResponseEntity<List<ImageResponse>> uploadImage(@RequestParam("images") List<MultipartFile> images) throws IOException {
+        List<ImageResponse> responseList = postService.uploadImages(images);
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
     }
     @PostMapping("/local/storage/upload/document")
-    public ResponseEntity<List<Integer>> uploadDoc(@RequestParam("documents") List<MultipartFile> files) throws IOException {
-        List<Integer> documentIds = postService.uploadDocuments(files);
-        return new ResponseEntity<>(documentIds,HttpStatus.OK);
+    public ResponseEntity<List<DocumentResponse>> uploadDoc(@RequestParam("documents") List<MultipartFile> files) throws IOException {
+        List<DocumentResponse> responseList = postService.uploadDocuments(files);
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
     }
 
     @GetMapping(value = "/local/storage/download/image/{imageId}",produces = {MediaType.IMAGE_JPEG_VALUE,MediaType.IMAGE_GIF_VALUE,MediaType.IMAGE_PNG_VALUE})

@@ -440,7 +440,7 @@ public class PostServiceImpl implements PostService {
         return response;
     }
     @Override
-    public List<Integer> uploadImages(List<MultipartFile> files){
+    public List<ImageResponse> uploadImages(List<MultipartFile> files){
         UserPrincipal userPrincipal=(UserPrincipal)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (files!=null && !files.isEmpty()){
             List<Image> images=new ArrayList<>();
@@ -471,12 +471,20 @@ public class PostServiceImpl implements PostService {
                 }
                 });
             List<Image> imageList = imageRepository.saveAll(images);
-            return imageList.stream().map(Image::getId).collect(Collectors.toList());
+            List<ImageResponse> imageResponses=new ArrayList<>();
+            imageList.forEach(image -> {
+                ImageResponse imageResponse=new ImageResponse();
+                Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
+                Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
+                Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
+                imageResponses.add(imageResponse);
+            });
+            return imageResponses;
         }
         return null;
     }
     @Override
-    public List<Integer> uploadDocuments(List<MultipartFile> files){
+    public List<DocumentResponse> uploadDocuments(List<MultipartFile> files){
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (files!=null && !files.isEmpty()){
             List<Document> documents=new ArrayList<>();
@@ -507,7 +515,15 @@ public class PostServiceImpl implements PostService {
                 }
             });
             List<Document> documentList = documentRepository.saveAll(documents);
-            return documentList.stream().map(Document::getId).collect(Collectors.toList());
+            List<DocumentResponse> documentResponses=new ArrayList<>();
+            documentList.forEach(document -> {
+                DocumentResponse response=new DocumentResponse();
+                Optional.ofNullable(document.getId()).ifPresent(response::setId);
+                Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
+                Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
+                documentResponses.add(response);
+            });
+            return documentResponses;
         }
         return null;
     }

@@ -26,9 +26,9 @@ public interface PostService {
 
     DislikePostResponse dislikePost(int postId, int userId);
 
-    List<Integer> uploadDocuments(List<MultipartFile> files);
+    List<DocumentResponse> uploadDocuments(List<MultipartFile> files);
 
-    List<Integer> uploadImages(List<MultipartFile> files);
+    List<ImageResponse> uploadImages(List<MultipartFile> files);
 
     byte[] downloadImage(Integer imageId) throws IOException;
 
