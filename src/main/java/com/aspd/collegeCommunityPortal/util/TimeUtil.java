@@ -17,7 +17,7 @@ public class TimeUtil {
             result=(seconds/3600)+" hours ago";
         }
         else if(ChronoUnit.DAYS.between(creationDateTime,LocalDateTime.now())<10){
-            result=ChronoUnit.DAYS.between(creationDateTime,LocalDateTime.now())+ "days ago";
+            result=ChronoUnit.DAYS.between(creationDateTime,LocalDateTime.now())+ " days ago";
         }
         else{
             result=creationDateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE).toString();

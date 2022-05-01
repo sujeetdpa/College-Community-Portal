@@ -89,7 +89,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public SignUpResponse signUp(RegisterRequest request) {
         User user=new User();
         if (!userUtil.validateUsername(request.getUsername())){
-            throw new IllegalStateException("Invalid username"); //TODO handle exception
+            throw new IllegalStateException("Invalid username");
+        }
+        if (!request.getPassword().equals(request.getCnfPassword())){
+            throw new IllegalStateException("Password Mismatch");
         }
         if (userRepository.findByUsername(request.getUsername()).isPresent()){
             throw new IllegalStateException("Username already taken.");
@@ -140,10 +143,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user=userPrincipal.getUser();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
-            throw new IllegalStateException("Incorrect Password.");
+            throw new IllegalStateException("Incorrect Current Password.");
         }
         if (!request.getNewPassword().equals(request.getCnfNewPassword())){
-            throw new IllegalStateException("New password and Confirm password didn't match.");
+            throw new IllegalStateException("Password Mismatch");
         }
 
         user.setPassword(passwordEncoder.encode(request.getCnfNewPassword()));
