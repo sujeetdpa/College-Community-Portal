@@ -12,7 +12,6 @@ import com.aspd.collegeCommunityPortal.services.EmailService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -219,13 +218,26 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(post.getDeleteTimestamp()).map(timeUtil::getCreationTimestamp).ifPresent(postResponseView::setDeleteDate);
             Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
-            Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+
+            List<Image> images = imageRepository.findImageByPost(post);
+            List<ImageResponse> imageResponses=new ArrayList<>();
+            if (!images.isEmpty()){
+                images.forEach(image -> {
+                    ImageResponse imageResponse=new ImageResponse();
+                    Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
+                    Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
+                    Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
+                    imageResponses.add(imageResponse);
+                });
+            }
+            Optional.ofNullable(imageResponses).ifPresent(postResponseView::setImageResponses);
+
             List<Document> documents = documentRepository.findByPost(post);
-            List<UserDocumentResponse> documentResponses = new ArrayList<>();
+            List<DocumentResponse> documentResponses = new ArrayList<>();
             if(!documents.isEmpty()) {
 
                 documents.forEach(document -> {
-                    UserDocumentResponse response = new UserDocumentResponse();
+                    DocumentResponse response = new DocumentResponse();
                     Optional.ofNullable(document.getId()).ifPresent(response::setId);
                     Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
                     Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);

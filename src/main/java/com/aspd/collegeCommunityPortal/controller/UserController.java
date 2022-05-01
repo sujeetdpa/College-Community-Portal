@@ -29,13 +29,13 @@ public class UserController {
     }
 
     @PostMapping("/images")
-    public ResponseEntity<UserImageResponse> getUserImages(@RequestBody UserImageRequest request){
-        UserImageResponse response=userService.getUserImages(request);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<ImageResponseList> getUserImages(@RequestBody UserImageRequest request){
+        ImageResponseList responseList=userService.getUserImages(request);
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
     }
     @PostMapping("/documents")
-    public ResponseEntity<UserDocumentResponseList> getUserDocuments(@RequestBody UserDocumentRequest request){
-        UserDocumentResponseList response=userService.getUserDocuments(request);
+    public ResponseEntity<DocumentResponseList> getUserDocuments(@RequestBody UserDocumentRequest request){
+        DocumentResponseList response=userService.getUserDocuments(request);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
     @PostMapping("/post")

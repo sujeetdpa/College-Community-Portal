@@ -3,7 +3,6 @@ package com.aspd.collegeCommunityPortal.beans.response;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,6 +19,6 @@ public class PostResponseView {
     private Integer profileImageId;
     private Integer noOfLikes;
     private Integer noOfComments;
-    private List<Integer> imageIds;
-    private List<UserDocumentResponse> documentResponses;
+    private List<ImageResponse> imageResponses;
+    private List<DocumentResponse> documentResponses;
 }

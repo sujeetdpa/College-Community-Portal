@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDocumentResponse {
-    private String fileName;
+public class ImageResponse {
     private Integer id;
+    private String imageName;
     private String uploadDate;
 }

@@ -8,9 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 public interface UserService extends UserDetailsService {
     UserResponseView getUser(String universityId);
 
-    UserImageResponse getUserImages(UserImageRequest request);
+    ImageResponseList getUserImages(UserImageRequest request);
 
-    UserDocumentResponseList getUserDocuments(UserDocumentRequest request);
+    DocumentResponseList getUserDocuments(UserDocumentRequest request);
 
     PostResponseViewList getUserPost(PostRequest postRequest);
 

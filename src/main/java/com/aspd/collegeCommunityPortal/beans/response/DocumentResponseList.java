@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserImageResponse {
-    private List<Integer> imageIds;
+public class DocumentResponseList {
+    private List<DocumentResponse> documentResponses;
     private int pageNo;
     private int totalPages;
     private long totalNumberOfItems;

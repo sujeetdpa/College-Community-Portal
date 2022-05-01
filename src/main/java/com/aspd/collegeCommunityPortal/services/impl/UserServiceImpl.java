@@ -10,7 +10,6 @@ import com.aspd.collegeCommunityPortal.services.LocalStorageService;
 import com.aspd.collegeCommunityPortal.services.UserService;
 import com.aspd.collegeCommunityPortal.util.TimeUtil;
 import org.apache.http.entity.ContentType;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -93,7 +92,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserImageResponse getUserImages(UserImageRequest request) {
+    public ImageResponseList getUserImages(UserImageRequest request) {
         Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userPrincipal != null) {
@@ -101,19 +100,29 @@ public class UserServiceImpl implements UserService {
             if (userImages == null || userImages.isEmpty()) {
                 throw new IllegalStateException("No images found.");
             }
-            UserImageResponse userImageResponse = new UserImageResponse();
-            Optional.ofNullable(userImages.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(userImageResponse::setImageIds);
-            Optional.ofNullable(userImages.getTotalPages()).ifPresent(userImageResponse::setTotalPages);
-            Optional.ofNullable(userImages.getTotalElements()).ifPresent(userImageResponse::setTotalNumberOfItems);
-            Optional.ofNullable(userImages.getSize()).ifPresent(userImageResponse::setMaxItems);
-            Optional.ofNullable(userImages.getNumber()).ifPresent(userImageResponse::setPageNo);
-            return userImageResponse;
+            List<ImageResponse> imageResponses=new ArrayList<>();
+            if (!userImages.isEmpty()){
+                userImages.forEach(image -> {
+                    ImageResponse imageResponse=new ImageResponse();
+                    Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
+                    Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
+                    Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
+                    imageResponses.add(imageResponse);
+                });
+            }
+            ImageResponseList imageResponseList=new ImageResponseList();
+            Optional.ofNullable(imageResponses).ifPresent(imageResponseList::setImageResponses);
+            Optional.ofNullable(userImages.getTotalPages()).ifPresent(imageResponseList::setTotalPages);
+            Optional.ofNullable(userImages.getTotalElements()).ifPresent(imageResponseList::setTotalNumberOfItems);
+            Optional.ofNullable(userImages.getSize()).ifPresent(imageResponseList::setMaxItems);
+            Optional.ofNullable(userImages.getNumber()).ifPresent(imageResponseList::setPageNo);
+            return imageResponseList;
         }
         return null;
     }
 
     @Override
-    public UserDocumentResponseList getUserDocuments(UserDocumentRequest request) {
+    public DocumentResponseList getUserDocuments(UserDocumentRequest request) {
         Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(10));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userPrincipal != null) {
@@ -121,16 +130,16 @@ public class UserServiceImpl implements UserService {
             if (userDocuments == null || userDocuments.isEmpty()) {
                 throw new IllegalStateException("No documents found");
             }
-            List<UserDocumentResponse> documentResponses=new ArrayList<>();
+            List<DocumentResponse> documentResponses=new ArrayList<>();
             userDocuments.forEach(document -> {
-                UserDocumentResponse response=new UserDocumentResponse();
+                DocumentResponse response=new DocumentResponse();
                 Optional.ofNullable(document.getId()).ifPresent(response::setId);
                 Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
                 Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
                 documentResponses.add(response);
             });
-            UserDocumentResponseList responseList = new UserDocumentResponseList();
-            responseList.setUserDocumentResponses(documentResponses);
+            DocumentResponseList responseList = new DocumentResponseList();
+            responseList.setDocumentResponses(documentResponses);
             Optional.ofNullable(userDocuments.getTotalPages()).ifPresent(responseList::setTotalPages);
             Optional.ofNullable(userDocuments.getTotalElements()).ifPresent(responseList::setTotalNumberOfItems);
             Optional.ofNullable(userDocuments.getSize()).ifPresent(responseList::setMaxItems);
@@ -162,13 +171,25 @@ public class UserServiceImpl implements UserService {
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
-                Optional.ofNullable(imageRepository.findImageByPost(post)).map(images -> images.stream().map(Image::getId).collect(Collectors.toList())).ifPresent(postResponseView::setImageIds);
+
+                List<Image> images = imageRepository.findImageByPost(post);
+                List<ImageResponse> imageResponses=new ArrayList<>();
+                if (!images.isEmpty()){
+                    images.forEach(image -> {
+                        ImageResponse imageResponse=new ImageResponse();
+                        Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
+                        Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
+                        Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
+                        imageResponses.add(imageResponse);
+                    });
+                }
+                Optional.ofNullable(imageResponses).ifPresent(postResponseView::setImageResponses);
                 List<Document> documents = documentRepository.findByPost(post);
-                List<UserDocumentResponse> documentResponses = new ArrayList<>();
+                List<DocumentResponse> documentResponses = new ArrayList<>();
                 if(!documents.isEmpty()) {
 
                     documents.forEach(document -> {
-                        UserDocumentResponse response = new UserDocumentResponse();
+                        DocumentResponse response = new DocumentResponse();
                         Optional.ofNullable(document.getId()).ifPresent(response::setId);
                         Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
                         Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
