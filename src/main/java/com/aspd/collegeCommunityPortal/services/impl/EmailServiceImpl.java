@@ -9,6 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
 
 @Service
@@ -95,7 +97,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendUnlockedAccountEmail(String firstName, String email) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
-        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Unlocked");
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Account Unblocked");
         String body="Hello "+firstName+",\n"+"Your account has been unblocked by the administrator. You can access your account using your previous credentials."+"\n"+
                 "Note: Please avoid malpractices on the application otherwise your account will be blocked permanently."+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
@@ -115,7 +117,7 @@ public class EmailServiceImpl implements EmailService {
         String body="Congratulations "+firstName+",\n"+"Your account has been created successfully and your login credentials are :-"+"\n"+
                 "Username: "+email+"\n"+
                 "Password: "+password+"\n"+
-                "Note: Make sure to activate your account via the activation link sent to you before login."+"\n\n\n"+
+                "Note: Make sure to activate your account via the activation link sent to you, before attempting login. "+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";
@@ -134,7 +136,7 @@ public class EmailServiceImpl implements EmailService {
                 "Username: "+email+"\n"+
                 "Post ID: "+post.getId()+"\n"+
                 "Post Title: "+post.getTitle()+"\n"+
-                "Post Creation Date and Time: "+post.getCreationDate().toLocalDate()+" AT "+post.getCreationDate().toLocalTime()+"\n"+
+                "Post Creation Date and Time: "+post.getCreationDate().toLocalDate()+" AT "+post.getCreationDate().toLocalTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))+"\n"+
                 "Note: If this is a fault please contact administrator"+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
@@ -154,7 +156,7 @@ public class EmailServiceImpl implements EmailService {
                 "Username: "+email+"\n"+
                 "Comment ID: "+comment.getId()+"\n"+
                 "Comment Description: "+comment.getTitle()+"\n"+
-                "Comment Creation Date and Time: "+comment.getCommentDate().toLocalDate()+" AT "+comment.getCommentDate().toLocalTime()+"\n"+
+                "Comment Creation Date and Time: "+comment.getCommentDate().toLocalDate()+" AT "+comment.getCommentDate().toLocalTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))+"\n"+
                 "Note: If this is a fault please contact administrator"+"\n\n\n"+
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
