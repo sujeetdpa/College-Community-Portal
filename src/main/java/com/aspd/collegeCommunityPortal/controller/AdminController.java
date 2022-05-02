@@ -58,5 +58,16 @@ public class AdminController {
         CommentResponseViewList responseViewList=adminService.getDeletedComment(request);
         return new ResponseEntity<>(responseViewList,HttpStatus.OK);
     }
+    @GetMapping("/toggleRole/{userId}")
+    public ResponseEntity<UserResponseView> toggleUserRole(@PathVariable("userId") Integer userId){
+        UserResponseView responseView=adminService.toggleUserRole(userId);
+        return new ResponseEntity<>(responseView,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/user/{userId}")
+    public ResponseEntity<DeleteResponseView> deleteUser(@PathVariable("userId") Integer userId){
+        DeleteResponseView responseView=adminService.deleteUser(userId);
+        return new ResponseEntity<>(responseView,HttpStatus.OK);
+    }
 
 }

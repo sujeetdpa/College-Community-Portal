@@ -21,11 +21,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,16 +56,17 @@ public class AdminServiceImpl implements AdminService {
     private TimeUtil timeUtil;
     @Autowired
     private UserUtil userUtil;
+
     @Override
     public UserResponseViewList getAllUser(UserRequest request) {
-        Pageable pageable= PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10));
-        Page<User> userPage=userRepository.findAll(pageable);
-        if (userPage.isEmpty() || userPage.getContent().isEmpty()){
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItem()).orElse(10));
+        Page<User> userPage = userRepository.findAll(pageable);
+        if (userPage.isEmpty() || userPage.getContent().isEmpty()) {
             throw new IllegalStateException("Users not found");
         }
-        List<UserResponseView> userResponseViews=new ArrayList<>();
+        List<UserResponseView> userResponseViews = new ArrayList<>();
         userPage.forEach(user -> {
-            UserResponseView view=new UserResponseView();
+            UserResponseView view = new UserResponseView();
             Optional.ofNullable(user.getId()).ifPresent(view::setId);
             Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
             Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
@@ -86,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
             userResponseViews.add(view);
         });
-        UserResponseViewList viewList=new UserResponseViewList();
+        UserResponseViewList viewList = new UserResponseViewList();
         Optional.ofNullable(userResponseViews).ifPresent(viewList::setUserResponseViews);
         Optional.ofNullable(userPage.getTotalPages()).ifPresent(viewList::setTotalPages);
         Optional.ofNullable(userPage.getNumberOfElements()).ifPresent(viewList::setTotalNumberOfItems);
@@ -97,11 +96,11 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public UserResponseView addAdmin(AddAdminRequest request) {
-        User user=new User();
-        if (!userUtil.validateUsername(request.getUsername())){
+        User user = new User();
+        if (!userUtil.validateUsername(request.getUsername())) {
             throw new IllegalStateException("Invalid username");
         }
-        if (userRepository.findByUsername(request.getUsername()).isPresent()){
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new IllegalStateException("Username already taken");
         }
         System.out.println(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById));
@@ -116,21 +115,21 @@ public class AdminServiceImpl implements AdminService {
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
         user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
-        User savedUser=userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        ConfirmationToken confirmationToken=new ConfirmationToken();
+        ConfirmationToken confirmationToken = new ConfirmationToken();
         confirmationToken.setCreatedAt(LocalDateTime.now());
-        String token=UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
         confirmationToken.setToken(token);
         confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link=serverDomain+"/auth/activate/account?token="+token;
+        String link = serverDomain + "/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
-        emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),password);
+        emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), password);
 
-        UserResponseView view=new UserResponseView();
+        UserResponseView view = new UserResponseView();
         Optional.ofNullable(user.getId()).ifPresent(view::setId);
         Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
         Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
@@ -141,19 +140,18 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Boolean toggleAccountLock(Integer userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new IllegalStateException("User not found");
         }
-        User user=optionalUser.get();
+        User user = optionalUser.get();
         if (user.getIsNotLocked()) {
             user.setIsNotLocked(false);
-            emailService.sendLockedAccountEmail(user.getFirstName(),user.getUsername());
-        }
-        else {
+            emailService.sendLockedAccountEmail(user.getFirstName(), user.getUsername());
+        } else {
             user.setIsNotLocked(true);
-            emailService.sendUnlockedAccountEmail(user.getFirstName(),user.getUsername());
+            emailService.sendUnlockedAccountEmail(user.getFirstName(), user.getUsername());
         }
-        user=userRepository.save(user);
+        user = userRepository.save(user);
 //        UserResponseView view=new UserResponseView();
 //        Optional.ofNullable(user.getId()).ifPresent(view::setId);
 //        Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
@@ -181,7 +179,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminDashboardResponse getDashboard() {
-        AdminDashboardResponse response=new AdminDashboardResponse();
+        AdminDashboardResponse response = new AdminDashboardResponse();
         response.setNumberOfPosts(postRepository.count());
         response.setNumberOfDeletedPost(postRepository.countDeletedPost());
         response.setNumberOfDeletedComment(commentRepository.countDeletedComment());
@@ -197,16 +195,16 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PostResponseViewList getDeletedPost(PostRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(request.getSortBy()).orElse("deleteTimestamp")));
-        Page<Post> postPage=null;
-        postPage=postRepository.findAllDeletedPost(pageable);
-        if (postPage.isEmpty()){
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC, Optional.ofNullable(request.getSortBy()).orElse("deleteTimestamp")));
+        Page<Post> postPage = null;
+        postPage = postRepository.findAllDeletedPost(pageable);
+        if (postPage.isEmpty()) {
             throw new IllegalStateException("No deleted post found");
         }
-        PostResponseViewList postResponseViewList=new PostResponseViewList();
-        List<PostResponseView> postResponseViews=new ArrayList<>();
-        for(Post post:postPage){
-            PostResponseView postResponseView=new PostResponseView();
+        PostResponseViewList postResponseViewList = new PostResponseViewList();
+        List<PostResponseView> postResponseViews = new ArrayList<>();
+        for (Post post : postPage) {
+            PostResponseView postResponseView = new PostResponseView();
             postResponseView.setId(post.getId());
             postResponseView.setTitle(post.getTitle());
             postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
@@ -216,14 +214,14 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(postResponseView::setUniversityId);
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
             Optional.ofNullable(post.getDeleteTimestamp()).map(timeUtil::getCreationTimestamp).ifPresent(postResponseView::setDeleteDate);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+            Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
 
             List<Image> images = imageRepository.findImageByPost(post);
-            List<ImageResponse> imageResponses=new ArrayList<>();
-            if (!images.isEmpty()){
+            List<ImageResponse> imageResponses = new ArrayList<>();
+            if (!images.isEmpty()) {
                 images.forEach(image -> {
-                    ImageResponse imageResponse=new ImageResponse();
+                    ImageResponse imageResponse = new ImageResponse();
                     Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                     Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                     Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
@@ -234,7 +232,7 @@ public class AdminServiceImpl implements AdminService {
 
             List<Document> documents = documentRepository.findByPost(post);
             List<DocumentResponse> documentResponses = new ArrayList<>();
-            if(!documents.isEmpty()) {
+            if (!documents.isEmpty()) {
 
                 documents.forEach(document -> {
                     DocumentResponse response = new DocumentResponse();
@@ -258,14 +256,14 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public CommentResponseViewList getDeletedComment(PostCommentFetchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"deleteTimestamp"));
-        Page<Comment> commentPage=commentRepository.findAllDeletedComment(pageable);
-        if (commentPage.isEmpty()){
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC, "deleteTimestamp"));
+        Page<Comment> commentPage = commentRepository.findAllDeletedComment(pageable);
+        if (commentPage.isEmpty()) {
             throw new IllegalStateException("No Deleted Comment found");
         }
-        List<CommentResponseView> viewList=new ArrayList<>();
-        for (Comment comment:commentPage){
-            CommentResponseView view=new CommentResponseView();
+        List<CommentResponseView> viewList = new ArrayList<>();
+        for (Comment comment : commentPage) {
+            CommentResponseView view = new CommentResponseView();
             Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
             Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
             Optional.ofNullable(comment.getId()).ifPresent(view::setId);
@@ -278,13 +276,73 @@ public class AdminServiceImpl implements AdminService {
             Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
             viewList.add(view);
         }
-        CommentResponseViewList responseViewList=new CommentResponseViewList();
+        CommentResponseViewList responseViewList = new CommentResponseViewList();
         Optional.ofNullable(commentPage.getTotalPages()).ifPresent(responseViewList::setTotalPages);
         Optional.ofNullable(commentPage.getTotalElements()).ifPresent(responseViewList::setTotalNumberOfItems);
         Optional.ofNullable(commentPage.getNumber()).ifPresent(responseViewList::setPageNo);
         Optional.ofNullable(commentPage.getSize()).ifPresent(responseViewList::setMaxItems);
         Optional.ofNullable(viewList).ifPresent(responseViewList::setCommentResponseViews);
         return responseViewList;
+    }
+
+    @Override
+    public UserResponseView toggleUserRole(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalStateException("User not Found");
+        }
+        Optional<Role> role_user = roleRepository.findByName("ROLE_USER");
+        Optional<Role> role_admin = roleRepository.findByName("ROLE_ADMIN");
+        User user = optionalUser.get();
+        List<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+        if (roles.contains("ROLE_ADMIN")) {
+            user.getRoles().remove(role_admin.get());
+            user.getRoles().add(role_user.get());
+        } else {
+           user.getRoles().remove(role_user.get());
+           user.getRoles().add(role_admin.get());
+        }
+        user = userRepository.save(user);
+        //TODO send Email about role change
+
+        UserResponseView view = new UserResponseView();
+        Optional.ofNullable(user.getId()).ifPresent(view::setId);
+        Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
+        Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
+        Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
+        Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
+        Optional.ofNullable(user.getDob()).ifPresent(view::setDob);
+        Optional.ofNullable(user.getLastLoginTimestamp()).map(timeUtil::getLastLoginTimestamp).ifPresent(view::setLastLoginTimestamp);
+        Optional.ofNullable(user.getMobileNo()).ifPresent(view::setMobileNo);
+        Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
+        Optional.ofNullable(user.getGender().toString()).ifPresent(view::setGender);
+        Optional.ofNullable(user.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
+        Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
+        Optional.ofNullable(user.getRoles().stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
+        Optional.ofNullable(user.getIsActive()).ifPresent(view::setIsActive);
+        Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
+        Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
+        return view;
+    }
+
+    @Override
+    @Transactional
+    public DeleteResponseView deleteUser(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalStateException("User not Found");
+        }
+        User user=optionalUser.get();
+        postRepository.deleteByUser(user);
+        confirmationTokenRepository.deleteByUser(user);
+        commentRepository.deleteByUser(user);
+        documentRepository.deleteByUser(user);
+        imageRepository.deleteByUser(user);
+        reviewRepository.deleteByUser(user);
+        userRepository.delete(user);
+        DeleteResponseView view=new DeleteResponseView();
+        view.setMessage("User with username: "+user.getUsername()+" is deleted successfully");
+        return view;
     }
 
 

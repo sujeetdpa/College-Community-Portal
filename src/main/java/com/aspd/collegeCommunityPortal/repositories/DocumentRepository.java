@@ -19,4 +19,6 @@ public interface DocumentRepository extends JpaRepository<Document,Integer> {
 
     @Query(value = "select count(d) from Document d where d.user = ?1")
     Integer countByUser(User user);
+
+    void deleteByUser(User user);
 }

@@ -23,4 +23,8 @@ public interface AdminService {
     PostResponseViewList getDeletedPost(PostRequest request);
 
     CommentResponseViewList getDeletedComment(PostCommentFetchRequest request);
+
+    UserResponseView toggleUserRole(Integer userId);
+
+    DeleteResponseView deleteUser(Integer userId);
 }

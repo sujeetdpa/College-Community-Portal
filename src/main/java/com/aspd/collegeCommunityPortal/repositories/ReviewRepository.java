@@ -25,4 +25,6 @@ public interface ReviewRepository extends JpaRepository<Review,Integer> {
 
     @Query(value = "select count(r) from Review r where r.reviewType= ?1")
     Integer countByReviewType(ReviewType reviewType);
+
+    void deleteByUser(User user);
 }

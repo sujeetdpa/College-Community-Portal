@@ -19,4 +19,6 @@ public interface ImageRepository extends JpaRepository<Image,Integer> {
 
     @Query(value = "select count(i) from Image i where i.user = ?1")
     Integer countByUser(User user);
+
+    void deleteByUser(User user);
 }

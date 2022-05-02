@@ -14,7 +14,7 @@ public class NewCommentRequest {
     @NotBlank(message = "Description cannot be blank")
     @NotNull(message = "Description cannot be null")
     private String description;
-    @NotBlank(message = "Post Id cannot be blank")
+
     @NotNull(message = "Post Id cannot be null")
     private int postId;
     private int userId;

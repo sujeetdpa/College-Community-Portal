@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -48,7 +49,7 @@ public class User {
     private String mobileNo;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Collection<Role> roles=new ArrayList<>();
+    private List<Role> roles=new ArrayList<>();
 
     public String getFullName(){
         return this.getFirstName().concat(" ").concat(this.getLastName());

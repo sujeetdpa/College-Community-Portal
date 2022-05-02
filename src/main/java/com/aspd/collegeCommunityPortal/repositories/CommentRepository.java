@@ -35,4 +35,7 @@ public interface CommentRepository extends JpaRepository<Comment,Integer> {
     Integer countDeletedComment();
     @Query(value = "select c from Comment c where c.isDeleted=true")
     Page<Comment> findAllDeletedComment(Pageable pageable);
+
+    void deleteByUser(User user);
+
 }
