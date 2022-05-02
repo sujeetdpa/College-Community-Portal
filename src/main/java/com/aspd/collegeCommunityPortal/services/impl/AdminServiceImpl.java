@@ -14,6 +14,7 @@ import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +34,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Value("${server.domain}")
     private String serverDomain;
+
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private UserRepository userRepository;
@@ -115,6 +121,13 @@ public class AdminServiceImpl implements AdminService {
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
         user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
+        String ip;
+        try {
+            ip= InetAddress.getLocalHost().getHostAddress();
+        }catch (UnknownHostException e){
+            throw new IllegalStateException("Failed to register please try again");
+        }
+
         User savedUser = userRepository.save(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken();
@@ -125,7 +138,7 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link = serverDomain + "/auth/activate/account?token=" + token;
+        String link="http://"+ip+":"+port+"/auth/activate/account?token="+token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), password);
 
