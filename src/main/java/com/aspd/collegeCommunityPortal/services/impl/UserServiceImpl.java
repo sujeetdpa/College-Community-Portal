@@ -88,6 +88,8 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(user.getUserCreationTimestamp()).map(timeUtil::getUserJoinDate).ifPresent(view::setUserCreationTimestamp);
         Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
         Optional.ofNullable(user.getRoles().stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
+        Optional.ofNullable(user.getIsActive()).ifPresent(view::setIsActive);
+        Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
         return view;
     }
 

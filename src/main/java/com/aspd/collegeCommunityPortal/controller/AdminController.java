@@ -34,8 +34,8 @@ public class AdminController {
         return new ResponseEntity<>(userResponseView,HttpStatus.OK);
     }
     @PostMapping("/blockUser/{userId}")
-    public ResponseEntity<Boolean> toggleAccountLock(@PathVariable("userId") Integer userId){
-        Boolean responseView=adminService.toggleAccountLock(userId);
+    public ResponseEntity<UserResponseView> toggleAccountLock(@PathVariable("userId") Integer userId){
+        UserResponseView responseView=adminService.toggleAccountLock(userId);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }
     @GetMapping("/roles")
