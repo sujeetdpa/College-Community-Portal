@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,7 @@ public class PostController {
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }
     @PostMapping("/new")
-    public ResponseEntity<PostResponseView> createPost(@RequestBody CreatePostRequest createPostRequest){
+    public ResponseEntity<PostResponseView> createPost(@RequestBody @Valid CreatePostRequest createPostRequest){
         PostResponseView postResponseView=postService.createPost(createPostRequest);
         return new ResponseEntity<>(postResponseView,HttpStatus.OK);
     }
@@ -46,13 +47,13 @@ public class PostController {
         return new ResponseEntity<>(deleteResponseView,HttpStatus.OK);
     }
     @PostMapping("/search")
-    public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestBody PostSearchRequest request){
+    public ResponseEntity<PostSearchResponseViewList> searchPost(@RequestBody @Valid PostSearchRequest request){
         PostSearchResponseViewList postSearchResponseViewList=postService.searchPost(request);
         return new ResponseEntity<>(postSearchResponseViewList,HttpStatus.OK);
     }
 
     @PostMapping("/comment/new")
-    public ResponseEntity<CommentResponseView> newComment(@RequestBody NewCommentRequest request){
+    public ResponseEntity<CommentResponseView> newComment(@RequestBody @Valid NewCommentRequest request){
         CommentResponseView responseView=postService.newComment(request);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }

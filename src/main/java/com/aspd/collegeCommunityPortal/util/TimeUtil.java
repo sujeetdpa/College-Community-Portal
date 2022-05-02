@@ -12,10 +12,10 @@ public class TimeUtil {
 
     public String getCreationTimestamp(LocalDateTime creationDateTime){
         String result="";
+        long hours = ChronoUnit.HOURS.between(creationDateTime, LocalDateTime.now());
         long days = ChronoUnit.DAYS.between(creationDateTime, LocalDateTime.now());
-        if(creationDateTime.toLocalDate().equals(LocalDate.now())){
-            long seconds = Duration.between(creationDateTime.toLocalTime(), LocalTime.now()).getSeconds();
-            result=(seconds/3600)+" hours ago";
+        if(hours<24){
+            result=hours+" hours ago";
         }
         else if(days<2){
             result=days+" day ago";

@@ -276,7 +276,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public CommentResponseView newComment(NewCommentRequest request) {
         Optional<Post> optionalPost = postRepository.findById(request.getPostId());
-        Optional<User> optionalUser = userRepository.findById(request.getUserId());
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
             throw new IllegalStateException("Post not Found");

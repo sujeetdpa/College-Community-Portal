@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @PostMapping("/update/{userId}")
-    public ResponseEntity<UserResponseView> updateUser(@PathVariable("userId") Integer userId,@RequestBody UserUpdateRequest request){
+    public ResponseEntity<UserResponseView> updateUser(@PathVariable("userId") Integer userId,@RequestBody @Valid UserUpdateRequest request){
         UserResponseView responseView=userService.updateUser(userId,request);
         return new ResponseEntity<>(responseView,HttpStatus.OK);
     }

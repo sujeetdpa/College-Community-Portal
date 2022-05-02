@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,7 @@ public class AdminController {
         return new ResponseEntity<>(responseViewList, HttpStatus.OK);
     }
     @PostMapping("/add")
-    public ResponseEntity<UserResponseView> addAdmin(@RequestBody AddAdminRequest request){
+    public ResponseEntity<UserResponseView> addAdmin(@RequestBody @Valid  AddAdminRequest request){
         UserResponseView userResponseView=adminService.addAdmin(request);
         return new ResponseEntity<>(userResponseView,HttpStatus.OK);
     }

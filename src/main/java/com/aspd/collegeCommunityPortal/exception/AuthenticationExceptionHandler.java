@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,6 +52,15 @@ public class AuthenticationExceptionHandler implements ErrorController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<HttpResponse> illegalStateException(Exception exception){
         return createHttResponse(HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<HttpResponse> handleValidationExceptions(MethodArgumentNotValidException exception){
+        String message="";
+        for (ObjectError error: exception.getBindingResult().getAllErrors()){
+            message+=error.getDefaultMessage()+" | ";
+        }
+        return createHttResponse(HttpStatus.BAD_REQUEST,message);
     }
     @RequestMapping("/error")
     public ResponseEntity<HttpResponse> notFound404(){
