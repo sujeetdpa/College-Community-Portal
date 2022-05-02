@@ -6,6 +6,7 @@ import com.aspd.collegeCommunityPortal.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
     private JavaMailSender javaMailSender;
 
     @Override
+    @Async
     public void sendForgotPasswordEmail(String firstName,String email,String password) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -37,6 +39,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendPasswordChangeEmail(String firstName, String email, String password) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -54,6 +57,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendActivationLinkEmail(String firstName, String email,String link) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -71,6 +75,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendLockedAccountEmail(String firstName, String email) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -86,6 +91,7 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(simpleMailMessage);
     }
     @Override
+    @Async
     public void sendUnlockedAccountEmail(String firstName, String email) {
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -101,6 +107,7 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(simpleMailMessage);
     }
     @Override
+    @Async
     public void sendRegistrationEmail(String firstName,String email,String password){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -117,6 +124,8 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
+    @Override
+    @Async
     public void sendPostRemovedEmail(String firstName, String email, Post post){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -135,6 +144,8 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSentDate(new Date());
         javaMailSender.send(simpleMailMessage);
     }
+    @Override
+    @Async
     public void sendCommentRemovedEmail(String firstName, String email, Comment comment){
         SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
@@ -148,6 +159,25 @@ public class EmailServiceImpl implements EmailService {
                 "Thanks & Regards"+"\n"+
                 "Admin"+"\n"+
                 "College Community Portal";
+        simpleMailMessage.setText(body);
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSentDate(new Date());
+        javaMailSender.send(simpleMailMessage);
+    }
+
+    @Override
+    @Async
+    public void sendRoleChangeEmail(String firstName, String email, String roles) {
+        SimpleMailMessage simpleMailMessage=new SimpleMailMessage();
+        simpleMailMessage.setFrom(FROM_EMAIL);
+        simpleMailMessage.setSubject(SUBJECT_PREFIX+"Role Changed");
+        String body="Hello "+firstName+",\n"+"Your account role has been changed to following: "+"\n"+
+                "Username:"+email+"\n"+
+                "Roles: "+roles+"\n"+
+                "Hence, your permissions to access the application has been also modified."+"\n\n\n"+
+                "Thanks & Regards"+"\n"+
+                "Admin"+"\n"+
+                "CollegeCommunityPortal";
         simpleMailMessage.setText(body);
         simpleMailMessage.setTo(email);
         simpleMailMessage.setSentDate(new Date());

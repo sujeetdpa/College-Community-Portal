@@ -303,7 +303,7 @@ public class AdminServiceImpl implements AdminService {
            user.getRoles().add(role_admin.get());
         }
         user = userRepository.save(user);
-        //TODO send Email about role change
+        List<String> updatedRoles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
         UserResponseView view = new UserResponseView();
         Optional.ofNullable(user.getId()).ifPresent(view::setId);
@@ -322,6 +322,8 @@ public class AdminServiceImpl implements AdminService {
         Optional.ofNullable(user.getIsActive()).ifPresent(view::setIsActive);
         Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
         Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
+
+        emailService.sendRoleChangeEmail(user.getFirstName(),user.getUsername(),updatedRoles.toString());
         return view;
     }
 

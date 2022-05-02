@@ -13,5 +13,6 @@ public interface EmailService {
     void sendRegistrationEmail(String firstName,String email,String password);
     void sendPostRemovedEmail(String firstName, String email, Post post);
     void sendCommentRemovedEmail(String firstName, String email, Comment comment);
+    void sendRoleChangeEmail(String firstName, String email,String roles);
 }
 
