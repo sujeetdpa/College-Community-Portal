@@ -27,4 +27,6 @@ public interface AdminService {
     UserResponseView toggleUserRole(Integer userId);
 
     DeleteResponseView deleteUser(Integer userId);
+
+    String sendActivationLink(Integer userId);
 }

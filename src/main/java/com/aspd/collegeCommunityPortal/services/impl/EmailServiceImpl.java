@@ -60,13 +60,15 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendActivationLinkEmail(String firstName, String email, String link) {
+    public void sendActivationLinkEmail(String firstName, String email, String link,String expiryDate) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(FROM_EMAIL);
         simpleMailMessage.setSubject(SUBJECT_PREFIX + "Activate account");
         String body = "Hello " + firstName + ",\n" + "Your account has been successfully created on College Community Portal. Click on the below link to activate your account." + "\n" +
                 "Username: " + email + "\n" +
                 "Link: " + link + "\n\n\n" +
+                "Link expires at: "+expiryDate+
+                "Note: Make sure to activate your account before the expiry date otherwise you need to contact administrator for further process."+
                 "Thanks & Regards" + "\n" +
                 "Admin" + "\n" +
                 "CollegeCommunityPortal";

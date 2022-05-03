@@ -134,12 +134,12 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setCreatedAt(LocalDateTime.now());
         String token = UUID.randomUUID().toString();
         confirmationToken.setToken(token);
-        confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+        confirmationToken.setExpiresAt(LocalDateTime.now().plusDays(1));
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
         String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
-        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
+        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), password);
 
         UserResponseView view = new UserResponseView();
@@ -358,6 +358,36 @@ public class AdminServiceImpl implements AdminService {
         DeleteResponseView view = new DeleteResponseView();
         view.setMessage("User with username: " + user.getUsername() + " is deleted successfully");
         return view;
+    }
+
+    @Override
+    public String sendActivationLink(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()){
+            throw new IllegalStateException("User not found");
+        }
+        User user =optionalUser.get();
+        if (user.getIsActive()){
+            throw new IllegalStateException("User Account already activated");
+        }
+        String ip;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException("Failed to send activation link please try again");
+        }
+
+        ConfirmationToken confirmationToken = new ConfirmationToken();
+        confirmationToken.setCreatedAt(LocalDateTime.now());
+        confirmationToken.setExpiresAt(LocalDateTime.now().plusDays(1));
+        String token = UUID.randomUUID().toString();
+        confirmationToken.setToken(token);
+        confirmationToken.setUser(user);
+        confirmationTokenRepository.save(confirmationToken);
+
+        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
+        emailService.sendActivationLinkEmail(user.getFullName(), user.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
+        return "Activation link sent to : ".toUpperCase()+user.getUsername();
     }
 
 

@@ -132,12 +132,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         confirmationToken.setCreatedAt(LocalDateTime.now());
         String token = UUID.randomUUID().toString();
         confirmationToken.setToken(token);
-        confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+        confirmationToken.setExpiresAt(LocalDateTime.now().plusDays(1));
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
         String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
-        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
+        emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), request.getPassword());
 
         SignUpResponse response = new SignUpResponse();
@@ -190,17 +190,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String activateAccount(String token) {
         Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenRepository.findByToken(token);
         if (optionalConfirmationToken.isEmpty()) {
-            return "<h1>Invalid activation token</h1>";
+            return "<h1 style='color:red'>Invalid activation link</h1>";
         }
         ConfirmationToken confirmationToken = optionalConfirmationToken.get();
         if (confirmationToken.getConfirmedAt() != null) {
-            return "<h1>Account already activated</h1>";
+            return "<h1 style='color:green'>Account already activated</h1>";
         }
+        if (confirmationToken.getExpiresAt().isBefore(LocalDateTime.now())){
+            return "<h1 style='color:red'>Link expired, Please contact administrator";
+        }
+
         User user = confirmationToken.getUser();
         confirmationToken.setConfirmedAt(LocalDateTime.now());
         confirmationTokenRepository.save(confirmationToken);
         user.setIsActive(true);
         userRepository.save(user);
-        return "<h1>Account activated successfully</h1>";
+        return "<h1 style='color:green'>Account activated successfully</h1>";
     }
 }

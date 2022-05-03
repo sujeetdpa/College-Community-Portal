@@ -77,4 +77,11 @@ public class AdminController {
         return new ResponseEntity<>(responseView, HttpStatus.OK);
     }
 
+    @PostMapping("/send/activationLink/{userId}")
+    public ResponseEntity<String> sendActivationLink(@PathVariable("userId") Integer userId){
+        String message=adminService.sendActivationLink(userId);
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
+
+
 }

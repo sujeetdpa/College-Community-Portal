@@ -7,7 +7,7 @@ import com.aspd.collegeCommunityPortal.model.Post;
 public interface EmailService {
     void sendForgotPasswordEmail(String firstName,String email,String password);
     void sendPasswordChangeEmail(String firstName,String email,String password);
-    void sendActivationLinkEmail(String firstName, String email,String link);
+    void sendActivationLinkEmail(String firstName, String email,String link,String expiryDate);
     void sendLockedAccountEmail(String firstName,String email);
     void sendUnlockedAccountEmail(String firstName, String email);
     void sendRegistrationEmail(String firstName,String email,String password);
