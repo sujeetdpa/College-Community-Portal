@@ -110,9 +110,11 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalStateException("Username already taken");
         }
         System.out.println(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById));
-        user.setFirstName(Optional.ofNullable(request.getFirstName()).orElseThrow(() -> new IllegalStateException("First Name cannot be empty")));
-        user.setLastName(Optional.ofNullable(request.getLastName()).orElseThrow(() -> new IllegalStateException("Last Name cannot be empty")));
-        user.setUsername(Optional.ofNullable(request.getUsername()).orElseThrow(() -> new IllegalStateException("Username cannot be empty")));
+        user.setFirstName(request.getFirstName());
+        user.setDob(request.getDob());
+        user.setLastName(request.getLastName());
+        user.setUsername(request.getUsername());
+        user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
         user.setRoles(Optional.ofNullable(request.getRoles()).map(roleRepository::findAllById).orElseThrow(() -> new IllegalStateException("Select at least one role")));
         Optional.ofNullable(request.getGender()).map(Gender::valueOf).ifPresent(user::setGender);
         String password = RandomStringUtils.randomAlphanumeric(10);
@@ -120,7 +122,6 @@ public class AdminServiceImpl implements AdminService {
         user.setIsActive(false);
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
-        user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
         String ip;
         try {
             ip = InetAddress.getLocalHost().getHostAddress();

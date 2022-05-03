@@ -6,9 +6,13 @@ import com.aspd.collegeCommunityPortal.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.mail.Multipart;
+import javax.mail.internet.MimeMessage;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Date;
@@ -66,8 +70,8 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setSubject(SUBJECT_PREFIX + "Activate account");
         String body = "Hello " + firstName + ",\n" + "Your account has been successfully created on College Community Portal. Click on the below link to activate your account." + "\n" +
                 "Username: " + email + "\n" +
-                "Link: " + link + "\n\n\n" +
-                "Link expires at: "+expiryDate+
+                "Link: " + link + "\n" +
+                "Link expires at: "+expiryDate+"\n\n\n"+
                 "Note: Make sure to activate your account before the expiry date otherwise you need to contact administrator for further process."+
                 "Thanks & Regards" + "\n" +
                 "Admin" + "\n" +

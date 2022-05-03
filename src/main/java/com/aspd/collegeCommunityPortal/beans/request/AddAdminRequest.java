@@ -6,6 +6,8 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -17,6 +19,10 @@ public class AddAdminRequest {
     private String firstName;
 
     private String lastName;
+
+    @NotNull(message = "Date of Birth cannot be null")
+    @Past
+    private LocalDate dob;
 
     @NotNull(message = "Username cannot be null")
     @NotBlank(message = "Username cannot be null")

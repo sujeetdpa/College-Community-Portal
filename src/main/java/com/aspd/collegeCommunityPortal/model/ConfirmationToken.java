@@ -13,6 +13,7 @@ public class ConfirmationToken {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    @Column(unique = true,nullable = false)
     private String token;
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
