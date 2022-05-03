@@ -19,33 +19,37 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/auth")
 @CrossOrigin(origins = "*")
-public class AuthenticationController{
+public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request){
-        AuthenticationResponse response=authenticationService.login(request);
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) {
+        AuthenticationResponse response = authenticationService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @PostMapping("/signup")
-    public ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid RegisterRequest request){
-        SignUpResponse response=authenticationService.signUp(request);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid RegisterRequest request) {
+        SignUpResponse response = authenticationService.signUp(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @PostMapping("/update/password")
-    public ResponseEntity<String> updatePassword(@RequestBody @Valid UpdatePasswordRequest request){
-        String response=authenticationService.updatePassword(request);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<String> updatePassword(@RequestBody @Valid UpdatePasswordRequest request) {
+        String response = authenticationService.updatePassword(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @PostMapping("/forgot/password")
-    public ResponseEntity<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request){
-        String message=authenticationService.forgotPassword(request);
-        return new ResponseEntity<>(message,HttpStatus.OK);
+    public ResponseEntity<String> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        String message = authenticationService.forgotPassword(request);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
     @GetMapping("/activate/account")
-    public ResponseEntity<String> activateAccount(@RequestParam("token") String token){
-        String message=authenticationService.activateAccount(token);
-        return new ResponseEntity<>(message,HttpStatus.OK);
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
+        String message = authenticationService.activateAccount(token);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

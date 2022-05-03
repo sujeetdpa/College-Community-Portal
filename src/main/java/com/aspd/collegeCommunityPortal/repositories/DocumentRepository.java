@@ -12,9 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DocumentRepository extends JpaRepository<Document,Integer> {
+public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     List<Document> findByPost(Post post);
+
     Page<Document> findByUser(User user, Pageable pageable);
 
     @Query(value = "select count(d) from Document d where d.user = ?1")

@@ -123,8 +123,8 @@ public class AdminServiceImpl implements AdminService {
         user.setUniversityId(userUtil.getUniversityId(request.getUsername()));
         String ip;
         try {
-            ip= InetAddress.getLocalHost().getHostAddress();
-        }catch (UnknownHostException e){
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
             throw new IllegalStateException("Failed to register please try again");
         }
 
@@ -138,7 +138,7 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link="http://"+ip+":"+port+"/auth/activate/account?token="+token;
+        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), password);
 
@@ -165,7 +165,7 @@ public class AdminServiceImpl implements AdminService {
             emailService.sendUnlockedAccountEmail(user.getFirstName(), user.getUsername());
         }
         user = userRepository.save(user);
-        UserResponseView view=new UserResponseView();
+        UserResponseView view = new UserResponseView();
         Optional.ofNullable(user.getId()).ifPresent(view::setId);
         Optional.ofNullable(user.getFirstName()).ifPresent(view::setFirstName);
         Optional.ofNullable(user.getLastName()).ifPresent(view::setLastName);
@@ -312,8 +312,8 @@ public class AdminServiceImpl implements AdminService {
             user.getRoles().remove(role_admin.get());
             user.getRoles().add(role_user.get());
         } else {
-           user.getRoles().remove(role_user.get());
-           user.getRoles().add(role_admin.get());
+            user.getRoles().remove(role_user.get());
+            user.getRoles().add(role_admin.get());
         }
         user = userRepository.save(user);
         List<String> updatedRoles = user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
@@ -336,7 +336,7 @@ public class AdminServiceImpl implements AdminService {
         Optional.ofNullable(user.getIsNotLocked()).ifPresent(view::setIsNotLocked);
         Optional.ofNullable(user.getEmail()).ifPresent(view::setEmail);
 
-        emailService.sendRoleChangeEmail(user.getFirstName(),user.getUsername(),updatedRoles.toString());
+        emailService.sendRoleChangeEmail(user.getFirstName(), user.getUsername(), updatedRoles.toString());
         return view;
     }
 
@@ -347,7 +347,7 @@ public class AdminServiceImpl implements AdminService {
         if (optionalUser.isEmpty()) {
             throw new IllegalStateException("User not Found");
         }
-        User user=optionalUser.get();
+        User user = optionalUser.get();
         postRepository.deleteByUser(user);
         confirmationTokenRepository.deleteByUser(user);
         commentRepository.deleteByUser(user);
@@ -355,8 +355,8 @@ public class AdminServiceImpl implements AdminService {
         imageRepository.deleteByUser(user);
         reviewRepository.deleteByUser(user);
         userRepository.delete(user);
-        DeleteResponseView view=new DeleteResponseView();
-        view.setMessage("User with username: "+user.getUsername()+" is deleted successfully");
+        DeleteResponseView view = new DeleteResponseView();
+        view.setMessage("User with username: " + user.getUsername() + " is deleted successfully");
         return view;
     }
 

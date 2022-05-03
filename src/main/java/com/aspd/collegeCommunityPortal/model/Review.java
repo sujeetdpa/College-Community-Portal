@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"post_id","user_id"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"post_id", "user_id"})})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

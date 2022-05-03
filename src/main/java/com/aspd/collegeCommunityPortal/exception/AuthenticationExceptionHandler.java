@@ -19,60 +19,68 @@ import java.security.SignatureException;
 
 @RestControllerAdvice
 public class AuthenticationExceptionHandler implements ErrorController {
-    private static final String ACCOUNT_LOCKED="Your account has been locked. Please contact administration";
-    private static final String INCORRECT_CREDENTIALS="Username / Password incorrect. Please try again";
-    private static final String ACCOUNT_DISABLED="Your account has been disabled, please activate your account. If this is an error, please contact administration";
-    private static final String NOT_ENOUGH_PERMISSION="You do not have enough permission";
-    public static final String ERROR_PATH="/error";
+    private static final String ACCOUNT_LOCKED = "Your account has been locked. Please contact administration";
+    private static final String INCORRECT_CREDENTIALS = "Username / Password incorrect. Please try again";
+    private static final String ACCOUNT_DISABLED = "Your account has been disabled, please activate your account. If this is an error, please contact administration";
+    private static final String NOT_ENOUGH_PERMISSION = "You do not have enough permission";
+    public static final String ERROR_PATH = "/error";
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<HttpResponse> accountDisabledException(){
+    public ResponseEntity<HttpResponse> accountDisabledException() {
         return createHttResponse(HttpStatus.BAD_REQUEST, ACCOUNT_DISABLED);
     }
+
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<HttpResponse> badCredentialsException(){
-        return createHttResponse(HttpStatus.BAD_REQUEST,INCORRECT_CREDENTIALS);
+    public ResponseEntity<HttpResponse> badCredentialsException() {
+        return createHttResponse(HttpStatus.BAD_REQUEST, INCORRECT_CREDENTIALS);
     }
+
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<HttpResponse> accessDeniedException(){
-        return createHttResponse(HttpStatus.FORBIDDEN,NOT_ENOUGH_PERMISSION);
+    public ResponseEntity<HttpResponse> accessDeniedException() {
+        return createHttResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION);
     }
+
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<HttpResponse> lockedException(){
-        return createHttResponse(HttpStatus.UNAUTHORIZED,ACCOUNT_LOCKED);
+    public ResponseEntity<HttpResponse> lockedException() {
+        return createHttResponse(HttpStatus.UNAUTHORIZED, ACCOUNT_LOCKED);
     }
+
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<HttpResponse> signatureException(){
-        return createHttResponse(HttpStatus.UNAUTHORIZED,"JWT signature does not match");
+    public ResponseEntity<HttpResponse> signatureException() {
+        return createHttResponse(HttpStatus.UNAUTHORIZED, "JWT signature does not match");
     }
+
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<HttpResponse> expiredJwtException(){
-        return createHttResponse(HttpStatus.UNAUTHORIZED,"JWT Token expired");
+    public ResponseEntity<HttpResponse> expiredJwtException() {
+        return createHttResponse(HttpStatus.UNAUTHORIZED, "JWT Token expired");
     }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<HttpResponse> illegalStateException(Exception exception){
-        return createHttResponse(HttpStatus.INTERNAL_SERVER_ERROR,exception.getMessage());
+    public ResponseEntity<HttpResponse> illegalStateException(Exception exception) {
+        return createHttResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<HttpResponse> handleValidationExceptions(MethodArgumentNotValidException exception){
-        String message="";
-        for (ObjectError error: exception.getBindingResult().getAllErrors()){
-            message+=error.getDefaultMessage()+" | ";
+    public ResponseEntity<HttpResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        String message = "";
+        for (ObjectError error : exception.getBindingResult().getAllErrors()) {
+            message += error.getDefaultMessage() + " | ";
         }
-        return createHttResponse(HttpStatus.BAD_REQUEST,message);
+        return createHttResponse(HttpStatus.BAD_REQUEST, message);
     }
+
     @RequestMapping("/error")
-    public ResponseEntity<HttpResponse> notFound404(){
-        return createHttResponse(HttpStatus.NOT_FOUND,"There is no mapping for this URL");
+    public ResponseEntity<HttpResponse> notFound404() {
+        return createHttResponse(HttpStatus.NOT_FOUND, "There is no mapping for this URL");
     }
+
     public String getErrorPath() {
         return ERROR_PATH;
     }
 
-    private ResponseEntity<HttpResponse> createHttResponse(HttpStatus httpStatus,String message){
-        HttpResponse httpResponse=new HttpResponse(httpStatus.value(),httpStatus,httpStatus.getReasonPhrase(),message.toUpperCase());
-        return new ResponseEntity<>(httpResponse,httpStatus);
+    private ResponseEntity<HttpResponse> createHttResponse(HttpStatus httpStatus, String message) {
+        HttpResponse httpResponse = new HttpResponse(httpStatus.value(), httpStatus, httpStatus.getReasonPhrase(), message.toUpperCase());
+        return new ResponseEntity<>(httpResponse, httpStatus);
     }
 
 

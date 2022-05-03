@@ -12,9 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ImageRepository extends JpaRepository<Image,Integer> {
+public interface ImageRepository extends JpaRepository<Image, Integer> {
 
     List<Image> findImageByPost(Post post);
+
     Page<Image> findImageByUser(User user, Pageable pageable);
 
     @Query(value = "select count(i) from Image i where i.user = ?1")

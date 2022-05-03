@@ -16,9 +16,10 @@ public class AmazonConfig {
     private String accessKey;
     @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
+
     @Bean
-    public AmazonS3 amazonS3(){
-        AWSCredentials awsCredentials=new BasicAWSCredentials(accessKey,secretKey);
+    public AmazonS3 amazonS3() {
+        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .withRegion(Regions.AP_SOUTH_1) // TODO add region

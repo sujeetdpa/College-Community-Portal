@@ -65,18 +65,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     private TimeUtil timeUtil;
-    
+
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) {
-        AuthenticationResponse response=null;
+        AuthenticationResponse response = null;
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        if(authenticate.isAuthenticated()){
+        if (authenticate.isAuthenticated()) {
             final UserDetails userDetails = (UserDetails) authenticate.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
-            UserPrincipal userPrincipal=(UserPrincipal)userDetails;
+            UserPrincipal userPrincipal = (UserPrincipal) userDetails;
 
-            UserResponseView view=new UserResponseView();
-            User user=userPrincipal.getUser();
+            UserResponseView view = new UserResponseView();
+            User user = userPrincipal.getUser();
             Optional.ofNullable(user.getId()).ifPresent(view::setId);
             Optional.ofNullable(user.getFullName()).ifPresent(view::setFullName);
             Optional.ofNullable(user.getUsername()).ifPresent(view::setUsername);
@@ -84,7 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Optional.ofNullable(user.getUniversityId()).ifPresent(view::setUniversityId);
             Optional.ofNullable(user.getProfileImageId()).ifPresent(view::setProfileImageId);
             //Optional.ofNullable(user.getRoles()).map(roles -> roles.stream().map(Role::getName).collect(Collectors.toList())).ifPresent(view::setRole);
-            response=new AuthenticationResponse();
+            response = new AuthenticationResponse();
             response.setAccess_token(token);
             response.setUserResponseView(view);
         }
@@ -93,17 +93,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public SignUpResponse signUp(RegisterRequest request) {
-        User user=new User();
-        if (!userUtil.validateUsername(request.getUsername())){
+        User user = new User();
+        if (!userUtil.validateUsername(request.getUsername())) {
             throw new IllegalStateException("Invalid username");
         }
-        if (!request.getPassword().equals(request.getCnfPassword())){
+        if (!request.getPassword().equals(request.getCnfPassword())) {
             throw new IllegalStateException("Password Mismatch");
         }
-        if (userRepository.findByUsername(request.getUsername()).isPresent()){
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new IllegalStateException("Username already taken.");
         }
-        if (userRepository.findByMobileNo(request.getMobileNo()).isPresent()){
+        if (userRepository.findByMobileNo(request.getMobileNo()).isPresent()) {
             throw new IllegalStateException("Mobile Number already taken.");
         }
         Optional.ofNullable(request.getFirstName()).ifPresent(user::setFirstName);
@@ -122,25 +122,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String ip;
         try {
-            ip=InetAddress.getLocalHost().getHostAddress();
-        }catch (UnknownHostException e){
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
             throw new IllegalStateException("Failed to register please try again");
         }
         User savedUser = userRepository.save(user);
 
-        ConfirmationToken confirmationToken=new ConfirmationToken();
+        ConfirmationToken confirmationToken = new ConfirmationToken();
         confirmationToken.setCreatedAt(LocalDateTime.now());
-        String token=UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
         confirmationToken.setToken(token);
         confirmationToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link="http://"+ip+":"+port+"/auth/activate/account?token="+token;
+        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link);
-        emailService.sendRegistrationEmail(savedUser.getFirstName(),savedUser.getUsername(),request.getPassword());
+        emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), request.getPassword());
 
-        SignUpResponse response=new SignUpResponse();
+        SignUpResponse response = new SignUpResponse();
         Optional.ofNullable(savedUser.getId()).ifPresent(response::setId);
         Optional.ofNullable(savedUser.getUsername()).ifPresent(response::setUsername);
         Optional.ofNullable(savedUser.getFullName()).ifPresent(response::setFullName);
@@ -149,54 +149,54 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public String updatePassword(UpdatePasswordRequest request) {
-        if (request == null ||  request.getCurrentPassword()==null || request.getCurrentPassword().isEmpty()|| request.getCurrentPassword().isBlank()
-                || request.getNewPassword()==null ||request.getNewPassword().isEmpty()|| request.getNewPassword().isBlank()
-                ||  request.getCnfNewPassword()==null || request.getCnfNewPassword().isEmpty() || request.getCnfNewPassword().isBlank()){
+        if (request == null || request.getCurrentPassword() == null || request.getCurrentPassword().isEmpty() || request.getCurrentPassword().isBlank()
+                || request.getNewPassword() == null || request.getNewPassword().isEmpty() || request.getNewPassword().isBlank()
+                || request.getCnfNewPassword() == null || request.getCnfNewPassword().isEmpty() || request.getCnfNewPassword().isBlank()) {
             throw new IllegalStateException("Fields cannot be empty");
         }
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user=userPrincipal.getUser();
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+        User user = userPrincipal.getUser();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IllegalStateException("Incorrect Current Password.");
         }
-        if (!request.getNewPassword().equals(request.getCnfNewPassword())){
+        if (!request.getNewPassword().equals(request.getCnfNewPassword())) {
             throw new IllegalStateException("Password Mismatch");
         }
 
         user.setPassword(passwordEncoder.encode(request.getCnfNewPassword()));
         userRepository.save(user);
-        emailService.sendPasswordChangeEmail(user.getFirstName(),user.getUsername(), request.getCnfNewPassword());
+        emailService.sendPasswordChangeEmail(user.getFirstName(), user.getUsername(), request.getCnfNewPassword());
         return "Password Updated Successfully";
     }
 
     @Override
     public String forgotPassword(ForgotPasswordRequest request) {
         Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
-        if (optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new IllegalStateException("Incorrect Username / DOB");
         }
-        User user=optionalUser.get();
-        if (!user.getDob().equals(request.getDob())){
+        User user = optionalUser.get();
+        if (!user.getDob().equals(request.getDob())) {
             throw new IllegalStateException("Incorrect Username / DOB");
         }
-        String password= RandomStringUtils.randomAlphanumeric(10);
+        String password = RandomStringUtils.randomAlphanumeric(10);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        emailService.sendForgotPasswordEmail(user.getFirstName(),user.getUsername(),password);
-        return "Password is sent on the username : "+request.getUsername();
+        emailService.sendForgotPasswordEmail(user.getFirstName(), user.getUsername(), password);
+        return "Password is sent on the username : " + request.getUsername();
     }
 
     @Override
     public String activateAccount(String token) {
         Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenRepository.findByToken(token);
-        if (optionalConfirmationToken.isEmpty()){
+        if (optionalConfirmationToken.isEmpty()) {
             return "<h1>Invalid activation token</h1>";
         }
-        ConfirmationToken confirmationToken=optionalConfirmationToken.get();
-        if (confirmationToken.getConfirmedAt() !=null){
+        ConfirmationToken confirmationToken = optionalConfirmationToken.get();
+        if (confirmationToken.getConfirmedAt() != null) {
             return "<h1>Account already activated</h1>";
         }
-        User user=confirmationToken.getUser();
+        User user = confirmationToken.getUser();
         confirmationToken.setConfirmedAt(LocalDateTime.now());
         confirmationTokenRepository.save(confirmationToken);
         user.setIsActive(true);

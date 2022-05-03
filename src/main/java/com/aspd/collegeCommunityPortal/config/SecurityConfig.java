@@ -37,18 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler)
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint);
+        http.exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler).authenticationEntryPoint(jwtAuthenticationEntryPoint);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable().cors();
-        http.authorizeRequests().antMatchers("/auth/login").permitAll()
-                .antMatchers("/auth/signup").permitAll()
-                .antMatchers("/auth/forgot/password").permitAll()
-                .antMatchers("/auth/activate/account/**").permitAll()
-                .antMatchers("/api/post/local/storage/download/**").permitAll()
-                .antMatchers("/auth/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .antMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                .antMatchers("/api/post/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
+        http.authorizeRequests().antMatchers("/auth/login").permitAll().antMatchers("/auth/signup").permitAll().antMatchers("/auth/forgot/password").permitAll().antMatchers("/auth/activate/account/**").permitAll().antMatchers("/api/post/local/storage/download/**").permitAll().antMatchers("/auth/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN").antMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN").antMatchers("/api/post/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
         http.authorizeRequests().anyRequest().authenticated();
 
     }

@@ -22,7 +22,7 @@ public class Post {
     @Lob
     private String description;
     private LocalDateTime creationDate;
-    private Boolean isDeleted=false;
+    private Boolean isDeleted = false;
     private LocalDateTime deleteTimestamp;
     @ManyToOne
     private User user;

@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     private TimeUtil timeUtil;
 
     @Override
-    public UserDetails loadUserByUsername(String username){
+    public UserDetails loadUserByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
@@ -104,17 +104,17 @@ public class UserServiceImpl implements UserService {
             if (userImages == null || userImages.isEmpty()) {
                 throw new IllegalStateException("No images found.");
             }
-            List<ImageResponse> imageResponses=new ArrayList<>();
-            if (!userImages.isEmpty()){
+            List<ImageResponse> imageResponses = new ArrayList<>();
+            if (!userImages.isEmpty()) {
                 userImages.forEach(image -> {
-                    ImageResponse imageResponse=new ImageResponse();
+                    ImageResponse imageResponse = new ImageResponse();
                     Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                     Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                     Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
                     imageResponses.add(imageResponse);
                 });
             }
-            ImageResponseList imageResponseList=new ImageResponseList();
+            ImageResponseList imageResponseList = new ImageResponseList();
             Optional.ofNullable(imageResponses).ifPresent(imageResponseList::setImageResponses);
             Optional.ofNullable(userImages.getTotalPages()).ifPresent(imageResponseList::setTotalPages);
             Optional.ofNullable(userImages.getTotalElements()).ifPresent(imageResponseList::setTotalNumberOfItems);
@@ -134,9 +134,9 @@ public class UserServiceImpl implements UserService {
             if (userDocuments == null || userDocuments.isEmpty()) {
                 throw new IllegalStateException("No documents found");
             }
-            List<DocumentResponse> documentResponses=new ArrayList<>();
+            List<DocumentResponse> documentResponses = new ArrayList<>();
             userDocuments.forEach(document -> {
-                DocumentResponse response=new DocumentResponse();
+                DocumentResponse response = new DocumentResponse();
                 Optional.ofNullable(document.getId()).ifPresent(response::setId);
                 Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
                 Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
@@ -177,10 +177,10 @@ public class UserServiceImpl implements UserService {
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
 
                 List<Image> images = imageRepository.findImageByPost(post);
-                List<ImageResponse> imageResponses=new ArrayList<>();
-                if (!images.isEmpty()){
+                List<ImageResponse> imageResponses = new ArrayList<>();
+                if (!images.isEmpty()) {
                     images.forEach(image -> {
-                        ImageResponse imageResponse=new ImageResponse();
+                        ImageResponse imageResponse = new ImageResponse();
                         Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                         Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                         Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
                 Optional.ofNullable(imageResponses).ifPresent(postResponseView::setImageResponses);
                 List<Document> documents = documentRepository.findByPost(post);
                 List<DocumentResponse> documentResponses = new ArrayList<>();
-                if(!documents.isEmpty()) {
+                if (!documents.isEmpty()) {
 
                     documents.forEach(document -> {
                         DocumentResponse response = new DocumentResponse();
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService {
         User user = userPrincipal.getUser();
         Image image = new Image();
         String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
-        String filename =LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(profileImage.getOriginalFilename());
+        String filename = LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(profileImage.getOriginalFilename());
         image.setImageName(filename);
         image.setUser(user);
         image.setPath(path);
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
         metadata.put("Content-Length", String.valueOf(profileImage.getSize()));
         try {
 //            Boolean uploaded = localStorageService.uploadFile(path, filename, Optional.ofNullable(metadata), profileImage.getInputStream());
-            amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),profileImage.getInputStream());
+            amazonS3Service.uploadFile(path, filename, Optional.ofNullable(metadata), profileImage.getInputStream());
             Image savedImage = imageRepository.save(image);
             user.setProfileImageId(savedImage.getId());
             userRepository.save(user);
@@ -281,16 +281,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDashboardResponse getUserDashboard() {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user=userPrincipal.getUser();
-        UserDashboardResponse response=new UserDashboardResponse();
+        User user = userPrincipal.getUser();
+        UserDashboardResponse response = new UserDashboardResponse();
         Page<Post> posts = postRepository.findPostByUser(user, Pageable.unpaged());
-        if (!posts.isEmpty()){
-            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1,ReviewType.LIKE)).ifPresent(response::setNumberOfLikesAchieved);
-            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1,ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikesAchieved);
+        if (!posts.isEmpty()) {
+            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1, ReviewType.LIKE)).ifPresent(response::setNumberOfLikesAchieved);
+            Optional.ofNullable(posts.getContent()).map(posts1 -> reviewRepository.countByPosts(posts1, ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikesAchieved);
             Optional.ofNullable(posts.getContent()).map(posts1 -> commentRepository.countByPosts(posts1)).ifPresent(response::setNumberOfCommentsAchieved);
         }
-        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user1,ReviewType.LIKE)).ifPresent(response::setNumberOfLikesMade);
-        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user,ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikedMade);
+        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user1, ReviewType.LIKE)).ifPresent(response::setNumberOfLikesMade);
+        Optional.ofNullable(user).map(user1 -> reviewRepository.countByUser(user, ReviewType.DISLIKE)).ifPresent(response::setNumberOfDislikedMade);
         Optional.ofNullable(user).map(commentRepository::countByUser).ifPresent(response::setNumberOfCommentsMade);
         Optional.ofNullable(user).map(postRepository::countByUser).ifPresent(response::setNumberOfPosts);
         Optional.ofNullable(user).map(imageRepository::countByUser).ifPresent(response::setNumberOfImages);

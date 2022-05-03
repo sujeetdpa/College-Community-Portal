@@ -17,7 +17,7 @@ public class Comment {
     @Lob
     private String description;
     private LocalDateTime commentDate;
-    private Boolean isDeleted=false;
+    private Boolean isDeleted = false;
     private LocalDateTime deleteTimestamp;
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;

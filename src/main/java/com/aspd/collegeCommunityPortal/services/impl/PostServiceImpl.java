@@ -26,15 +26,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
 
-    private final List<String> imageExtensions=Arrays.asList(ContentType.IMAGE_GIF.getMimeType(),ContentType.IMAGE_JPEG.getMimeType(),ContentType.IMAGE_PNG.getMimeType());
-    private final List<String> documentExtensions=Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(),ContentType.TEXT_PLAIN.getMimeType());
+    private final List<String> imageExtensions = Arrays.asList(ContentType.IMAGE_GIF.getMimeType(), ContentType.IMAGE_JPEG.getMimeType(), ContentType.IMAGE_PNG.getMimeType());
+    private final List<String> documentExtensions = Arrays.asList(MediaType.APPLICATION_PDF_VALUE.toString(), ContentType.TEXT_PLAIN.getMimeType());
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -60,16 +58,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseViewList getAllPost(PostRequest postRequest) {
-        Map<Integer,Integer> postLikeCount=null;
-        Map<Integer,Integer> postCommentCount=null;
-        PostResponseViewList postResponseViewList=new PostResponseViewList();
-        Pageable pageable= PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0),Optional.ofNullable(postRequest.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC,Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
+        Map<Integer, Integer> postLikeCount = null;
+        Map<Integer, Integer> postCommentCount = null;
+        PostResponseViewList postResponseViewList = new PostResponseViewList();
+        Pageable pageable = PageRequest.of(Optional.ofNullable(postRequest.getPageNo()).orElse(0), Optional.ofNullable(postRequest.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC, Optional.ofNullable(postRequest.getSortBy()).orElse("creationDate")));
         Page<Post> postPage = postRepository.findAllPost(pageable);
 
-        if(!postPage.isEmpty()){
-            List<PostResponseView> postResponseViews=new ArrayList<>();
-            for(Post post:postPage){
-                PostResponseView postResponseView=new PostResponseView();
+        if (!postPage.isEmpty()) {
+            List<PostResponseView> postResponseViews = new ArrayList<>();
+            for (Post post : postPage) {
+                PostResponseView postResponseView = new PostResponseView();
                 postResponseView.setId(post.getId());
                 postResponseView.setTitle(post.getTitle());
                 postResponseView.setCreationDate(timeUtil.getCreationTimestamp(post.getCreationDate()));
@@ -78,13 +76,13 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getUser().getId()).ifPresent(postResponseView::setUserId);
                 Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(postResponseView::setProfileImageId);
                 Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(postResponseView::setUniversityId);
-                Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(postResponseView::setNoOfLikes);
                 Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(postResponseView::setNoOfComments);
                 List<Image> images = imageRepository.findImageByPost(post);
-                List<ImageResponse> imageResponses=new ArrayList<>();
-                if (!images.isEmpty()){
+                List<ImageResponse> imageResponses = new ArrayList<>();
+                if (!images.isEmpty()) {
                     images.forEach(image -> {
-                        ImageResponse imageResponse=new ImageResponse();
+                        ImageResponse imageResponse = new ImageResponse();
                         Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                         Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                         Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
@@ -95,7 +93,7 @@ public class PostServiceImpl implements PostService {
 
                 List<Document> documents = documentRepository.findByPost(post);
                 List<DocumentResponse> documentResponses = new ArrayList<>();
-                if(!documents.isEmpty()) {
+                if (!documents.isEmpty()) {
                     documents.forEach(document -> {
                         DocumentResponse response = new DocumentResponse();
                         Optional.ofNullable(document.getId()).ifPresent(response::setId);
@@ -113,8 +111,7 @@ public class PostServiceImpl implements PostService {
             postResponseViewList.setTotalPages(postPage.getTotalPages());
             postResponseViewList.setMaxItems(postPage.getSize());
 
-        }
-        else {
+        } else {
             throw new IllegalStateException("Posts not found");
         }
         return postResponseViewList;
@@ -122,32 +119,32 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseView createPost(CreatePostRequest createPostRequest) {
-        Post post=new Post();
+        Post post = new Post();
         post.setTitle(Optional.ofNullable(createPostRequest.getTitle()).orElseThrow(() -> new RuntimeException("Title cannot be null")));
-        post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(()->new RuntimeException("Description cannot be null")));
+        post.setDescription(Optional.ofNullable(createPostRequest.getDescription()).orElseThrow(() -> new RuntimeException("Description cannot be null")));
         Optional.ofNullable(LocalDateTime.now()).ifPresent(post::setCreationDate);
         post.setIsDeleted(false);
-        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         post.setUser(userPrincipal.getUser());
         Post savedPost = postRepository.save(post);
 
-        if (createPostRequest.getImages()!=null && !createPostRequest.getImages().isEmpty()){
+        if (createPostRequest.getImages() != null && !createPostRequest.getImages().isEmpty()) {
             List<Image> imageList = imageRepository.findAllById(createPostRequest.getImages());
-            if (imageList==null || imageList.isEmpty()){
+            if (imageList == null || imageList.isEmpty()) {
                 throw new IllegalStateException("Images not uploaded");
             }
             imageList.forEach(image -> image.setPost(savedPost));
             imageRepository.saveAll(imageList);
         }
-        if (createPostRequest.getDocuments()!=null && !createPostRequest.getDocuments().isEmpty()){
+        if (createPostRequest.getDocuments() != null && !createPostRequest.getDocuments().isEmpty()) {
             List<Document> documentList = documentRepository.findAllById(createPostRequest.getDocuments());
-            if (documentList==null || documentList.isEmpty()){
+            if (documentList == null || documentList.isEmpty()) {
                 throw new IllegalStateException("Documents not uploaded");
             }
             documentList.forEach(document -> document.setPost(savedPost));
             documentRepository.saveAll(documentList);
         }
-        PostResponseView postResponseView=new PostResponseView();
+        PostResponseView postResponseView = new PostResponseView();
         postResponseView.setId(savedPost.getId());
         postResponseView.setTitle(savedPost.getTitle());
         postResponseView.setDescription(savedPost.getDescription());
@@ -160,17 +157,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostSearchResponseViewList searchPost(PostSearchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItems()).orElse(15), Sort.by(Sort.Direction.DESC,"creationDate"));
-        Page<Post> postPage=null;
-        List<PostSearchResponseView> responseViewList=new ArrayList<>();
-        if(Optional.ofNullable(request.getTitle()).isPresent()){
-            postPage=postRepository.searchPostByTitle(request.getTitle(),pageable);
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItems()).orElse(15), Sort.by(Sort.Direction.DESC, "creationDate"));
+        Page<Post> postPage = null;
+        List<PostSearchResponseView> responseViewList = new ArrayList<>();
+        if (Optional.ofNullable(request.getTitle()).isPresent()) {
+            postPage = postRepository.searchPostByTitle(request.getTitle(), pageable);
         }
-        if(postPage!=null && !postPage.isEmpty()){
+        if (postPage != null && !postPage.isEmpty()) {
             postPage.forEach(post -> {
-                PostSearchResponseView responseView=new PostSearchResponseView();
+                PostSearchResponseView responseView = new PostSearchResponseView();
                 Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
-                Optional.ofNullable(post.getDescription()).map(s -> s.substring(0,(Math.min(s.length(), 100)))).ifPresent(responseView::setDescription);
+                Optional.ofNullable(post.getDescription()).map(s -> s.substring(0, (Math.min(s.length(), 100)))).ifPresent(responseView::setDescription);
                 Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
@@ -179,16 +176,15 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(post.getCreationDate()).map(timeUtil::getCreationTimestamp).ifPresent(responseView::setCreationDate);
                 responseViewList.add(responseView);
             });
-            PostSearchResponseViewList list=new PostSearchResponseViewList();
+            PostSearchResponseViewList list = new PostSearchResponseViewList();
             Optional.ofNullable(postPage.getTotalPages()).ifPresent(list::setTotalPages);
             Optional.ofNullable(postPage.getTotalElements()).ifPresent(list::setTotalNumberOfItems);
             Optional.ofNullable(postPage.getSize()).ifPresent(list::setMaxItems);
             Optional.ofNullable(postPage.getNumber()).ifPresent(list::setPageNo);
             Optional.ofNullable(responseViewList).ifPresent(list::setPostSearchResponseViews);
             return list;
-        }
-        else {
-            throw new IllegalStateException("No post found with title: "+request.getTitle());
+        } else {
+            throw new IllegalStateException("No post found with title: " + request.getTitle());
         }
     }
 
@@ -196,21 +192,19 @@ public class PostServiceImpl implements PostService {
     public DeleteResponseView deletePost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
 
-        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Invalid delete request");
-        }
-        else {
+        } else {
             Post post = optionalPost.get();
             UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             boolean role_admin = userPrincipal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
             if (!post.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin) {
                 throw new IllegalStateException("You don't have the required permission");
-            }
-            else if (role_admin && !post.getUser().getId().equals(userPrincipal.getUser().getId())) {
+            } else if (role_admin && !post.getUser().getId().equals(userPrincipal.getUser().getId())) {
                 post.setIsDeleted(true);
                 post.setDeleteTimestamp(LocalDateTime.now());
                 postRepository.save(post);
-                emailService.sendPostRemovedEmail(post.getUser().getFirstName(),post.getUser().getUsername(),post);
+                emailService.sendPostRemovedEmail(post.getUser().getFirstName(), post.getUser().getUsername(), post);
                 DeleteResponseView responseView = new DeleteResponseView();
                 responseView.setMessage(String.format("Post deleted with Title : %s", post.getTitle()));
                 return responseView;
@@ -228,11 +222,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponseView getPost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
         }
-        if(optionalPost.isPresent() && !optionalPost.get().getIsDeleted()){
-            PostResponseView responseView=new PostResponseView();
+        if (optionalPost.isPresent() && !optionalPost.get().getIsDeleted()) {
+            PostResponseView responseView = new PostResponseView();
             Post post = optionalPost.get();
             Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
             Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
@@ -243,13 +237,13 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(post.getUser().getUniversityId()).ifPresent(responseView::setUniversityId);
             Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(responseView::setProfileImageId);
             Optional.ofNullable(commentRepository.getPostCommentCount(post)).ifPresent(responseView::setNoOfComments);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(post,ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
+            Optional.ofNullable(reviewRepository.getPostReviewCount(post, ReviewType.LIKE)).ifPresent(responseView::setNoOfLikes);
 
             List<Image> images = imageRepository.findImageByPost(post);
-            List<ImageResponse> imageResponses=new ArrayList<>();
-            if (!images.isEmpty()){
+            List<ImageResponse> imageResponses = new ArrayList<>();
+            if (!images.isEmpty()) {
                 images.forEach(image -> {
-                    ImageResponse imageResponse=new ImageResponse();
+                    ImageResponse imageResponse = new ImageResponse();
                     Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                     Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                     Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
@@ -260,7 +254,7 @@ public class PostServiceImpl implements PostService {
 
             List<Document> documents = documentRepository.findByPost(post);
             List<DocumentResponse> documentResponses = new ArrayList<>();
-            if(!documents.isEmpty()) {
+            if (!documents.isEmpty()) {
                 documents.forEach(document -> {
                     DocumentResponse response = new DocumentResponse();
                     Optional.ofNullable(document.getId()).ifPresent(response::setId);
@@ -278,12 +272,12 @@ public class PostServiceImpl implements PostService {
     @Override
     public CommentResponseView newComment(NewCommentRequest request) {
         Optional<Post> optionalPost = postRepository.findById(request.getPostId());
-        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
         }
-        if (optionalPost.isPresent() && userPrincipal.getUser()!=null){
-            Comment comment=new Comment();
+        if (optionalPost.isPresent() && userPrincipal.getUser() != null) {
+            Comment comment = new Comment();
             Optional.ofNullable(request.getTitle()).ifPresent(comment::setTitle);
             Optional.ofNullable(request.getDescription()).ifPresent(comment::setDescription);
             Optional.ofNullable(LocalDateTime.now()).ifPresent(comment::setCommentDate);
@@ -292,7 +286,7 @@ public class PostServiceImpl implements PostService {
             Optional.ofNullable(userPrincipal.getUser()).ifPresent(comment::setUser);
             Comment savedComment = commentRepository.save(comment);
 
-            CommentResponseView view=new CommentResponseView();
+            CommentResponseView view = new CommentResponseView();
             Optional.ofNullable(savedComment.getTitle()).ifPresent(view::setTitle);
             Optional.ofNullable(savedComment.getDescription()).ifPresent(view::setDescription);
             Optional.ofNullable(savedComment.getId()).ifPresent(view::setId);
@@ -308,22 +302,22 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request) {
-        Pageable pageable=PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0),Optional.ofNullable(request.getMaxItem()).orElse(10),Sort.by(Sort.Direction.DESC,"commentDate"));
+        Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC, "commentDate"));
         Optional<Post> optionalPost = postRepository.findById(postId);
-        Page<Comment> comments=null;
-        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        Page<Comment> comments = null;
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
         }
-        if (optionalPost.isPresent() && !optionalPost.get().getIsDeleted()){
+        if (optionalPost.isPresent() && !optionalPost.get().getIsDeleted()) {
             comments = commentRepository.findByPost(optionalPost.get(), pageable);
         }
-        if(comments!=null && !comments.isEmpty()){
-            List<CommentResponseView> viewList=new ArrayList<>();
-            for (Comment comment:comments){
-                if(comment.getIsDeleted()){
+        if (comments != null && !comments.isEmpty()) {
+            List<CommentResponseView> viewList = new ArrayList<>();
+            for (Comment comment : comments) {
+                if (comment.getIsDeleted()) {
                     continue;
                 }
-                CommentResponseView view=new CommentResponseView();
+                CommentResponseView view = new CommentResponseView();
                 Optional.ofNullable(comment.getTitle()).ifPresent(view::setTitle);
                 Optional.ofNullable(comment.getDescription()).ifPresent(view::setDescription);
                 Optional.ofNullable(comment.getId()).ifPresent(view::setId);
@@ -335,7 +329,7 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(comment.getUser().getFullName()).ifPresent(view::setFullName);
                 viewList.add(view);
             }
-            CommentResponseViewList responseViewList=new CommentResponseViewList();
+            CommentResponseViewList responseViewList = new CommentResponseViewList();
             Optional.ofNullable(comments.getTotalPages()).ifPresent(responseViewList::setTotalPages);
             Optional.ofNullable(comments.getTotalElements()).ifPresent(responseViewList::setTotalNumberOfItems);
             Optional.ofNullable(comments.getNumber()).ifPresent(responseViewList::setPageNo);
@@ -350,18 +344,17 @@ public class PostServiceImpl implements PostService {
     public LikePostResponse likePost(int postId, int userId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
-        LikePostResponse response=null;
-        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        LikePostResponse response = null;
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
         }
-        if (validatePostDislike(optionalPost.get(),optionalUser.get()).isPresent()){
-            response=new LikePostResponse();
+        if (validatePostDislike(optionalPost.get(), optionalUser.get()).isPresent()) {
+            response = new LikePostResponse();
             Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
             Optional.ofNullable(optionalUser.get()).map(User::getId).ifPresent(response::setUserId);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
+            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
             Optional.ofNullable("You have already disliked this post").ifPresent(response::setMessage);
-        }
-        else{
+        } else {
             Optional<Review> optionalReview = validatePostLike(optionalPost.get(), optionalUser.get());
             if (optionalReview.isPresent()) {
                 reviewRepository.delete(optionalReview.get());
@@ -370,9 +363,8 @@ public class PostServiceImpl implements PostService {
                 Optional.ofNullable(optionalReview.get()).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
                 Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
                 Optional.ofNullable("Like removed").ifPresent(response::setMessage);
-            }
-            else if (optionalPost.isPresent() && optionalUser.isPresent()){
-                Review review=new Review();
+            } else if (optionalPost.isPresent() && optionalUser.isPresent()) {
+                Review review = new Review();
                 Optional.ofNullable(optionalPost.get()).ifPresent(review::setPost);
                 Optional.ofNullable(optionalUser.get()).ifPresent(review::setUser);
                 Optional.ofNullable(ReviewType.LIKE).ifPresent(review::setReviewType);
@@ -380,10 +372,10 @@ public class PostServiceImpl implements PostService {
 
                 Review save = reviewRepository.save(review);
 
-                response=new LikePostResponse();
+                response = new LikePostResponse();
                 Optional.ofNullable(save).map(Review::getPost).map(Post::getId).ifPresent(response::setPostId);
                 Optional.ofNullable(save).map(Review::getUser).map(User::getId).ifPresent(response::setUserId);
-                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
+                Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.LIKE)).ifPresent(response::setNoOfLikes);
                 Optional.ofNullable("You Liked this post").ifPresent(response::setMessage);
 
             }
@@ -396,26 +388,27 @@ public class PostServiceImpl implements PostService {
         Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(post, user, ReviewType.DISLIKE);
         return optionalReview;
     }
-    private Optional<Review> validatePostLike(Post post,User user){
+
+    private Optional<Review> validatePostLike(Post post, User user) {
         Optional<Review> optionalReview = reviewRepository.findByPostAndUserAndReviewType(post, user, ReviewType.LIKE);
         return optionalReview;
     }
+
     @Override
     public DislikePostResponse dislikePost(int postId, int userId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Optional<User> optionalUser = userRepository.findById(userId);
-        DislikePostResponse response=null;
-        if(optionalPost.isEmpty() || optionalPost.get().getIsDeleted()){
+        DislikePostResponse response = null;
+        if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
         }
-        if (validatePostLike(optionalPost.get(),optionalUser.get()).isPresent()){
-            response=new DislikePostResponse();
+        if (validatePostLike(optionalPost.get(), optionalUser.get()).isPresent()) {
+            response = new DislikePostResponse();
             Optional.ofNullable(optionalPost.get()).map(Post::getId).ifPresent(response::setPostId);
             Optional.ofNullable(optionalUser.get()).map(User::getId).ifPresent(response::setUserId);
-            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(),ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
+            Optional.ofNullable(reviewRepository.getPostReviewCount(optionalPost.get(), ReviewType.DISLIKE)).ifPresent(response::setNoOfDislikes);
             Optional.ofNullable("You have already liked this post").ifPresent(response::setMessage);
-        }
-        else {
+        } else {
             Optional<Review> optionalReview = validatePostDislike(optionalPost.get(), optionalUser.get());
             if (optionalReview.isPresent()) {
                 response = new DislikePostResponse();
@@ -443,23 +436,24 @@ public class PostServiceImpl implements PostService {
         }
         return response;
     }
+
     @Override
-    public List<ImageResponse> uploadImages(List<MultipartFile> files){
-        UserPrincipal userPrincipal=(UserPrincipal)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (files!=null && !files.isEmpty()){
-            List<Image> images=new ArrayList<>();
-                files.forEach(image->{
-                if (!imageExtensions.contains(image.getContentType())){
-                    throw new IllegalStateException("File format supported are: "+imageExtensions);
+    public List<ImageResponse> uploadImages(List<MultipartFile> files) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (files != null && !files.isEmpty()) {
+            List<Image> images = new ArrayList<>();
+            files.forEach(image -> {
+                if (!imageExtensions.contains(image.getContentType())) {
+                    throw new IllegalStateException("File format supported are: " + imageExtensions);
                 }
-                Image image1=new Image();
-                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(image.getOriginalFilename());
+                Image image1 = new Image();
+                String filename = LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(image.getOriginalFilename());
                 image1.setImageName(filename);
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
-                String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
+                String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");
                 image1.setPath(path);
                 image1.setUploadDate(LocalDateTime.now());
-                Map<String,String> metadata=new HashMap<>();
+                Map<String, String> metadata = new HashMap<>();
                 metadata.put("Content-Type", image.getContentType());
                 metadata.put("Content-Length", String.valueOf(image.getSize()));
                 try {
@@ -467,17 +461,16 @@ public class PostServiceImpl implements PostService {
 //                    if (uploaded){
 //                        images.add(image1);
 //                    }
-                    amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),image.getInputStream());
+                    amazonS3Service.uploadFile(path, filename, Optional.ofNullable(metadata), image.getInputStream());
                     images.add(image1);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Error in uploading images" + e);
                 }
-                catch (IOException e) {
-                    throw new IllegalStateException("Error in uploading images"+e);
-                }
-                });
+            });
             List<Image> imageList = imageRepository.saveAll(images);
-            List<ImageResponse> imageResponses=new ArrayList<>();
+            List<ImageResponse> imageResponses = new ArrayList<>();
             imageList.forEach(image -> {
-                ImageResponse imageResponse=new ImageResponse();
+                ImageResponse imageResponse = new ImageResponse();
                 Optional.ofNullable(image.getId()).ifPresent(imageResponse::setId);
                 Optional.ofNullable(image.getImageName()).ifPresent(imageResponse::setImageName);
                 Optional.ofNullable(image.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(imageResponse::setUploadDate);
@@ -487,23 +480,24 @@ public class PostServiceImpl implements PostService {
         }
         return null;
     }
+
     @Override
-    public List<DocumentResponse> uploadDocuments(List<MultipartFile> files){
-        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (files!=null && !files.isEmpty()){
-            List<Document> documents=new ArrayList<>();
-            files.forEach(file->{
-                if (!documentExtensions.contains(file.getContentType())){
-                    throw new IllegalStateException("Document format supported are: "+documentExtensions);
+    public List<DocumentResponse> uploadDocuments(List<MultipartFile> files) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (files != null && !files.isEmpty()) {
+            List<Document> documents = new ArrayList<>();
+            files.forEach(file -> {
+                if (!documentExtensions.contains(file.getContentType())) {
+                    throw new IllegalStateException("Document format supported are: " + documentExtensions);
                 }
-                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(file.getOriginalFilename());
-                String path=bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
-                Document document=new Document();
+                String filename = LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(file.getOriginalFilename());
+                String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/documents");
+                Document document = new Document();
                 document.setDocumentName(filename);
                 document.setUser(userPrincipal.getUser());
                 document.setPath(path);
                 document.setUploadDate(LocalDateTime.now());
-                Map<String,String> metadata=new HashMap<>();
+                Map<String, String> metadata = new HashMap<>();
                 metadata.put("Content-Type", file.getContentType());
                 metadata.put("Content-Length", String.valueOf(file.getSize()));
                 try {
@@ -511,17 +505,16 @@ public class PostServiceImpl implements PostService {
 //                    if (uploaded){
 //                        documents.add(document);
 //                    }
-                    amazonS3Service.uploadFile(path,filename,Optional.ofNullable(metadata),file.getInputStream());
+                    amazonS3Service.uploadFile(path, filename, Optional.ofNullable(metadata), file.getInputStream());
                     documents.add(document);
-                }
-                catch (IOException e){
-                    throw new IllegalStateException("Failed to upload image",e);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to upload image", e);
                 }
             });
             List<Document> documentList = documentRepository.saveAll(documents);
-            List<DocumentResponse> documentResponses=new ArrayList<>();
+            List<DocumentResponse> documentResponses = new ArrayList<>();
             documentList.forEach(document -> {
-                DocumentResponse response=new DocumentResponse();
+                DocumentResponse response = new DocumentResponse();
                 Optional.ofNullable(document.getId()).ifPresent(response::setId);
                 Optional.ofNullable(document.getDocumentName()).ifPresent(response::setFileName);
                 Optional.ofNullable(document.getUploadDate()).map(timeUtil::getCreationTimestamp).ifPresent(response::setUploadDate);
@@ -535,9 +528,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public byte[] downloadImage(Integer imageId) throws IOException {
         Optional<Image> image = imageRepository.findById(imageId);
-        if (image.isPresent()){
+        if (image.isPresent()) {
 //            return localStorageService.downloadFile(image.get().getPath(),image.get().getImageName());
-            return amazonS3Service.downloadFile(image.get().getPath(),image.get().getImageName());
+            return amazonS3Service.downloadFile(image.get().getPath(), image.get().getImageName());
         }
         return new byte[0];
     }
@@ -545,9 +538,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public byte[] downloadDocument(Integer documentId) throws IOException {
         Optional<Document> document = documentRepository.findById(documentId);
-        if (document.isPresent()){
+        if (document.isPresent()) {
 //            return localStorageService.downloadFile(document.get().getPath(),document.get().getDocumentName());
-            return amazonS3Service.downloadFile(document.get().getPath(),document.get().getDocumentName());
+            return amazonS3Service.downloadFile(document.get().getPath(), document.get().getDocumentName());
         }
         return new byte[0];
     }
@@ -555,20 +548,19 @@ public class PostServiceImpl implements PostService {
     @Override
     public DeleteResponseView deleteComment(Integer commentId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
-        if (optionalComment.isEmpty()){
+        if (optionalComment.isEmpty()) {
             throw new IllegalStateException("Invalid Delete Request.");
         }
-        Comment comment=optionalComment.get();
+        Comment comment = optionalComment.get();
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         boolean role_admin = userPrincipal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        if (!comment.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin){
+        if (!comment.getUser().getId().equals(userPrincipal.getUser().getId()) && !role_admin) {
             throw new IllegalStateException("You don't have the required permission");
-        }
-        else if (role_admin && !comment.getUser().getId().equals(userPrincipal.getUser().getId())) {
+        } else if (role_admin && !comment.getUser().getId().equals(userPrincipal.getUser().getId())) {
             comment.setIsDeleted(true);
             comment.setDeleteTimestamp(LocalDateTime.now());
             commentRepository.save(comment);
-            emailService.sendCommentRemovedEmail(comment.getUser().getFirstName(),comment.getUser().getUsername(),comment);
+            emailService.sendCommentRemovedEmail(comment.getUser().getFirstName(), comment.getUser().getUsername(), comment);
             DeleteResponseView view = new DeleteResponseView();
             view.setMessage("Comment Removed Successfully");
             return view;
