@@ -21,7 +21,7 @@ import java.security.SignatureException;
 public class AuthenticationExceptionHandler implements ErrorController {
     private static final String ACCOUNT_LOCKED="Your account has been locked. Please contact administration";
     private static final String INCORRECT_CREDENTIALS="Username / Password incorrect. Please try again";
-    private static final String ACCOUNT_DISABLED="Your account has been disabled. If this is an error, please contact administration";
+    private static final String ACCOUNT_DISABLED="Your account has been disabled, please activate your account. If this is an error, please contact administration";
     private static final String NOT_ENOUGH_PERMISSION="You do not have enough permission";
     public static final String ERROR_PATH="/error";
 

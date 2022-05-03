@@ -24,7 +24,6 @@ public class AddAdminRequest {
     private String username;
 
     @NotNull(message = "Select at least one role")
-    @NotBlank(message = "Select at least one role")
     private List<Integer> roles;
 
     @NotNull(message = "Gender cannot be null")

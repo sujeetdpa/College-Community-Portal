@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -224,7 +226,7 @@ public class UserServiceImpl implements UserService {
         User user = userPrincipal.getUser();
         Image image = new Image();
         String path = bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/profileImages");
-        String filename = UUID.randomUUID().toString().concat("_").concat(profileImage.getOriginalFilename());
+        String filename =LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(profileImage.getOriginalFilename());
         image.setImageName(filename);
         image.setUser(user);
         image.setPath(path);

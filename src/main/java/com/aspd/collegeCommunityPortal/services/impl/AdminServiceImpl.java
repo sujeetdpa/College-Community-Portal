@@ -212,7 +212,7 @@ public class AdminServiceImpl implements AdminService {
         Page<Post> postPage = null;
         postPage = postRepository.findAllDeletedPost(pageable);
         if (postPage.isEmpty()) {
-            throw new IllegalStateException("No deleted post found");
+            throw new IllegalStateException("No posts deleted yet.");
         }
         PostResponseViewList postResponseViewList = new PostResponseViewList();
         List<PostResponseView> postResponseViews = new ArrayList<>();
@@ -272,7 +272,7 @@ public class AdminServiceImpl implements AdminService {
         Pageable pageable = PageRequest.of(Optional.ofNullable(request.getPageNo()).orElse(0), Optional.ofNullable(request.getMaxItem()).orElse(10), Sort.by(Sort.Direction.DESC, "deleteTimestamp"));
         Page<Comment> commentPage = commentRepository.findAllDeletedComment(pageable);
         if (commentPage.isEmpty()) {
-            throw new IllegalStateException("No Deleted Comment found");
+            throw new IllegalStateException("No Comments Deleted yet.");
         }
         List<CommentResponseView> viewList = new ArrayList<>();
         for (Comment comment : commentPage) {

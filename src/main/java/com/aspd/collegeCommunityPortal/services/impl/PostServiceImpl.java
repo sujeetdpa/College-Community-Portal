@@ -170,10 +170,12 @@ public class PostServiceImpl implements PostService {
             postPage.forEach(post -> {
                 PostSearchResponseView responseView=new PostSearchResponseView();
                 Optional.ofNullable(post.getId()).ifPresent(responseView::setId);
+                Optional.ofNullable(post.getDescription()).map(s -> s.substring(0,(Math.min(s.length(), 100)))).ifPresent(responseView::setDescription);
                 Optional.ofNullable(post.getTitle()).ifPresent(responseView::setTitle);
                 Optional.ofNullable(post.getUser().getId()).ifPresent(responseView::setUserId);
                 Optional.ofNullable(post.getUser().getFullName()).ifPresent(responseView::setFullName);
                 Optional.ofNullable(post.getUser().getUsername()).ifPresent(responseView::setUsername);
+                Optional.ofNullable(post.getUser().getProfileImageId()).ifPresent(responseView::setProfileImageId);
                 Optional.ofNullable(post.getCreationDate()).map(timeUtil::getCreationTimestamp).ifPresent(responseView::setCreationDate);
                 responseViewList.add(responseView);
             });
@@ -451,7 +453,7 @@ public class PostServiceImpl implements PostService {
                     throw new IllegalStateException("File format supported are: "+imageExtensions);
                 }
                 Image image1=new Image();
-                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat("_").concat(image.getOriginalFilename());
+                String filename=LocalTime.now().format(DateTimeFormatter.ofPattern("hh_mm_ss")).concat("_").concat(image.getOriginalFilename());
                 image1.setImageName(filename);
                 image1.setUser(userPrincipal.getUser()); //set user after extracting from JWT or Database;
                 String path= bucketName.getCcpBucketName().concat("/").concat(userPrincipal.getUsername()).concat("/images");

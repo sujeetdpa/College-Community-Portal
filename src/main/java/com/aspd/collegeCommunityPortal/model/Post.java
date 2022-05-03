@@ -19,6 +19,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String title;
+    @Lob
     private String description;
     private LocalDateTime creationDate;
     private Boolean isDeleted=false;

@@ -9,6 +9,7 @@ public class PostSearchResponseView {
     private Integer id;
     private String title;
     private String fullName;
+    private String description;
     private String username;
     private Integer userId;
     private String creationDate;

@@ -14,6 +14,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String title;
+    @Lob
     private String description;
     private LocalDateTime commentDate;
     private Boolean isDeleted=false;
