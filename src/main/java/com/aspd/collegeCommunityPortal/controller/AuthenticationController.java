@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.UnknownHostException;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -48,7 +49,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/activate/account")
-    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) throws UnknownHostException {
         String message = authenticationService.activateAccount(token);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
