@@ -1,0 +1,16 @@
+package com.aspd.collegeCommunityPortal.repositories;
+
+import com.aspd.collegeCommunityPortal.model.ConfirmationToken;
+import com.aspd.collegeCommunityPortal.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken, Integer> {
+
+    Optional<ConfirmationToken> findByToken(String token);
+
+    void deleteByUser(User user);
+}
