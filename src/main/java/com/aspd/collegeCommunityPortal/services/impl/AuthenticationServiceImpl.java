@@ -20,7 +20,6 @@ import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,16 +33,12 @@ import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    @Value("${server.domain}")
-    private String serverDomain;
-
-    @LocalServerPort
-    private int port;
+    @Value("${app.domain}")
+    private String appDomain;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -119,13 +114,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setIsNotLocked(true);
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new IllegalArgumentException("Not able to find role"));
         user.getRoles().add(role);
-
-        String ip;
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Failed to register please try again");
-        }
         User savedUser = userRepository.save(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken();
@@ -136,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
+        String link = appDomain + "/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), request.getPassword());
 
@@ -189,7 +177,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String activateAccount(String token) throws UnknownHostException {
         String ip=InetAddress.getLocalHost().getHostAddress();
-        String loginButton="<a href='http://"+ip+":"+port+"/' class='btn btn-primary'>Login</a>";
+        String loginButton="<a href='"+ appDomain +"/' class='btn btn-primary'>Login</a>";
         Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenRepository.findByToken(token);
         if (optionalConfirmationToken.isEmpty()) {
             return "<h1 style='color:red'>Invalid activation link</h1>";

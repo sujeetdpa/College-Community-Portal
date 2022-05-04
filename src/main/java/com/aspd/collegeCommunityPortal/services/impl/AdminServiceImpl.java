@@ -14,7 +14,6 @@ import com.aspd.collegeCommunityPortal.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,11 +29,8 @@ import java.util.stream.Collectors;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    @Value("${server.domain}")
-    private String serverDomain;
-
-    @LocalServerPort
-    private int port;
+    @Value("${app.domain}")
+    private String appDomain;
 
     @Autowired
     private UserRepository userRepository;
@@ -122,13 +116,6 @@ public class AdminServiceImpl implements AdminService {
         user.setIsActive(false);
         user.setIsNotLocked(true);
         user.setUserCreationTimestamp(LocalDateTime.now());
-        String ip;
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Failed to register please try again");
-        }
-
         User savedUser = userRepository.save(user);
 
         ConfirmationToken confirmationToken = new ConfirmationToken();
@@ -139,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setUser(savedUser);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
+        String link = appDomain +"/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(savedUser.getFullName(), savedUser.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
         emailService.sendRegistrationEmail(savedUser.getFirstName(), savedUser.getUsername(), password);
 
@@ -371,12 +358,6 @@ public class AdminServiceImpl implements AdminService {
         if (user.getIsActive()){
             throw new IllegalStateException("User Account already activated");
         }
-        String ip;
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Failed to send activation link please try again");
-        }
 
         ConfirmationToken confirmationToken = new ConfirmationToken();
         confirmationToken.setCreatedAt(LocalDateTime.now());
@@ -386,7 +367,7 @@ public class AdminServiceImpl implements AdminService {
         confirmationToken.setUser(user);
         confirmationTokenRepository.save(confirmationToken);
 
-        String link = "http://" + ip + ":" + port + "/auth/activate/account?token=" + token;
+        String link = appDomain +"/auth/activate/account?token=" + token;
         emailService.sendActivationLinkEmail(user.getFullName(), user.getUsername(), link,timeUtil.getLastLoginTimestamp(confirmationToken.getExpiresAt()));
         return "Activation link sent to : ".toUpperCase()+user.getUsername();
     }
