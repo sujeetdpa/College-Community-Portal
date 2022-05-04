@@ -187,14 +187,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public String activateAccount(String token) {
+    public String activateAccount(String token) throws UnknownHostException {
+        String ip=InetAddress.getLocalHost().getHostAddress();
+        String loginButton="<a href='http://"+ip+":"+port+"/' class='btn btn-primary'>Login</a>";
         Optional<ConfirmationToken> optionalConfirmationToken = confirmationTokenRepository.findByToken(token);
         if (optionalConfirmationToken.isEmpty()) {
             return "<h1 style='color:red'>Invalid activation link</h1>";
         }
         ConfirmationToken confirmationToken = optionalConfirmationToken.get();
         if (confirmationToken.getConfirmedAt() != null) {
-            return "<h1 style='color:green'>Account already activated</h1>";
+            return "<h1 style='color:green'>Account already activated</h1>"+loginButton;
         }
         if (confirmationToken.getExpiresAt().isBefore(LocalDateTime.now())){
             return "<h1 style='color:red'>Link expired, Please contact administrator";
@@ -205,6 +207,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         confirmationTokenRepository.save(confirmationToken);
         user.setIsActive(true);
         userRepository.save(user);
-        return "<h1 style='color:green'>Account activated successfully</h1>";
+        return "<h1 style='color:green'>Account activated successfully</h1>"+loginButton;
     }
 }

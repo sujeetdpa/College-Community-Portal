@@ -8,6 +8,8 @@ import com.aspd.collegeCommunityPortal.beans.request.UpdatePasswordRequest;
 import com.aspd.collegeCommunityPortal.beans.response.AuthenticationResponse;
 import com.aspd.collegeCommunityPortal.beans.response.SignUpResponse;
 
+import java.net.UnknownHostException;
+
 public interface AuthenticationService {
 
     AuthenticationResponse login(AuthenticationRequest request);
@@ -18,5 +20,5 @@ public interface AuthenticationService {
 
     String forgotPassword(ForgotPasswordRequest request);
 
-    String activateAccount(String token);
+    String activateAccount(String token) throws UnknownHostException;
 }
