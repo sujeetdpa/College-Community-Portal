@@ -23,7 +23,6 @@ public class User {
 
     private String firstName;
 
-//    @Column(nullable = true)
     private String lastName;
 
     @Column(unique = true)
