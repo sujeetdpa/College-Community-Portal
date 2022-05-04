@@ -15,7 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.TimeZone;
 
 @SpringBootApplication
 @EnableJpaRepositories
@@ -32,6 +34,7 @@ public class CollegeCommunityPortalApplication {
 
 	@PostConstruct
 	public void initialData(){
+		TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Kolkata")));
 		try {
 			Role role = new Role();
 			role.setName("ROLE_ADMIN");
@@ -40,9 +43,10 @@ public class CollegeCommunityPortalApplication {
 			roleRepository.saveAll(Arrays.asList(role, role1));
 
 			User user = new User();
-			user.setFirstName("Admin");
-			user.setUsername("admin@mmmut.ac.in");
-			user.setUniversityId("admin");
+			user.setFirstName("CCP");
+			user.setUsername("ccpadmin@mmmut.ac.in");
+			user.setUniversityId("ccpadmin");
+			user.setLastName("Admin");
 			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
 			user.setRoles(Arrays.asList(role));
 			user.setEmail("hello@gmail.com");
