@@ -20,7 +20,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     private String firstName;
+
+//    @Column(nullable = true)
     private String lastName;
 
     @Column(unique = true)

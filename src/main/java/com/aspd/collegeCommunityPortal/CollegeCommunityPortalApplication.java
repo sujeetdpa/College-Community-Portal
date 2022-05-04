@@ -11,6 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -27,25 +30,31 @@ public class CollegeCommunityPortalApplication {
 		SpringApplication.run(CollegeCommunityPortalApplication.class, args);
 	}
 
+	@PostConstruct
 	public void initialData(){
-		Role role=new Role();role.setName("ROLE_ADMIN");
-		Role role1=new Role();role1.setName("ROLE_USER");
-		roleRepository.saveAll(Arrays.asList(role,role1));
+		try {
+			Role role = new Role();
+			role.setName("ROLE_ADMIN");
+			Role role1 = new Role();
+			role1.setName("ROLE_USER");
+			roleRepository.saveAll(Arrays.asList(role, role1));
 
-		User user=new User();
-		user.setFirstName("Helo");
-		user.setLastName("Fox");
-		user.setUsername("hello");
-		user.setPassword(new BCryptPasswordEncoder().encode("helo"));
-		user.setRoles(Arrays.asList(role));
-		user.setEmail("hello@gmail.com");
-		user.setGender(Gender.MALE);
-		user.setIsActive(true);
-		user.setIsNotLocked(true);
-		user.setUserCreationTimestamp(LocalDateTime.now());
-
-		System.out.println(userRepository.save(user));
-
-
+			User user = new User();
+			user.setFirstName("Admin");
+			user.setUsername("admin@mmmut.ac.in");
+			user.setUniversityId("admin");
+			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
+			user.setRoles(Arrays.asList(role));
+			user.setEmail("hello@gmail.com");
+			user.setGender(Gender.MALE);
+			user.setDob(LocalDate.of(2000, 01, 01));
+			user.setMobileNo("2334455778");
+			user.setIsActive(true);
+			user.setIsNotLocked(true);
+			user.setUserCreationTimestamp(LocalDateTime.now());
+			System.out.println(userRepository.save(user));
+		}catch (Exception e){
+			System.out.println("ERROR: Initial Data already present");
+		}
 	}
 }
