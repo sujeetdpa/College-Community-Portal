@@ -22,9 +22,9 @@ public interface PostService {
 
     CommentResponseViewList getPostComments(int postId, PostCommentFetchRequest request);
 
-    LikePostResponse likePost(int postId, int userId);
+    LikePostResponse likePost(int postId);
 
-    DislikePostResponse dislikePost(int postId, int userId);
+    DislikePostResponse dislikePost(int postId);
 
     List<DocumentResponse> uploadDocuments(List<MultipartFile> files);
 

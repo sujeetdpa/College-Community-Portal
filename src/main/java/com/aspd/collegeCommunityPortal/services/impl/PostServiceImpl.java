@@ -112,7 +112,7 @@ public class PostServiceImpl implements PostService {
             postResponseViewList.setMaxItems(postPage.getSize());
 
         } else {
-            throw new IllegalStateException("Posts not found");
+            throw new IllegalStateException("Nothing Posted Yet.");
         }
         return postResponseViewList;
     }
@@ -341,9 +341,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public LikePostResponse likePost(int postId, int userId) {
+    public LikePostResponse likePost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        Optional<User> optionalUser = userRepository.findById(userId);
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> optionalUser = Optional.of(principal.getUser());
         LikePostResponse response = null;
         if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");
@@ -395,9 +396,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public DislikePostResponse dislikePost(int postId, int userId) {
+    public DislikePostResponse dislikePost(int postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
-        Optional<User> optionalUser = userRepository.findById(userId);
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> optionalUser = Optional.of(principal.getUser());
         DislikePostResponse response = null;
         if (optionalPost.isEmpty() || optionalPost.get().getIsDeleted()) {
             throw new IllegalStateException("Post not Found");

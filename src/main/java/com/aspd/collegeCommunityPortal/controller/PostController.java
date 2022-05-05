@@ -74,15 +74,15 @@ public class PostController {
         return new ResponseEntity<>(responseView, HttpStatus.OK);
     }
 
-    @PostMapping("/{postId}/like/{userId}")
-    public ResponseEntity<LikePostResponse> likePost(@PathVariable("postId") int postId, @PathVariable("userId") int userId) {
-        LikePostResponse response = postService.likePost(postId, userId);
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<LikePostResponse> likePost(@PathVariable("postId") int postId) {
+        LikePostResponse response = postService.likePost(postId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{postId}/dislike/{userId}")
-    public ResponseEntity<DislikePostResponse> dislikePost(@PathVariable("postId") int postId, @PathVariable("userId") int userId) {
-        DislikePostResponse response = postService.dislikePost(postId, userId);
+    @PostMapping("/{postId}/dislike")
+    public ResponseEntity<DislikePostResponse> dislikePost(@PathVariable("postId") int postId) {
+        DislikePostResponse response = postService.dislikePost(postId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
