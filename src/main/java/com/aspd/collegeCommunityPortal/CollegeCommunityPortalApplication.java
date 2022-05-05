@@ -34,7 +34,6 @@ public class CollegeCommunityPortalApplication {
 
 	@PostConstruct
 	public void initialData(){
-		TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Kolkata")));
 		try {
 			Role role = new Role();
 			role.setName("ROLE_ADMIN");
